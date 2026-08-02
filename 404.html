@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Page introuvable · Renaissance</title>
+<style>
+  :root{--accent:#6366f1;--accent-2:#818cf8;--bg:#030307;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:#f1f5f9;}
+
+  /* Canvas particles */
+  #cv{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+  /* Aurora glow */
+  .aurora{position:fixed;z-index:0;pointer-events:none;}
+  .aurora-1{width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.14) 0%,transparent 70%);top:-100px;left:-100px;animation:auroraFloat 8s ease-in-out infinite alternate;}
+  .aurora-2{width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(129,140,248,.1) 0%,transparent 70%);bottom:-80px;right:-80px;animation:auroraFloat 10s ease-in-out infinite alternate-reverse;}
+  @keyframes auroraFloat{0%{transform:translate(0,0);}100%{transform:translate(40px,30px);}}
+
+  /* Main layout */
+  .wrap{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;gap:0;}
+
+  /* 404 glitch */
+  .n404{
+    position:relative;
+    font-size:clamp(100px,22vw,240px);
+    font-weight:900;
+    letter-spacing:-6px;
+    line-height:1;
+    color:#fff;
+    text-shadow:0 0 60px rgba(99,102,241,.35);
+    animation:n404Glow 3s ease-in-out infinite;
+    user-select:none;
+  }
+  .n404::before,.n404::after{
+    content:attr(data-text);
+    position:absolute;
+    inset:0;
+    font-size:inherit;
+    font-weight:inherit;
+    letter-spacing:inherit;
+  }
+  .n404::before{
+    color:rgba(99,102,241,.85);
+    animation:glitchA 5s infinite;
+  }
+  .n404::after{
+    color:rgba(196,181,253,.75);
+    animation:glitchB 5s infinite;
+  }
+  @keyframes n404Glow{0%,100%{text-shadow:0 0 60px rgba(99,102,241,.3);}50%{text-shadow:0 0 100px rgba(99,102,241,.6),0 0 180px rgba(99,102,241,.2);}}
+  @keyframes glitchA{
+    0%,85%,100%{opacity:0;transform:translate(0);}
+    86%{opacity:1;clip-path:inset(20% 0 60% 0);transform:translate(-4px,2px);}
+    87%{clip-path:inset(55% 0 15% 0);transform:translate(4px,-1px);}
+    88%{clip-path:inset(10% 0 75% 0);transform:translate(-2px,3px);}
+    89%{opacity:0;}
+    93%{opacity:1;clip-path:inset(35% 0 40% 0);transform:translate(3px,-2px);}
+    94%{opacity:0;}
+  }
+  @keyframes glitchB{
+    0%,85%,100%{opacity:0;transform:translate(0);}
+    86%{opacity:1;clip-path:inset(65% 0 5% 0);transform:translate(3px,-2px);}
+    87%{clip-path:inset(25% 0 55% 0);transform:translate(-3px,1px);}
+    88%{clip-path:inset(80% 0 2% 0);transform:translate(2px,-3px);}
+    89%{opacity:0;}
+    93%{opacity:1;clip-path:inset(5% 0 85% 0);transform:translate(-4px,2px);}
+    94%{opacity:0;}
+  }
+
+  /* Separator line */
+  .sep{width:80px;height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,.6),transparent);margin:24px auto;}
+
+  /* Title + sub */
+  .title{font-size:clamp(22px,4vw,36px);font-weight:800;letter-spacing:-.5px;margin-bottom:12px;animation:fadeUp .8s ease .1s both;}
+  .sub{font-size:15px;color:#94a3b8;line-height:1.7;max-width:400px;animation:fadeUp .8s ease .2s both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+  /* Back button — UIverse neon style */
+  .btn-back{
+    position:relative;
+    display:inline-flex;align-items:center;gap:10px;
+    margin-top:36px;
+    padding:15px 32px;
+    background:transparent;
+    border:1px solid rgba(99,102,241,.5);
+    border-radius:12px;
+    font-size:12.5px;letter-spacing:1.3px;font-weight:800;
+    color:#f1f5f9;text-decoration:none;
+    overflow:hidden;
+    transition:border-color .3s ease,color .3s ease;
+    animation:fadeUp .8s ease .35s both;
+    cursor:pointer;
+  }
+  .btn-back::before{
+    content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(99,102,241,.18),transparent);
+    transition:left .6s ease;
+  }
+  .btn-back:hover{border-color:rgba(99,102,241,.9);color:#c7d2fe;}
+  .btn-back:hover::before{left:100%;}
+  .btn-back .arr{transition:transform .3s ease;}
+  .btn-back:hover .arr{transform:translateX(-4px);}
+
+  /* Scanline overlay subtle */
+  .scanlines{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+  }
+
+  /* Signature */
+  .sig{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:1px;color:rgba(99,102,241,.3);z-index:5;white-space:nowrap;}
+
+  /* Grain */
+  body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.04;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+</style>
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+<div class="scanlines"></div>
+<div class="aurora aurora-1"></div>
+<div class="aurora aurora-2"></div>
+
+<div class="wrap">
+  <div class="n404" data-text="404">404</div>
+  <div class="sep"></div>
+  <h1 class="title">Page introuvable</h1>
+  <p class="sub">Cette page a disparu dans les limbes de l'obscurité.<br>Retourne à l'accueil et reprends le contrôle.</p>
+  <a href="index.html" class="btn-back">
+    <span class="arr">←</span>
+    RETOUR À L'ACCUEIL
+  </a>
+</div>
+
+<span class="sig">By Brice Jct · Alpha OS · Groupe Alpha Nex Strasbourg</span>
+
+<script>
+(function(){
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  let W, H, pts = [];
+
+  function resize(){
+    W = cv.width  = window.innerWidth;
+    H = cv.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function mkPt(){
+    return {
+      x: Math.random()*W,
+      y: H + 10,
+      vx:(Math.random()-.5)*.35,
+      vy:-(Math.random()*.7+.2),
+      a: Math.random()*.35+.05,
+      r: Math.random()*1.8+.4,
+      c: Math.random()>.5?'99,102,241':'129,140,248'
+    };
+  }
+
+  for(let i=0;i<50;i++){
+    const p = mkPt();
+    p.y = Math.random()*H; // scatter initial
+    pts.push(p);
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.a-=.0008;
+      if(p.y<-10||p.a<=0) Object.assign(p, mkPt());
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.c},${p.a})`;
+      ctx.fill();
+    });
+    // connections
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const d=Math.hypot(pts[i].x-pts[j].x,pts[i].y-pts[j].y);
+        if(d<90){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(99,102,241,${.05*(1-d/90)})`;
+          ctx.lineWidth=.5;
+          ctx.moveTo(pts[i].x,pts[i].y);
+          ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
