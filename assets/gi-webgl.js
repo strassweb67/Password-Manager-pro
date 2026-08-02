@@ -36,15 +36,16 @@ if (canvas && overlay) {
     const p1 = new THREE.PointLight(0x6ea0ff, 300, 120); p1.position.set(-12,-6,10); scene.add(p1);
     const p2 = new THREE.PointLight(0x9a6bff, 200, 120); p2.position.set(12,8,-6); scene.add(p2);
 
-    // Verre "iOS" : très clair, léger bleu, reflets nets (peu d'iridescence colorée)
+    // Verre "iOS" BLEU : volume teinté bleu + légère lueur, reflets nets
     const glass = new THREE.MeshPhysicalMaterial({
-      transmission:1, thickness:3.0, roughness:0.02, metalness:0, ior:1.5,
-      clearcoat:1, clearcoatRoughness:0.05,
-      iridescence:0.35, iridescenceIOR:1.25, iridescenceThicknessRange:[120,360],
-      attenuationColor:new THREE.Color(0x9fc4ff), attenuationDistance:10,
-      color:new THREE.Color(0xc4dcff),
-      specularIntensity:1, specularColor:new THREE.Color(0xffffff),
-      transparent:true, envMapIntensity:2.4
+      transmission:0.9, thickness:4.0, roughness:0.03, metalness:0, ior:1.5,
+      clearcoat:1, clearcoatRoughness:0.06,
+      iridescence:0.3, iridescenceIOR:1.25, iridescenceThicknessRange:[120,340],
+      attenuationColor:new THREE.Color(0x1f5cff), attenuationDistance:3.2,
+      color:new THREE.Color(0x5b9bff),
+      emissive:new THREE.Color(0x0b1f55), emissiveIntensity:0.35,
+      specularIntensity:1, specularColor:new THREE.Color(0xbfd8ff),
+      transparent:true, envMapIntensity:2.2
     });
 
     const grp = new THREE.Group(); scene.add(grp);
