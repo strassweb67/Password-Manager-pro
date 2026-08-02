@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yanis BGH — Formation Business & Entrepreneuriat</title>
+<meta name="description" content="Passe de l'idée aux résultats. Diagnostic gratuit, méthode pas-à-pas et accompagnement pour bâtir un business rentable avec Yanis BGH.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#04060d;
+  --bg-1:#070c18;
+  --navy-1:#0a142b;
+  --navy-2:#0e1d3f;
+  --navy-line:#182a52;
+  --accent:#4d8dff;
+  --accent-2:#38bdf8;
+  --accent-strong:#2f6fe0;
+  --text:#eaf1ff;
+  --text-dim:#9db0d0;
+  --text-faint:#6f83a8;
+  --card:rgba(14,29,63,.45);
+  --card-border:rgba(77,141,255,.14);
+  --shadow-lg:0 30px 70px -30px rgba(0,0,0,.85);
+  --shadow-md:0 18px 40px -22px rgba(0,0,0,.75);
+  --r-lg:20px;
+  --r-md:16px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --maxw:1200px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Onest',system-ui,sans-serif;
+  background:var(--bg-0);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.display{font-family:'Sora',sans-serif;letter-spacing:-.03em;line-height:1.05;font-weight:700}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+::selection{background:rgba(77,141,255,.35);color:#fff}
+
+/* ============ ANIMATED BACKDROP ============ */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aurora span{
+  position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;
+  will-change:transform;
+}
+.aurora .a1{width:52vw;height:52vw;left:-12vw;top:-14vw;background:radial-gradient(circle at 30% 30%,#1b3a7a,transparent 68%);animation:drift1 26s ease-in-out infinite}
+.aurora .a2{width:46vw;height:46vw;right:-14vw;top:8vh;background:radial-gradient(circle at 60% 40%,#12356e,transparent 66%);animation:drift2 32s ease-in-out infinite}
+.aurora .a3{width:60vw;height:60vw;left:20vw;bottom:-30vw;background:radial-gradient(circle at 50% 50%,#0d2450,transparent 70%);animation:drift3 38s ease-in-out infinite}
+@keyframes drift1{50%{transform:translate(8vw,6vh) scale(1.12)}}
+@keyframes drift2{50%{transform:translate(-6vw,10vh) scale(1.08)}}
+@keyframes drift3{50%{transform:translate(4vw,-6vh) scale(1.15)}}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.6;
+  background:radial-gradient(ellipse at 50% 0%,transparent 55%,rgba(2,4,10,.9) 100%);}
+
+/* Optional: drop your own business footage here (see comment in <body>) */
+.bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.14;mix-blend-mode:screen;pointer-events:none}
+
+/* ============ LAYOUT ============ */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;position:relative;z-index:2}
+section{position:relative;z-index:2}
+.eyebrow-free{position:relative}
+
+/* ============ PROGRESS BAR ============ */
+#progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--accent-2),var(--accent));box-shadow:0 0 12px rgba(77,141,255,.7)}
+
+/* ============ NAV ============ */
+header{position:fixed;top:0;left:0;right:0;z-index:50;transition:transform .5s var(--ease),background .4s,border-color .4s,backdrop-filter .4s;
+  border-bottom:1px solid transparent}
+header.scrolled{background:rgba(6,11,22,.72);backdrop-filter:blur(18px) saturate(140%);border-bottom-color:rgba(77,141,255,.12)}
+header.hide{transform:translateY(-100%)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:76px}
+.brand{display:flex;align-items:center;gap:11px;font-family:'Sora';font-weight:700;font-size:1.06rem;letter-spacing:-.02em}
+.brand .mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--accent),var(--accent-strong));color:#fff;font-weight:800;font-size:.9rem;
+  box-shadow:0 8px 20px -6px rgba(47,111,224,.6)}
+.nav-links{display:flex;align-items:center;gap:34px}
+.nav-links a{font-size:.92rem;color:var(--text-dim);font-weight:500;transition:color .25s;position:relative}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:-6px;height:1.5px;width:0;background:var(--accent);transition:width .3s var(--ease)}
+.nav-links a:hover{color:var(--text)}
+.nav-links a:hover::after{width:100%}
+.btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-family:'Sora';font-size:.92rem;
+  padding:12px 22px;border-radius:100px;cursor:pointer;border:0;transition:transform .3s var(--ease),box-shadow .3s,background .3s;white-space:nowrap}
+.btn svg{width:17px;height:17px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-strong));color:#fff;
+  box-shadow:0 14px 30px -12px rgba(47,111,224,.8),inset 0 1px 0 rgba(255,255,255,.22)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 20px 44px -12px rgba(47,111,224,.95),inset 0 1px 0 rgba(255,255,255,.25)}
+.btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid rgba(255,255,255,.12)}
+.btn-ghost:hover{background:rgba(255,255,255,.08);transform:translateY(-2px)}
+.nav-cta{display:flex;align-items:center;gap:14px}
+.burger{display:none;background:none;border:0;color:var(--text);cursor:pointer;padding:8px}
+.burger svg{width:26px;height:26px}
+
+/* mobile menu */
+.mobile-menu{position:fixed;inset:0;z-index:49;background:rgba(4,6,13,.96);backdrop-filter:blur(20px);
+  display:flex;flex-direction:column;justify-content:center;gap:8px;padding:32px;
+  opacity:0;pointer-events:none;transition:opacity .4s var(--ease)}
+.mobile-menu.open{opacity:1;pointer-events:auto}
+.mobile-menu a{font-family:'Sora';font-size:1.7rem;font-weight:600;padding:12px 0;color:var(--text);
+  border-bottom:1px solid rgba(77,141,255,.12);transition:color .2s,transform .3s var(--ease)}
+.mobile-menu a:hover{color:var(--accent);transform:translateX(10px)}
+
+/* ============ HERO ============ */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:130px 24px 90px;position:relative}
+.avatar-wrap{position:relative;width:132px;height:132px;margin:0 auto 26px;opacity:0;transform:translateY(24px);
+  animation:heroIn .9s var(--ease) .05s forwards}
+.avatar-ring{position:absolute;inset:-9px;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--accent),var(--accent-2),#7c5cff,var(--accent));
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));
+          mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px));
+  animation:spin 8s linear infinite;filter:drop-shadow(0 0 14px rgba(77,141,255,.5))}
+.avatar{position:absolute;inset:0;border-radius:50%;overflow:hidden;
+  background:radial-gradient(circle at 50% 35%,#16305f,#0a1730 70%);
+  display:grid;place-items:center;box-shadow:inset 0 2px 20px rgba(0,0,0,.5)}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.avatar .monogram{font-family:'Sora';font-weight:800;font-size:2.9rem;color:#dfe9ff;letter-spacing:-.04em;
+  text-shadow:0 4px 24px rgba(77,141,255,.5)}
+.avatar-badge{position:absolute;right:2px;bottom:6px;width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,#22c55e,#16a34a);border:3px solid var(--bg-0);display:grid;place-items:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.avatar-badge svg{width:15px;height:15px;color:#fff}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes heroIn{to{opacity:1;transform:none}}
+
+.hero-name{font-family:'Sora';font-weight:700;font-size:1.02rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent-2);margin-bottom:6px;opacity:0;animation:heroIn .9s var(--ease) .15s forwards}
+.hero-role{color:var(--text-dim);font-size:.95rem;margin-bottom:30px;opacity:0;animation:heroIn .9s var(--ease) .22s forwards}
+.hero h1{font-size:clamp(2.6rem,7vw,5.4rem);font-weight:800;max-width:16ch;margin:0 auto 24px;
+  opacity:0;animation:heroIn 1s var(--ease) .3s forwards}
+.hero h1 .em{color:var(--accent-2)}
+.hero-sub{font-size:clamp(1.05rem,2vw,1.28rem);color:var(--text-dim);max-width:56ch;margin:0 auto 40px;
+  opacity:0;animation:heroIn 1s var(--ease) .42s forwards}
+.hero-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;opacity:0;animation:heroIn 1s var(--ease) .54s forwards}
+.hero-cta .btn{padding:16px 30px;font-size:1rem}
+.trust{margin-top:46px;display:flex;gap:30px;justify-content:center;flex-wrap:wrap;
+  color:var(--text-faint);font-size:.85rem;opacity:0;animation:heroIn 1s var(--ease) .66s forwards}
+.trust span{display:flex;align-items:center;gap:8px}
+.trust svg{width:16px;height:16px;color:var(--accent)}
+.scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:var(--text-faint);
+  display:flex;flex-direction:column;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+  animation:heroIn 1s var(--ease) .9s forwards;opacity:0}
+.scroll-hint .mouse{width:24px;height:38px;border:1.5px solid rgba(157,176,208,.4);border-radius:12px;position:relative}
+.scroll-hint .mouse::after{content:"";position:absolute;left:50%;top:7px;transform:translateX(-50%);
+  width:3px;height:7px;border-radius:2px;background:var(--accent-2);animation:wheel 1.6s ease-in-out infinite}
+@keyframes wheel{0%{opacity:0;transform:translate(-50%,-2px)}40%{opacity:1}80%{opacity:0;transform:translate(-50%,9px)}}
+
+/* ============ SECTION SHELL ============ */
+.sec{padding:120px 0}
+.sec-head{max-width:640px;margin-bottom:56px}
+.sec-head.center{margin-left:auto;margin-right:auto;text-align:center}
+.sec-head h2{font-size:clamp(2rem,4.5vw,3.2rem);font-weight:700;margin-bottom:18px}
+.sec-head p{color:var(--text-dim);font-size:1.1rem}
+.tag{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:100px;
+  background:rgba(77,141,255,.1);border:1px solid rgba(77,141,255,.22);color:var(--accent-2);
+  font-size:.8rem;font-weight:600;font-family:'Sora';letter-spacing:.02em;margin-bottom:20px}
+.tag svg{width:15px;height:15px}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(34px);filter:blur(6px);transition:opacity .9s var(--ease),transform .9s var(--ease),filter .9s var(--ease)}
+.reveal.in{opacity:1;transform:none;filter:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}
+
+/* ============ DIAGNOSTIC (first) ============ */
+#diagnostic{padding-top:40px}
+.diag-shell{background:linear-gradient(160deg,rgba(16,33,72,.7),rgba(8,14,28,.7));
+  border:1px solid var(--card-border);border-radius:26px;padding:48px;box-shadow:var(--shadow-lg);
+  position:relative;overflow:hidden}
+.diag-shell::before{content:"";position:absolute;inset:0;border-radius:26px;padding:1px;
+  background:linear-gradient(160deg,rgba(77,141,255,.5),transparent 40%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.diag-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:48px;align-items:center}
+.diag-intro h2{font-size:clamp(1.9rem,4vw,2.7rem);margin-bottom:16px}
+.diag-intro p{color:var(--text-dim);margin-bottom:24px}
+.diag-intro .bullets{list-style:none;display:flex;flex-direction:column;gap:12px}
+.diag-intro .bullets li{display:flex;gap:11px;align-items:flex-start;font-size:.96rem;color:var(--text-dim)}
+.diag-intro .bullets svg{width:19px;height:19px;color:var(--accent-2);flex-shrink:0;margin-top:2px}
+
+.diag-card{background:rgba(4,7,15,.55);border:1px solid rgba(77,141,255,.16);border-radius:var(--r-lg);
+  padding:32px;min-height:340px;display:flex;flex-direction:column}
+.diag-progress{display:flex;gap:7px;margin-bottom:26px}
+.diag-progress .dot{height:4px;flex:1;border-radius:4px;background:rgba(157,176,208,.16);overflow:hidden}
+.diag-progress .dot i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent-2),var(--accent));transition:width .5s var(--ease)}
+.diag-progress .dot.done i{width:100%}
+.diag-progress .dot.active i{width:100%}
+.diag-step{flex:1;display:none;flex-direction:column;animation:stepIn .5s var(--ease)}
+.diag-step.active{display:flex}
+@keyframes stepIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.diag-q{font-family:'Sora';font-weight:600;font-size:1.28rem;margin-bottom:6px}
+.diag-hint{color:var(--text-faint);font-size:.85rem;margin-bottom:22px}
+.diag-opts{display:flex;flex-direction:column;gap:11px;margin-top:auto}
+.opt{display:flex;align-items:center;gap:14px;padding:15px 18px;border-radius:13px;cursor:pointer;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);transition:all .25s var(--ease);text-align:left}
+.opt:hover{border-color:var(--accent);background:rgba(77,141,255,.09);transform:translateX(4px)}
+.opt .ic{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:grid;place-items:center;
+  background:rgba(77,141,255,.12);color:var(--accent-2)}
+.opt .ic svg{width:19px;height:19px}
+.opt .lbl{font-weight:600;font-family:'Sora';font-size:.98rem}
+.opt .desc{font-size:.8rem;color:var(--text-faint)}
+.opt .arw{margin-left:auto;color:var(--text-faint);transition:transform .25s,color .25s}
+.opt:hover .arw{transform:translateX(3px);color:var(--accent-2)}
+.diag-back{background:none;border:0;color:var(--text-faint);font-size:.85rem;cursor:pointer;
+  margin-top:18px;display:inline-flex;align-items:center;gap:6px;align-self:flex-start;transition:color .2s}
+.diag-back:hover{color:var(--text)}
+.diag-back svg{width:15px;height:15px}
+
+/* result */
+.diag-result{display:none;flex-direction:column;text-align:center;animation:stepIn .6s var(--ease)}
+.diag-result.active{display:flex}
+.diag-result .rc-ic{width:66px;height:66px;border-radius:18px;margin:0 auto 18px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--accent),var(--accent-strong));box-shadow:0 16px 34px -12px rgba(47,111,224,.8)}
+.diag-result .rc-ic svg{width:32px;height:32px;color:#fff}
+.diag-result .rc-kicker{color:var(--accent-2);font-size:.82rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-family:'Sora';margin-bottom:8px}
+.diag-result h3{font-size:1.7rem;margin-bottom:10px}
+.diag-result p{color:var(--text-dim);margin-bottom:22px;max-width:44ch;margin-left:auto;margin-right:auto}
+.diag-form{display:flex;gap:10px;max-width:420px;margin:0 auto;width:100%}
+.diag-form input{flex:1;background:rgba(4,7,15,.7);border:1px solid rgba(77,141,255,.24);border-radius:100px;
+  padding:14px 20px;color:var(--text);font-family:'Onest';font-size:.95rem;outline:none;transition:border-color .25s}
+.diag-form input:focus{border-color:var(--accent)}
+.diag-form input::placeholder{color:var(--text-faint)}
+.diag-note{font-size:.78rem;color:var(--text-faint);margin-top:14px}
+
+/* ============ CONTRAST (before/after) ============ */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.split-card{border-radius:var(--r-lg);padding:34px;border:1px solid var(--card-border);position:relative;overflow:hidden}
+.split-card.before{background:rgba(20,16,26,.5)}
+.split-card.after{background:linear-gradient(160deg,rgba(16,33,72,.6),rgba(8,14,28,.5));border-color:rgba(77,141,255,.3)}
+.split-card h3{font-size:1.3rem;margin-bottom:20px;display:flex;align-items:center;gap:11px}
+.split-card h3 .badge{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;flex-shrink:0}
+.split-card.before .badge{background:rgba(255,90,120,.14);color:#ff7a92}
+.split-card.after .badge{background:rgba(52,211,153,.16);color:#34d399}
+.split-card ul{list-style:none;display:flex;flex-direction:column;gap:15px}
+.split-card li{display:flex;gap:12px;align-items:flex-start;color:var(--text-dim);font-size:.97rem}
+.split-card li svg{width:18px;height:18px;flex-shrink:0;margin-top:3px}
+.split-card.before li svg{color:#ff7a92}
+.split-card.after li svg{color:#34d399}
+
+/* ============ METHOD (timeline) ============ */
+.timeline{position:relative;margin-top:20px;padding-left:0}
+.tl-line{position:absolute;left:31px;top:12px;bottom:12px;width:2px;
+  background:linear-gradient(var(--accent),rgba(77,141,255,.05));}
+.tl-item{position:relative;padding:0 0 44px 88px;min-height:64px}
+.tl-item:last-child{padding-bottom:0}
+.tl-num{position:absolute;left:0;top:0;width:64px;height:64px;border-radius:18px;display:grid;place-items:center;
+  background:linear-gradient(160deg,rgba(16,33,72,.9),rgba(8,14,28,.9));border:1px solid rgba(77,141,255,.28);
+  font-family:'Sora';font-weight:700;font-size:1.4rem;color:var(--accent-2);box-shadow:var(--shadow-md);z-index:2}
+.tl-item h3{font-size:1.35rem;margin-bottom:8px}
+.tl-item p{color:var(--text-dim);max-width:60ch}
+.tl-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tl-tags span{font-size:.78rem;padding:5px 12px;border-radius:100px;background:rgba(77,141,255,.08);
+  border:1px solid rgba(77,141,255,.16);color:var(--text-dim)}
+
+/* ============ PROGRAMME (feature list) ============ */
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feat-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--r-md);padding:30px;
+  transition:transform .4s var(--ease),border-color .4s,background .4s;position:relative;overflow:hidden}
+.feat-card:hover{transform:translateY(-6px);border-color:rgba(77,141,255,.4);background:rgba(16,33,72,.6)}
+.feat-card .fic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin-bottom:20px;
+  background:linear-gradient(160deg,rgba(77,141,255,.18),rgba(77,141,255,.04));border:1px solid rgba(77,141,255,.2);color:var(--accent-2)}
+.feat-card .fic svg{width:24px;height:24px}
+.feat-card h3{font-size:1.18rem;margin-bottom:10px}
+.feat-card p{color:var(--text-dim);font-size:.95rem}
+.feat-card .glow{position:absolute;top:-40%;right:-30%;width:60%;height:80%;border-radius:50%;
+  background:radial-gradient(circle,rgba(77,141,255,.16),transparent 70%);opacity:0;transition:opacity .4s}
+.feat-card:hover .glow{opacity:1}
+
+/* ============ STATS ============ */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;
+  background:linear-gradient(160deg,rgba(16,33,72,.5),rgba(8,14,28,.4));
+  border:1px solid var(--card-border);border-radius:24px;padding:46px 34px;box-shadow:var(--shadow-lg)}
+.stat{text-align:center}
+.stat .num{font-family:'Sora';font-weight:800;font-size:clamp(2.2rem,4vw,3rem);
+  color:#eef4ff;line-height:1;text-shadow:0 2px 24px rgba(77,141,255,.35)}
+.stat .lbl{color:var(--text-dim);font-size:.9rem;margin-top:10px}
+
+/* ============ TESTIMONIALS ============ */
+.testi{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tcard{background:var(--card);border:1px solid var(--card-border);border-radius:var(--r-md);padding:28px;
+  display:flex;flex-direction:column;gap:18px}
+.tcard .quote{color:var(--accent);opacity:.5}
+.tcard .quote svg{width:30px;height:30px}
+.tcard p{color:var(--text);font-size:1rem;flex:1}
+.tcard .who{display:flex;align-items:center;gap:13px}
+.tcard .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#1b3a7a,#0a1730);
+  display:grid;place-items:center;font-family:'Sora';font-weight:700;color:#cfe0ff;font-size:.95rem}
+.tcard .who .n{font-weight:600;font-family:'Sora';font-size:.95rem}
+.tcard .who .r{color:var(--text-faint);font-size:.8rem}
+.stars{display:flex;gap:3px}
+.stars svg{width:15px;height:15px;color:#ffc93c}
+
+/* ============ PRICING ============ */
+.pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch}
+.plan{background:var(--card);border:1px solid var(--card-border);border-radius:var(--r-lg);padding:36px 30px;
+  display:flex;flex-direction:column;position:relative;transition:transform .4s var(--ease),border-color .4s}
+.plan:hover{transform:translateY(-6px)}
+.plan.free{border-color:rgba(52,211,153,.3)}
+.plan.featured{background:linear-gradient(170deg,rgba(20,40,86,.8),rgba(8,14,28,.7));border-color:var(--accent);
+  box-shadow:var(--shadow-lg);transform:scale(1.02)}
+.plan.featured:hover{transform:scale(1.02) translateY(-6px)}
+.plan .ribbon{position:absolute;top:20px;right:20px;font-size:.72rem;font-weight:600;font-family:'Sora';
+  padding:5px 12px;border-radius:100px;background:linear-gradient(135deg,var(--accent),var(--accent-strong));color:#fff}
+.plan .pname{font-family:'Sora';font-weight:600;font-size:1.15rem;margin-bottom:6px}
+.plan .pdesc{color:var(--text-faint);font-size:.88rem;margin-bottom:22px;min-height:40px}
+.plan .price{display:flex;align-items:baseline;gap:6px;margin-bottom:26px}
+.plan .price .amt{font-family:'Sora';font-weight:800;font-size:2.6rem;letter-spacing:-.03em}
+.plan .price .per{color:var(--text-faint);font-size:.9rem}
+.plan ul{list-style:none;display:flex;flex-direction:column;gap:13px;margin-bottom:28px;flex:1}
+.plan li{display:flex;gap:11px;align-items:flex-start;font-size:.93rem;color:var(--text-dim)}
+.plan li svg{width:18px;height:18px;color:var(--accent-2);flex-shrink:0;margin-top:2px}
+.plan .btn{width:100%;justify-content:center}
+.plan.free .btn{background:rgba(52,211,153,.14);color:#5eead4;border:1px solid rgba(52,211,153,.3)}
+.plan.free .btn:hover{background:rgba(52,211,153,.2)}
+
+/* ============ FAQ ============ */
+.faq{max-width:800px;margin:0 auto}
+.faq-item{border-bottom:1px solid rgba(77,141,255,.14)}
+.faq-q{width:100%;background:none;border:0;color:var(--text);cursor:pointer;text-align:left;
+  padding:24px 0;display:flex;align-items:center;justify-content:space-between;gap:20px;
+  font-family:'Sora';font-weight:600;font-size:1.1rem}
+.faq-q .pm{width:34px;height:34px;border-radius:50%;border:1px solid rgba(77,141,255,.25);flex-shrink:0;
+  display:grid;place-items:center;transition:transform .35s var(--ease),background .3s}
+.faq-q .pm svg{width:17px;height:17px;color:var(--accent-2);transition:transform .35s var(--ease)}
+.faq-item.open .pm{background:var(--accent);border-color:var(--accent)}
+.faq-item.open .pm svg{color:#fff;transform:rotate(45deg)}
+.faq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--ease)}
+.faq-item.open .faq-a{grid-template-rows:1fr}
+.faq-a p{color:var(--text-dim);padding:0;max-width:66ch;overflow:hidden;min-height:0;
+  opacity:0;transition:opacity .35s var(--ease) .05s}
+.faq-item.open .faq-a p{padding:0 0 24px;opacity:1}
+
+/* ============ FINAL CTA ============ */
+.final{text-align:center;padding:110px 40px;border-radius:32px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,rgba(20,40,86,.75),rgba(8,14,28,.6));border:1px solid rgba(77,141,255,.28);
+  box-shadow:var(--shadow-lg)}
+.final::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(circle at 20% 20%,rgba(77,141,255,.22),transparent 45%),
+  radial-gradient(circle at 80% 80%,rgba(56,189,248,.16),transparent 45%);pointer-events:none}
+.final h2{font-size:clamp(2.2rem,5vw,3.6rem);margin-bottom:18px;position:relative}
+.final p{color:var(--text-dim);font-size:1.15rem;max-width:52ch;margin:0 auto 34px;position:relative}
+.final .btn{position:relative;padding:17px 34px;font-size:1.05rem}
+
+/* ============ FOOTER ============ */
+footer{border-top:1px solid rgba(77,141,255,.1);margin-top:120px;padding:56px 0 40px}
+.foot{display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap}
+.foot .brand{margin-bottom:14px}
+.foot-col p{color:var(--text-faint);font-size:.9rem;max-width:34ch}
+.foot-links{display:flex;gap:60px;flex-wrap:wrap}
+.foot-links h4{font-family:'Sora';font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-faint);margin-bottom:16px}
+.foot-links a{display:block;color:var(--text-dim);font-size:.92rem;margin-bottom:11px;transition:color .2s}
+.foot-links a:hover{color:var(--accent-2)}
+.foot-bottom{margin-top:44px;padding-top:24px;border-top:1px solid rgba(77,141,255,.08);
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--text-faint);font-size:.85rem}
+.socials{display:flex;gap:12px}
+.socials a{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--text-dim);transition:all .25s}
+.socials a:hover{color:var(--accent-2);border-color:var(--accent);transform:translateY(-2px)}
+.socials svg{width:18px;height:18px}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:960px){
+  .diag-grid{grid-template-columns:1fr;gap:32px}
+  .feat,.testi,.pricing{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr);gap:34px 22px}
+  .plan.featured{transform:none}
+  .plan.featured:hover{transform:translateY(-6px)}
+}
+@media(max-width:760px){
+  .nav-links{display:none}
+  .nav-cta .btn-desktop{display:none}
+  .burger{display:block}
+  .split{grid-template-columns:1fr}
+  .sec{padding:84px 0}
+  .diag-shell{padding:30px 22px}
+  .diag-card{padding:24px}
+  .final{padding:70px 24px}
+  .foot{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .reveal{opacity:1;transform:none;filter:none}
+  .aurora span,.avatar-ring{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ ANIMATED BACKDROP ============
+     To use your OWN business video instead of the animated canvas,
+     uncomment the <video> below and set your file URL:
+<video class="bg-video" autoplay muted loop playsinline>
+  <source src="assets/ton-business.mp4" type="video/mp4">
+</video>
+-->
+<div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+<canvas id="bg-canvas"></canvas>
+<div class="grain"></div>
+<div id="progress"></div>
+
+<!-- ============ NAV ============ -->
+<header id="header">
+  <div class="wrap nav">
+    <a href="#top" class="brand"><span class="mark">YB</span> Yanis&nbsp;BGH</a>
+    <nav class="nav-links">
+      <a href="#diagnostic">Diagnostic</a>
+      <a href="#methode">Méthode</a>
+      <a href="#programme">Programme</a>
+      <a href="#resultats">Résultats</a>
+      <a href="#offres">Offres</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#diagnostic" class="btn btn-primary btn-desktop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M11 8v3l2 1"/></svg>
+        Diagnostic gratuit
+      </a>
+      <button class="burger" id="burger" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#diagnostic">Diagnostic</a>
+  <a href="#methode">Méthode</a>
+  <a href="#programme">Programme</a>
+  <a href="#resultats">Résultats</a>
+  <a href="#offres">Offres</a>
+  <a href="#faq">FAQ</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="avatar-wrap">
+    <div class="avatar-ring"></div>
+    <div class="avatar">
+      <!-- Remplace le monogramme par ta photo :
+           <img src="assets/yanis.jpg" alt="Yanis BGH"> -->
+      <span class="monogram">YB</span>
+    </div>
+    <span class="avatar-badge" title="Disponible">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </span>
+  </div>
+  <div class="hero-name">Yanis BGH</div>
+  <div class="hero-role">Fondateur &amp; mentor · Business &amp; Entrepreneuriat</div>
+  <h1>De l'idée aux <span class="em">premiers résultats</span>, sans t'éparpiller.</h1>
+  <p class="hero-sub">J'accompagne celles et ceux qui veulent lancer ou faire décoller un business rentable — avec une méthode claire, des actions concrètes et un cap tenu semaine après semaine.</p>
+  <div class="hero-cta">
+    <a href="#diagnostic" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M11 7.5v3.5l2.5 1.5"/></svg>
+      Faire mon diagnostic gratuit
+    </a>
+    <a href="#methode" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m8 5 11 7-11 7z"/></svg>
+      Découvrir la méthode
+    </a>
+  </div>
+  <div class="trust">
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Diagnostic 100% gratuit</span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Résultat immédiat</span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sans engagement</span>
+  </div>
+  <div class="scroll-hint"><div class="mouse"></div>Diagnostic</div>
+</section>
+
+<!-- ============ DIAGNOSTIC (proposé en premier) ============ -->
+<section class="sec" id="diagnostic">
+  <div class="wrap">
+    <div class="diag-shell reveal">
+      <div class="diag-grid">
+        <div class="diag-intro">
+          <span class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M11 8v3l2 1"/></svg> Commence ici</span>
+          <h2>Ton diagnostic business en 60 secondes.</h2>
+          <p>Réponds à 3 questions. Je t'indique où tu en es, ton plus gros levier de croissance, et le parcours le plus adapté à ta situation.</p>
+          <ul class="bullets">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Une recommandation personnalisée, pas un discours générique.</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Le levier n°1 à activer maintenant selon ton profil.</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Aucun paiement, aucun engagement.</li>
+          </ul>
+        </div>
+
+        <div class="diag-card" id="diagCard">
+          <div class="diag-progress" id="diagProg">
+            <div class="dot"><i></i></div>
+            <div class="dot"><i></i></div>
+            <div class="dot"><i></i></div>
+          </div>
+
+          <!-- Step 1 -->
+          <div class="diag-step active" data-step="0">
+            <div class="diag-q">Où en es-tu aujourd'hui&nbsp;?</div>
+            <div class="diag-hint">Choisis ce qui te ressemble le plus.</div>
+            <div class="diag-opts">
+              <button class="opt" data-v="zero">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span>
+                <span><span class="lbl">Je pars de zéro</span><br><span class="desc">Pas encore d'activité, juste l'envie</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+              <button class="opt" data-v="idea">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg></span>
+                <span><span class="lbl">J'ai une idée</span><br><span class="desc">Je veux la valider et la lancer</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+              <button class="opt" data-v="running">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 3-3 3 3 4-5"/></svg></span>
+                <span><span class="lbl">J'ai déjà une activité</span><br><span class="desc">Mais ça stagne ou c'est irrégulier</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+              <button class="opt" data-v="scale">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg></span>
+                <span><span class="lbl">Je veux scaler</span><br><span class="desc">Structurer, automatiser, déléguer</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="diag-step" data-step="1">
+            <div class="diag-q">Ton objectif des 90 prochains jours&nbsp;?</div>
+            <div class="diag-hint">Un seul, le plus important.</div>
+            <div class="diag-opts">
+              <button class="opt" data-v="launch">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5 3 21l4.5-1.5M12 15l-3-3c1-4 4-8 9-9 1 5-3 8-6 12ZM14.5 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg></span>
+                <span><span class="lbl">Lancer mon business</span><br><span class="desc">Poser des fondations saines</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+              <button class="opt" data-v="clients">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                <span><span class="lbl">Signer mes premiers clients</span><br><span class="desc">Une offre qui se vend</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+              <button class="opt" data-v="revenue">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+                <span><span class="lbl">Passer un cap de revenus</span><br><span class="desc">Viser +10k€/mois régulier</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+              <button class="opt" data-v="systemize">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l2.5 2.5M16.5 16.5 19 19M19 5l-2.5 2.5M7.5 16.5 5 19"/></svg></span>
+                <span><span class="lbl">Automatiser &amp; déléguer</span><br><span class="desc">Sortir la tête du guidon</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+            </div>
+            <button class="diag-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Retour</button>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="diag-step" data-step="2">
+            <div class="diag-q">Ton frein n°1 en ce moment&nbsp;?</div>
+            <div class="diag-hint">Ce qui te bloque vraiment.</div>
+            <div class="diag-opts">
+              <button class="opt" data-v="time">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+                <span><span class="lbl">Le manque de temps</span><br><span class="desc">Trop de choses, pas de priorité</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+              <button class="opt" data-v="strategy">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></span>
+                <span><span class="lbl">Le manque de stratégie</span><br><span class="desc">Je fais, mais dans le désordre</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+              <button class="opt" data-v="visibility">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                <span><span class="lbl">Le manque de visibilité</span><br><span class="desc">Personne ne me connaît encore</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+              <button class="opt" data-v="mindset">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3a4 4 0 0 0-4 4v1a3 3 0 0 0-1 5.8V17a3 3 0 0 0 5 2.2A3 3 0 0 0 12 21V4a3 3 0 0 0-3-1ZM15 3a4 4 0 0 1 4 4v1a3 3 0 0 1 1 5.8V17a3 3 0 0 1-5 2.2"/></svg></span>
+                <span><span class="lbl">Le mental / la peur</span><br><span class="desc">Peur d'échouer, procrastination</span></span>
+                <span class="arw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+              </button>
+            </div>
+            <button class="diag-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Retour</button>
+          </div>
+
+          <!-- Result -->
+          <div class="diag-result" id="diagResult">
+            <div class="rc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <div class="rc-kicker">Ton diagnostic</div>
+            <h3 id="resTitle">Parcours recommandé</h3>
+            <p id="resText">—</p>
+            <form class="diag-form" id="diagForm" onsubmit="return false;">
+              <input type="email" id="diagEmail" placeholder="Ton adresse e-mail" required>
+              <button class="btn btn-primary" type="submit">Recevoir mon plan</button>
+            </form>
+            <p class="diag-note" id="diagNote">Je t'envoie ton plan d'action personnalisé + un créneau pour en parler. Zéro spam.</p>
+            <button class="diag-back" id="restart" style="margin:18px auto 0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5"/></svg> Recommencer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTRAST ============ -->
+<section class="sec" id="pourquoi">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <h2>Le problème n'est pas ta motivation.<br>C'est l'absence de méthode.</h2>
+      <p>La plupart des porteurs de projet travaillent dur… sur les mauvaises choses. On remet de l'ordre.</p>
+    </div>
+    <div class="split">
+      <div class="split-card before reveal">
+        <h3><span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span> Aujourd'hui</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Tu accumules les formations sans passer à l'action.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Tu changes d'idée toutes les deux semaines.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Tu travailles beaucoup, les revenus ne suivent pas.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Personne pour te dire quoi prioriser vraiment.</li>
+        </ul>
+      </div>
+      <div class="split-card after reveal d1">
+        <h3><span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Avec la méthode</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Un cap unique et des actions qui comptent chaque semaine.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Une offre claire que tes clients comprennent en 10 secondes.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Un système d'acquisition qui tourne, pas au hasard.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Un accompagnement qui te tient responsable.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METHOD ============ -->
+<section class="sec" id="methode">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> La méthode</span>
+      <h2>Quatre étapes pour transformer l'effort en résultats.</h2>
+      <p>Un chemin linéaire et testé — on avance dans l'ordre, sans brûler d'étape.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl-line"></div>
+      <div class="tl-item reveal">
+        <div class="tl-num">1</div>
+        <h3>Cadrer</h3>
+        <p>On clarifie ta cible, ton offre et ton objectif chiffré. Fini le flou : tu sais exactement à qui tu parles et ce que tu vends.</p>
+        <div class="tl-tags"><span>Positionnement</span><span>Offre irrésistible</span><span>Objectif 90 jours</span></div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-num">2</div>
+        <h3>Attirer</h3>
+        <p>On construit un système simple pour générer de l'attention et des prospects qualifiés — contenu, réseau, prospection ciblée.</p>
+        <div class="tl-tags"><span>Contenu</span><span>Acquisition</span><span>Personal branding</span></div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-num">3</div>
+        <h3>Convertir</h3>
+        <p>On transforme l'intérêt en ventes : structure d'appel, argumentaire, gestion des objections et closing sans forcer.</p>
+        <div class="tl-tags"><span>Vente</span><span>Closing</span><span>Tunnel</span></div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-num">4</div>
+        <h3>Scaler</h3>
+        <p>On automatise ce qui se répète et on délègue ce qui te freine, pour faire grandir le chiffre sans exploser ta charge mentale.</p>
+        <div class="tl-tags"><span>Systèmes</span><span>Délégation</span><span>Récurrence</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROGRAMME ============ -->
+<section class="sec" id="programme">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <h2>Ce que tu obtiens à l'intérieur.</h2>
+      <p>Tout est pensé pour l'action : pas de théorie inutile, uniquement ce qui bouge l'aiguille.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-card reveal"><span class="glow"></span>
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+        <h3>Formations pas-à-pas</h3>
+        <p>Des modules vidéo courts et concrets, à consommer à ton rythme, avec un plan d'action à la fin de chaque leçon.</p>
+      </div>
+      <div class="feat-card reveal d1"><span class="glow"></span>
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
+        <h3>Lives &amp; coaching</h3>
+        <p>Des sessions en direct pour poser tes questions, débloquer tes situations et garder le rythme chaque semaine.</p>
+      </div>
+      <div class="feat-card reveal d2"><span class="glow"></span>
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-6 0v4M5 9h14l1 12H4z"/></svg></div>
+        <h3>Templates &amp; scripts</h3>
+        <p>Offres, e-mails, argumentaires de vente, plans de contenu : tu copies, tu adaptes, tu gagnes des semaines.</p>
+      </div>
+      <div class="feat-card reveal"><span class="glow"></span>
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Communauté engagée</h3>
+        <p>Un groupe d'entrepreneurs qui avancent avec toi : entraide, feedback et partenariats.</p>
+      </div>
+      <div class="feat-card reveal d1"><span class="glow"></span>
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 3-3 3 3 4-5"/></svg></div>
+        <h3>Suivi &amp; objectifs</h3>
+        <p>Un tableau de bord de tes actions et de tes résultats, pour rester aligné sur ton objectif à 90 jours.</p>
+      </div>
+      <div class="feat-card reveal d2"><span class="glow"></span>
+        <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Accès à vie</h3>
+        <p>Toutes les mises à jour incluses. Le programme évolue, ton accès reste — sans surcoût.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section class="sec" id="resultats">
+  <div class="wrap">
+    <div class="stats reveal">
+      <div class="stat"><div class="num" data-count="1200" data-suffix="+">0</div><div class="lbl">Entrepreneurs accompagnés</div></div>
+      <div class="stat"><div class="num" data-count="92" data-suffix="%">0</div><div class="lbl">Passent à l'action en 30 jours</div></div>
+      <div class="stat"><div class="num" data-count="4.9" data-decimals="1" data-suffix="/5">0</div><div class="lbl">Note moyenne des membres</div></div>
+      <div class="stat"><div class="num" data-count="90" data-suffix="j">0</div><div class="lbl">Pour un premier résultat</div></div>
+    </div>
+
+    <div class="sec-head center reveal" style="margin-top:80px">
+      <h2>Ils sont passés à l'action.</h2>
+      <p>Des parcours réels, des déclics concrets.</p>
+    </div>
+    <!-- ⚠️ Remplace ces témoignages par les vrais retours de tes membres (nom + photo). -->
+    <div class="testi">
+      <div class="tcard reveal">
+        <span class="quote"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
+        <p>« En 6 semaines j'ai enfin lancé mon offre et signé mes 3 premiers clients. J'avais juste besoin d'un cap clair. »</p>
+        <div class="stars"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg></div>
+        <div class="who"><span class="av">SL</span><span><span class="n">Sarah L.</span><br><span class="r">Consultante indépendante</span></span></div>
+      </div>
+      <div class="tcard reveal d1">
+        <span class="quote"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
+        <p>« J'étais bloqué à 3k€/mois depuis un an. La partie acquisition a tout changé — je viens de dépasser 11k€. »</p>
+        <div class="stars"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg></div>
+        <div class="who"><span class="av">KM</span><span><span class="n">Karim M.</span><br><span class="r">Freelance webdesign</span></span></div>
+      </div>
+      <div class="tcard reveal d2">
+        <span class="quote"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
+        <p>« La méthode est carrée et Yanis pousse vraiment à agir. J'ai arrêté de procrastiner et structuré tout mon business. »</p>
+        <div class="stars"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .6-5.3 4.6L18.5 21 12 17.3 5.5 21l1.8-7.3L2 9.1l7-.6z"/></svg></div>
+        <div class="who"><span class="av">EF</span><span><span class="n">Élodie F.</span><br><span class="r">E-commerce</span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="sec" id="offres">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <h2>Choisis ton point de départ.</h2>
+      <p>Commence gratuitement par le diagnostic. Tu montes en puissance quand tu es prêt.</p>
+    </div>
+    <div class="pricing">
+      <div class="plan free reveal">
+        <div class="pname">Diagnostic</div>
+        <div class="pdesc">Le point de départ, offert. Fais le point sur ta situation.</div>
+        <div class="price"><span class="amt">0€</span><span class="per">/ gratuit</span></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Diagnostic personnalisé en 60s</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Ton levier n°1 identifié</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Un plan d'action par e-mail</li>
+        </ul>
+        <a href="#diagnostic" class="btn">Faire mon diagnostic</a>
+      </div>
+      <div class="plan featured reveal d1">
+        <span class="ribbon">Le plus choisi</span>
+        <div class="pname">Programme Accélérateur</div>
+        <div class="pdesc">La méthode complète + les lives pour passer à l'action.</div>
+        <div class="price"><span class="amt">497€</span><span class="per">/ accès à vie</span></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Tous les modules pas-à-pas</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Lives &amp; coaching de groupe</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Templates, scripts &amp; communauté</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Accès à vie + mises à jour</li>
+        </ul>
+        <a href="#diagnostic" class="btn btn-primary">Rejoindre le programme</a>
+      </div>
+      <div class="plan reveal d2">
+        <div class="pname">Accompagnement 1:1</div>
+        <div class="pdesc">Un suivi rapproché avec Yanis pour aller vite et loin.</div>
+        <div class="price"><span class="amt">Sur devis</span></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Tout le programme Accélérateur</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sessions individuelles avec Yanis</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Plan sur-mesure &amp; accès prioritaire</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Places très limitées</li>
+        </ul>
+        <a href="#diagnostic" class="btn btn-ghost">Candidater</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="sec" id="faq">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <h2>Les questions fréquentes.</h2>
+    </div>
+    <div class="faq reveal">
+      <div class="faq-item">
+        <button class="faq-q">Je débute totalement, est-ce fait pour moi ?<span class="pm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><p>Oui. Le parcours commence par les fondations : cible, offre, objectif. On avance dans l'ordre, donc tu n'as jamais l'impression d'être largué. Le diagnostic te dit exactement par où démarrer.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Combien de temps par semaine faut-il y consacrer ?<span class="pm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><p>Compte 3 à 5 heures par semaine pour voir des résultats concrets. Tout est découpé en actions courtes, faisables même avec un emploi à côté.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Le diagnostic est-il vraiment gratuit ?<span class="pm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><p>100% gratuit et sans engagement. Tu réponds à 3 questions, tu reçois ta recommandation et ton plan d'action. Tu décides ensuite si tu veux aller plus loin.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Et si ça ne fonctionne pas pour moi ?<span class="pm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><p>La méthode a été rodée sur des centaines de parcours. Si tu appliques et que tu n'obtiens pas de résultat, on ajuste ensemble lors des lives. L'accompagnement est là pour ça.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Quel type de business est concerné ?<span class="pm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        <div class="faq-a"><p>Prestations de service, freelancing, coaching, e-commerce, infoproduits… La méthode s'applique dès que tu as une offre à vendre. Le diagnostic adapte les recommandations à ton cas.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="sec" style="padding-bottom:0">
+  <div class="wrap">
+    <div class="final reveal">
+      <h2>Ton prochain palier commence par une décision.</h2>
+      <p>Fais ton diagnostic maintenant. Dans 60 secondes, tu sauras exactement quoi faire ensuite.</p>
+      <a href="#diagnostic" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M11 7.5v3.5l2.5 1.5"/></svg>
+        Démarrer mon diagnostic gratuit
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="foot-col">
+        <a href="#top" class="brand"><span class="mark">YB</span> Yanis&nbsp;BGH</a>
+        <p>Formation &amp; accompagnement business pour passer de l'idée aux résultats, avec méthode.</p>
+      </div>
+      <div class="foot-links">
+        <div>
+          <h4>Navigation</h4>
+          <a href="#diagnostic">Diagnostic</a>
+          <a href="#methode">Méthode</a>
+          <a href="#programme">Programme</a>
+          <a href="#offres">Offres</a>
+        </div>
+        <div>
+          <h4>Ressources</h4>
+          <a href="#faq">FAQ</a>
+          <a href="#resultats">Résultats</a>
+          <a href="#diagnostic">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Yanis BGH. Tous droits réservés.</span>
+      <div class="socials">
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/></svg></a>
+        <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3z" fill="currentColor" stroke="none"/></svg></a>
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="4"/><path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 17v-7"/></svg></a>
+        <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4c.5 2.5 2 4 4.5 4.2M15 4v9.5a4 4 0 1 1-4-4"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ===== NAV: scroll state + hide on scroll-down ===== */
+const header=document.getElementById('header');
+let lastY=0;
+addEventListener('scroll',()=>{
+  const y=scrollY;
+  header.classList.toggle('scrolled',y>30);
+  if(y>lastY&&y>400)header.classList.add('hide');else header.classList.remove('hide');
+  lastY=y;
+  const p=(y/(document.body.scrollHeight-innerHeight))*100;
+  document.getElementById('progress').style.width=p+'%';
+},{passive:true});
+
+/* ===== MOBILE MENU ===== */
+const burger=document.getElementById('burger'),mm=document.getElementById('mobileMenu');
+burger.addEventListener('click',()=>mm.classList.toggle('open'));
+mm.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mm.classList.remove('open')));
+
+/* ===== REVEAL ON SCROLL ===== */
+const io=new IntersectionObserver((es)=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+},{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ===== COUNTERS ===== */
+const cio=new IntersectionObserver((es)=>{
+  es.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const el=e.target,target=parseFloat(el.dataset.count),dec=parseInt(el.dataset.decimals||0),
+      suf=el.dataset.suffix||'';let t0=null;
+    const dur=1600;
+    function step(ts){if(!t0)t0=ts;const p=Math.min((ts-t0)/dur,1);
+      const eased=1-Math.pow(1-p,3);const val=target*eased;
+      el.textContent=(dec?val.toFixed(dec):Math.round(val))+suf;
+      if(p<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);cio.unobserve(el);
+  });
+},{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+/* ===== FAQ ===== */
+document.querySelectorAll('.faq-q').forEach(q=>{
+  q.addEventListener('click',()=>{
+    const item=q.parentElement,open=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!open)item.classList.add('open');
+  });
+});
+
+/* ===== DIAGNOSTIC LOGIC ===== */
+const answers={};let step=0;
+const steps=document.querySelectorAll('.diag-step');
+const prog=document.querySelectorAll('#diagProg .dot');
+const result=document.getElementById('diagResult');
+
+function setStep(n){
+  steps.forEach(s=>s.classList.toggle('active',+s.dataset.step===n));
+  result.classList.remove('active');
+  prog.forEach((d,i)=>{d.classList.toggle('done',i<n);d.classList.toggle('active',i===n);});
+  step=n;
+}
+function showResult(){
+  steps.forEach(s=>s.classList.remove('active'));
+  prog.forEach(d=>{d.classList.add('done');d.classList.remove('active');});
+  result.classList.add('active');
+  buildResult();
+}
+document.querySelectorAll('.diag-step').forEach(s=>{
+  s.querySelectorAll('.opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      answers[+s.dataset.step]=opt.dataset.v;
+      if(step<2)setStep(step+1);else showResult();
+    });
+  });
+});
+document.querySelectorAll('.diag-back').forEach(b=>{
+  if(b.id==='restart')return;
+  b.addEventListener('click',()=>{if(step>0)setStep(step-1);});
+});
+document.getElementById('restart').addEventListener('click',()=>{setStep(0);});
+
+function buildResult(){
+  const stage=answers[0],goal=answers[1],block=answers[2];
+  const stageMap={
+    zero:{t:'Parcours « Fondations »',d:'Tu pars d\'une page blanche, et c\'est une force : on va cadrer ta cible et ton offre avant de te lancer, pour éviter de perdre des mois sur la mauvaise idée.'},
+    idea:{t:'Parcours « Validation & Lancement »',d:'Ton idée mérite d\'être confrontée au marché vite et bien. On la valide, on construit l\'offre, et on va chercher tes premiers retours clients.'},
+    running:{t:'Parcours « Traction »',d:'Tu as déjà une base : le vrai levier est la régularité de l\'acquisition et de la vente. On installe un système pour que ça ne dépende plus de la chance.'},
+    scale:{t:'Parcours « Scale »',d:'Le sujet n\'est plus de faire, mais de faire faire. On structure, on automatise et on délègue pour faire grandir le chiffre sans exploser ta charge.'}
+  };
+  const blockMap={
+    time:'Ton premier chantier : la priorisation. On élimine 80% du bruit pour concentrer ton énergie sur les 20% qui rapportent.',
+    strategy:'Ton premier chantier : la stratégie. On remet un plan clair et séquencé, pour arrêter d\'avancer dans le désordre.',
+    visibility:'Ton premier chantier : la visibilité. On construit un système d\'attention pour que les bons prospects te trouvent.',
+    mindset:'Ton premier chantier : le passage à l\'action. On casse la procrastination avec des objectifs courts et un cadre qui te tient responsable.'
+  };
+  const s=stageMap[stage]||stageMap.idea;
+  document.getElementById('resTitle').textContent=s.t;
+  document.getElementById('resText').textContent=s.d+' '+(blockMap[block]||'');
+}
+
+document.getElementById('diagForm').addEventListener('submit',()=>{
+  const email=document.getElementById('diagEmail').value;
+  if(!email)return;
+  document.getElementById('resTitle').textContent='C\'est envoyé 🎯';
+  document.getElementById('resText').textContent='Ton plan d\'action personnalisé arrive dans ta boîte mail. Pense à vérifier tes spams — et prépare tes questions pour la suite.';
+  document.getElementById('diagForm').style.display='none';
+  document.getElementById('diagNote').textContent='Merci pour ta confiance. On se retrouve très vite.';
+});
+
+/* ===== PARTICLE CONSTELLATION BACKDROP ===== */
+(function(){
+  const c=document.getElementById('bg-canvas'),x=c.getContext('2d');
+  let w,h,pts,raf,reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function size(){w=c.width=innerWidth;h=c.height=innerHeight;
+    const n=Math.min(90,Math.floor(w*h/16000));
+    pts=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,
+      vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.6+.4}));}
+  function draw(){
+    x.clearRect(0,0,w,h);
+    for(let i=0;i<pts.length;i++){
+      const p=pts[i];p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;
+      x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle='rgba(120,170,255,.55)';x.fill();
+      for(let j=i+1;j<pts.length;j++){
+        const q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=dx*dx+dy*dy;
+        if(d<16000){const a=(1-d/16000)*.32;
+          x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);
+          x.strokeStyle='rgba(77,141,255,'+a+')';x.lineWidth=.6;x.stroke();}
+      }
+    }
+    raf=requestAnimationFrame(draw);
+  }
+  size();if(!reduced)draw();else{/* static single frame */draw();cancelAnimationFrame(raf);}
+  addEventListener('resize',()=>{cancelAnimationFrame(raf);size();if(!reduced)draw();},{passive:true});
+})();
+</script>
+</body>
+</html>
