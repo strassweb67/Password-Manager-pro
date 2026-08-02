@@ -1672,6 +1672,72 @@ footer{background:rgba(0,0,0,.96);}
     </a>
   </div>
 </nav>
+<!-- ═══ HERO CINÉMATIQUE PLEIN ÉCRAN (style SkyElite) ═══
+     Fond : vidéo en boucle si HERO_VIDEO est renseigné, sinon image animée. -->
+<section class="cine-hero" id="cineHero">
+  <div class="cine-hero__bg" id="cineHeroBg">
+    <img src="./bg-renaissance.jpg" alt="Renaissance" fetchpriority="high">
+  </div>
+  <div class="cine-hero__scrim"></div>
+  <div class="cine-hero__content">
+    <p class="cine-hero__eyebrow">L'écosystème de l'excellence</p>
+    <h1 class="cine-hero__title">RENAISSANCE</h1>
+    <p class="cine-hero__tagline">Discipline<span>·</span>Ambition<span>·</span>Impact</p>
+    <p class="cine-hero__sub">Reconstruis ton physique, tes revenus et ton entourage. Commence par le diagnostic offert — 2 minutes, ton profil complet.</p>
+    <div class="cine-hero__cta">
+      <a href="#" class="ch-btn ch-btn--gold" data-diag>Faire le diagnostic offert →</a>
+      <a href="#ecosysteme" class="ch-btn ch-btn--ghost">Découvrir l'écosystème</a>
+    </div>
+  </div>
+  <a href="#ecosysteme" class="cine-hero__scroll" aria-label="Défiler">
+    <span></span>
+  </a>
+</section>
+<style>
+.cine-hero{position:relative;height:100svh;min-height:580px;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;isolation:isolate;}
+.cine-hero__bg{position:absolute;inset:0;z-index:0;}
+.cine-hero__bg img,.cine-hero__bg video{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;}
+.cine-hero__bg img{transform-origin:center;animation:chKen 22s ease-in-out infinite alternate;}
+@keyframes chKen{0%{transform:scale(1.1) translate3d(0,0,0);}100%{transform:scale(1.26) translate3d(0,-3%,0);}}
+.cine-hero__scrim{position:absolute;inset:0;z-index:1;background:
+  radial-gradient(ellipse 90% 60% at 50% 42%,rgba(99,102,241,.14),transparent 70%),
+  linear-gradient(180deg,rgba(3,3,7,.62) 0%,rgba(3,3,7,.28) 34%,rgba(3,3,7,.78) 80%,#030307 100%);}
+.cine-hero__content{position:relative;z-index:2;padding:0 22px;width:100%;max-width:min(840px,100%);box-sizing:border-box;}
+.cine-hero__eyebrow{font-size:11px;letter-spacing:5px;color:#c7d2fe;font-weight:700;text-transform:uppercase;margin-bottom:16px;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .15s forwards;}
+.cine-hero__title{font-family:'Cinzel',Georgia,serif;font-weight:900;font-size:clamp(30px,9vw,104px);line-height:.96;letter-spacing:1px;text-indent:1px;max-width:100%;
+  background:linear-gradient(90deg,#fff 0%,#f5d07a 26%,#c9a84c 50%,#f5d07a 74%,#fff 100%);background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;
+  animation:chUp 1s cubic-bezier(.16,1,.3,1) .28s forwards, chGrad 7s linear 1.6s infinite;
+  filter:drop-shadow(0 6px 40px rgba(197,168,76,.28));}
+@keyframes chGrad{0%{background-position:0% center;}100%{background-position:200% center;}}
+.cine-hero__tagline{margin-top:14px;font-size:12px;letter-spacing:5px;color:#e8f0ff;font-weight:700;text-transform:uppercase;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .42s forwards;}
+.cine-hero__tagline span{color:#f5d07a;margin:0 8px;}
+.cine-hero__sub{margin:20px auto 0;max-width:520px;font-size:15px;line-height:1.7;color:#c7d3e6;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .54s forwards;}
+.cine-hero__cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .66s forwards;}
+.ch-btn{display:inline-flex;align-items:center;gap:8px;padding:15px 26px;border-radius:40px;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:transform .25s,box-shadow .3s,background .3s;}
+.ch-btn--gold{background:linear-gradient(135deg,#b8902a,#f5d07a);color:#1a1200;box-shadow:0 10px 34px rgba(197,168,76,.4);}
+.ch-btn--gold:hover{transform:translateY(-2px);box-shadow:0 14px 44px rgba(245,208,122,.55);}
+.ch-btn--ghost{background:rgba(255,255,255,.06);color:#f1f5f9;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+.ch-btn--ghost:hover{transform:translateY(-2px);background:rgba(255,255,255,.12);}
+.cine-hero__scroll{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:2;width:26px;height:42px;border:2px solid rgba(255,255,255,.4);border-radius:14px;display:flex;justify-content:center;padding-top:7px;opacity:0;animation:chUp 1s ease 1s forwards;}
+.cine-hero__scroll span{width:4px;height:8px;border-radius:2px;background:#f5d07a;animation:chScroll 1.6s ease-in-out infinite;}
+@keyframes chScroll{0%{transform:translateY(0);opacity:1;}70%{transform:translateY(12px);opacity:0;}100%{opacity:0;}}
+@keyframes chUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+@media(prefers-reduced-motion:reduce){.cine-hero__bg img{animation:none;}.cine-hero__eyebrow,.cine-hero__title,.cine-hero__tagline,.cine-hero__sub,.cine-hero__cta,.cine-hero__scroll{animation:none;opacity:1;}}
+</style>
+<script>
+/* Vidéo de fond optionnelle : colle l'URL de ta vidéo (mp4) pour l'effet SkyElite exact.
+   Laisse vide pour garder l'image animée. */
+window.HERO_VIDEO = window.HERO_VIDEO || "";
+(function(){
+  var url=(window.HERO_VIDEO||"").trim(); if(!url) return;
+  var bg=document.getElementById('cineHeroBg'); if(!bg) return;
+  bg.innerHTML='<video autoplay muted loop playsinline preload="auto"><source src="'+url+'" type="video/mp4"></video>';
+})();
+</script>
+<!-- ═══ FIN HERO CINÉMATIQUE ═══ -->
+
+
 
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ HERO ━━━━━━━━━━━━━━━━━━━━━━ -->
 <header class="hero dossier">
