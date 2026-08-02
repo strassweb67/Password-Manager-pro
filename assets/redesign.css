@@ -1,0 +1,113 @@
+/* ═══════════════════════════════════════════════════════════════════
+   RENAISSANCE — Refonte "Dark luxe raffiné"
+   Chargé en DERNIER : surcharge le thème existant.
+   Palette monochrome ivoire + or mat, typo Archivo large & forte,
+   glows néon calmés, plus d'air. Aucune dépendance externe.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Polices auto-hébergées (alias sur les noms existants → testable + fiable) ── */
+@font-face{font-family:'Inter';src:url('fonts/inter-latin-wght-normal.woff2') format('woff2-variations'),url('fonts/inter-latin-ext-wght-normal.woff2') format('woff2-variations');font-weight:100 900;font-display:swap;font-style:normal;}
+@font-face{font-family:'Archivo';src:url('fonts/archivo-latin-wght-normal.woff2') format('woff2-variations'),url('fonts/archivo-latin-ext-wght-normal.woff2') format('woff2-variations');font-weight:100 900;font-display:swap;font-style:normal;}
+@font-face{font-family:'Archivo Variable';src:url('fonts/archivo-latin-wght-normal.woff2') format('woff2-variations'),url('fonts/archivo-latin-ext-wght-normal.woff2') format('woff2-variations');font-weight:100 900;font-display:swap;font-style:normal;}
+
+/* ── Jetons dark luxe ── */
+:root{
+  --bg:#08080a; --bg-2:#0b0b0e; --bg-card:#101014;
+  --ink:#f5f4f1; --ink-dim:#a7a29a; --ink-faint:#6f6b64;
+  --line:rgba(245,244,241,.09); --line-2:rgba(245,244,241,.16);
+  --gold:#b9975b; --gold-2:#cdb583; --gold-soft:rgba(185,151,91,.12);
+  --accent:#b9975b; --accent-2:#cdb583; --accent-soft:rgba(185,151,91,.10);
+  --text:#f5f4f1; --text-dim:#a7a29a; --text-faint:#6f6b64;
+  --border:rgba(245,244,241,.09); --border-h:rgba(185,151,91,.42);
+  --r:14px;
+}
+
+html,body{background:#08080a;}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;letter-spacing:-.011em;}
+
+/* ── Calmer le décor (grain + aurora + particules) ── */
+body::before{opacity:.025 !important;}          /* grain quasi invisible */
+.aurora{opacity:.5 !important;filter:blur(90px) !important;}
+.aurora-a{background:radial-gradient(circle,rgba(185,151,91,.10) 0%,transparent 66%) !important;}
+.aurora-b{background:radial-gradient(circle,rgba(245,244,241,.05) 0%,transparent 66%) !important;}
+#cv{opacity:.5 !important;}
+
+/* ── Typo display : Archivo, large & forte, tracking serré, solide ── */
+.sec-t,.cine-hero__title,.hero-name,.zyra-title,.dg-profile,.dg-q,
+h1,h2,h3,.footer-brand{font-family:'Archivo Variable','Archivo',system-ui,sans-serif !important;}
+.sec-t{font-weight:800 !important;letter-spacing:-.03em !important;line-height:1.02 !important;
+  background:none !important;-webkit-text-fill-color:currentColor !important;color:var(--ink) !important;
+  text-transform:none !important;}
+.sec-t .tl>span,.sec-t span{background:none !important;-webkit-text-fill-color:currentColor !important;color:inherit !important;}
+/* le mot mis en avant dans les titres → or mat (au lieu d'indigo/dégradé) */
+.sec-t b,.sec-t .accent,.sec-t em,.sec-t .hl,.sec-t strong{color:var(--gold) !important;font-style:normal !important;font-weight:800 !important;background:none !important;-webkit-text-fill-color:var(--gold) !important;}
+
+/* ── Boutons : sobres, petit rayon, pas de glow néon ── */
+.btn-fp,.nav-diag,.cta{
+  font-family:'Inter',sans-serif !important;font-weight:700 !important;letter-spacing:.01em !important;
+  border-radius:8px !important;box-shadow:none !important;text-transform:none !important;transition:transform .25s ease,background .25s ease,border-color .25s ease !important;}
+.btn-fp::before,.cta::before{display:none !important;}   /* enlève les balayages brillants */
+.btn-fp.primary,.nav-diag{
+  background:var(--gold) !important;color:#161104 !important;border:1px solid var(--gold) !important;}
+.btn-fp.primary:hover,.nav-diag:hover{background:var(--gold-2) !important;transform:translateY(-2px) !important;box-shadow:0 12px 30px rgba(0,0,0,.5) !important;}
+.btn-fp:not(.primary),.btn-fp.fil{background:rgba(245,244,241,.04) !important;color:var(--ink) !important;border:1px solid var(--line-2) !important;}
+.btn-fp:not(.primary):hover{background:rgba(245,244,241,.09) !important;transform:translateY(-2px) !important;}
+
+/* ── Cartes / blocs : élévation unique (bordure hairline OU ombre douce), pas les deux ── */
+.carte-fp,.card,.faq-it,.use-case,.targets-block,.mod-row,.credit,.dg-axis{
+  border:1px solid var(--line) !important;border-radius:var(--r) !important;
+  box-shadow:none !important;background:var(--bg-card) !important;}
+.carte-fp:hover,.card:hover,.faq-it:hover{border-color:var(--border-h) !important;box-shadow:0 24px 60px -30px rgba(0,0,0,.8) !important;transform:none !important;}
+.carte-fp::after,.card::after,.carte-fp::before,.card::before{display:none !important;} /* pas de bord conique néon / balayage */
+
+/* ── Liste modules : chiffres discrets, prix or mat, séparateurs hairline ── */
+.mod-row{background:transparent !important;border:none !important;border-bottom:1px solid var(--line) !important;border-radius:0 !important;}
+.mod-num,.uc-num{background:transparent !important;color:var(--ink-faint) !important;box-shadow:none !important;
+  border:1px solid var(--line-2) !important;font-weight:700 !important;}
+.mod-price,.dg-price,.price,.credit .num{color:var(--gold) !important;text-shadow:none !important;}
+
+/* ── Puces / checks : or mat, pas de halo pulsé ── */
+.check-dot,.ok,.check-acc,.uc-num{box-shadow:none !important;animation:none !important;}
+.check-dot{background:transparent !important;border:1px solid var(--gold) !important;color:var(--gold) !important;}
+
+/* ── Badges / tags : hairline discret ── */
+.badge,.card-tag,.badge-fp,.soon-badge,.launch-badge,.dg-kick{
+  background:rgba(185,151,91,.08) !important;color:var(--gold) !important;border:1px solid rgba(185,151,91,.28) !important;
+  box-shadow:none !important;font-weight:700 !important;letter-spacing:.14em !important;}
+
+/* ── Navbar : sobre, hairline bas, pas de saturation ── */
+.navbar{background:rgba(8,8,10,.86) !important;backdrop-filter:blur(18px) !important;-webkit-backdrop-filter:blur(18px) !important;border-bottom:1px solid var(--line) !important;box-shadow:none !important;}
+
+/* ── Diagnostic (tunnel) : formes nettes, or mat, pas de néon ── */
+.dg-opt{border:1px solid var(--line-2) !important;background:rgba(245,244,241,.03) !important;box-shadow:none !important;border-radius:12px !important;}
+.dg-opt.picked,.dg-opt:hover{border-color:var(--gold) !important;background:rgba(185,151,91,.08) !important;}
+.dg-chip{background:transparent !important;border:1px solid var(--line-2) !important;color:var(--ink-dim) !important;}
+.dg-opt.picked .dg-chip{border-color:var(--gold) !important;color:var(--gold) !important;}
+.dg-ax-fill,.dg-gauge .dg-gnum,.dg-profile .y{color:var(--gold) !important;}
+.dg-ax-fill{background:var(--gold) !important;}
+#dgBarFill,.dp-bar>i{background:var(--gold) !important;}
+
+/* ── Liens focus accessibles ── */
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--gold) !important;outline-offset:2px !important;}
+
+/* ── HERO plein écran : titre solide (pas de dégradé), Archivo large & fort ── */
+.cine-hero__title{
+  font-family:'Archivo Variable','Archivo',system-ui,sans-serif !important;
+  font-weight:800 !important;letter-spacing:-.03em !important;
+  background:none !important;-webkit-background-clip:border-box !important;background-clip:border-box !important;
+  -webkit-text-fill-color:#f5f4f1 !important;color:#f5f4f1 !important;
+  animation:chUp 1s cubic-bezier(.16,1,.3,1) .2s forwards !important;
+  filter:none !important;text-shadow:0 2px 30px rgba(0,0,0,.6) !important;}
+.cine-hero__tagline{color:var(--ink-dim) !important;font-weight:600 !important;letter-spacing:.34em !important;}
+.cine-hero__tagline span{color:var(--gold) !important;}
+.cine-hero__scrim{background:
+  linear-gradient(180deg,rgba(8,8,10,.55) 0%,rgba(8,8,10,.35) 38%,rgba(8,8,10,.82) 82%,#08080a 100%) !important;}
+.ch-btn--gold{background:var(--gold) !important;color:#161104 !important;box-shadow:none !important;border-radius:8px !important;}
+.ch-btn--gold:hover{background:var(--gold-2) !important;box-shadow:0 12px 30px rgba(0,0,0,.5) !important;}
+.ch-btn--ghost{border-radius:8px !important;border:1px solid var(--line-2) !important;background:rgba(245,244,241,.04) !important;}
+.cine-hero__scroll span{background:var(--gold) !important;}
+
+/* ── Détecteur : corrections finales ── */
+.dg-verdict{border-left:1px solid var(--gold) !important;padding-left:18px !important;}  /* side-tab → hairline */
+/* halos sombres résiduels neutralisés (déjà pour l'essentiel) */
+.dg-anz .dg-ring,.ps-glow,.ps-device{box-shadow:none !important;}

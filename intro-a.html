@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Renaissance — Intro (A · WebGL)</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--cyan:#57e0ff;--blue:#3d6bff;--violet:#9a6bff;--ink:#eaf0ff;}
+  html,body{height:100%;overflow:hidden;background:#03040c;color:var(--ink);
+    font-family:system-ui,-apple-system,'Segoe UI',sans-serif;}
+  #gl{position:fixed;inset:0;z-index:0;display:block;}
+  .grad{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(ellipse 80% 70% at 50% 45%,rgba(61,107,255,.16),transparent 60%),
+               radial-gradient(ellipse 60% 50% at 50% 100%,rgba(154,107,255,.14),transparent 70%);}
+  .ui{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+    gap:22px;padding:0 24px 12vh;pointer-events:none;text-align:center;}
+  .brand{font-weight:800;letter-spacing:.42em;text-indent:.42em;font-size:clamp(20px,5.5vw,34px);
+    background:linear-gradient(90deg,#fff,var(--cyan),#fff);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;}
+  .sub{font-size:12px;letter-spacing:.34em;color:#8a94c4;text-transform:uppercase;opacity:0;margin-top:-12px;}
+  .cta{pointer-events:auto;margin-top:6px;padding:16px 34px;border:none;border-radius:40px;cursor:pointer;
+    font-size:15px;font-weight:700;color:#03040c;background:linear-gradient(135deg,var(--cyan),var(--blue));
+    box-shadow:0 0 0 1px rgba(255,255,255,.2),0 14px 40px rgba(61,107,255,.55);opacity:0;transition:transform .25s,box-shadow .3s;}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(255,255,255,.3),0 18px 54px rgba(87,224,255,.7);}
+  .warp{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0;
+    background:radial-gradient(circle at 50% 46%,#fff 0%,var(--cyan) 12%,var(--blue) 34%,#03040c 72%);}
+  .hint{position:fixed;bottom:16px;left:0;right:0;text-align:center;z-index:3;font-size:11px;letter-spacing:2px;color:#4a5384;}
+  /* Fallback si WebGL indisponible */
+  #fallback{position:fixed;inset:0;z-index:1;display:none;align-items:center;justify-content:center;
+    background:radial-gradient(ellipse at 50% 40%,#0b1030,#03040c 70%);}
+  #fallback.on{display:flex;}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div class="grad"></div>
+<div id="fallback"></div>
+
+<div class="ui">
+  <div class="brand">RENAISSANCE</div>
+  <div class="sub">Discipline · Ambition · Impact</div>
+  <button class="cta" id="cta">Diagnostic Gratuit</button>
+</div>
+<div class="warp" id="warp"></div>
+<div class="hint">WebGL · bouge la souris / le doigt · clique « Diagnostic Gratuit »</div>
+
+<script src="assets/vendor/gsap.min.js"></script>
+<script type="importmap">
+{"imports":{"three":"./assets/vendor/three/three.module.js","three/addons/":"./assets/vendor/three/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+
+const canvas = document.getElementById('gl');
+let renderer;
+try{ renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true}); }
+catch(e){ document.getElementById('fallback').classList.add('on'); throw e; }
+renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x03040c, 0.02);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(0, 0, 26);
+
+scene.add(new THREE.AmbientLight(0x2a3a80, 0.6));
+const key = new THREE.DirectionalLight(0xbfd4ff, 2.4); key.position.set(6, 10, 8); scene.add(key);
+const rim = new THREE.PointLight(0x6ea0ff, 300, 120); rim.position.set(-12, -6, 10); scene.add(rim);
+const rim2 = new THREE.PointLight(0x9a6bff, 200, 120); rim2.position.set(12, 8, -6); scene.add(rim2);
+
+const glass = new THREE.MeshPhysicalMaterial({
+  transmission:1, thickness:2.2, roughness:0.05, metalness:0, ior:1.55,
+  clearcoat:1, clearcoatRoughness:0.15, iridescence:1, iridescenceIOR:1.3,
+  iridescenceThicknessRange:[120,520], attenuationColor:new THREE.Color(0x3a6bff),
+  attenuationDistance:6, color:0xffffff, transparent:true, envMapIntensity:1.7
+});
+
+const group = new THREE.Group(); scene.add(group);
+
+/* ── R : tube 3D en verre tracé sur le logo de la marque ── */
+const svg = `<svg viewBox="0 0 100 100"><path d="M16.5 90L16.5 10L58 10Q85 10 85 24Q85 35.5 58 35.5L38 35.5L63 81"/></svg>`;
+const data = new SVGLoader().parse(svg);
+const sub = data.paths[0].subPaths[0];
+const pts2d = sub.getPoints(64);
+const pts = pts2d.map(p => new THREE.Vector3(p.x, -p.y, 0)); // flip Y (SVG down = -Y)
+const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.15);
+const tube = new THREE.TubeGeometry(curve, 320, 5.2, 24, false);
+tube.center();
+const R = new THREE.Mesh(tube, glass);
+// mise à l'échelle pour tenir à l'écran
+const box = new THREE.Box3().setFromObject(R);
+const size = new THREE.Vector3(); box.getSize(size);
+const s = 14 / Math.max(size.x, size.y);
+R.scale.setScalar(s);
+group.add(R);
+
+/* ── Billes de verre flottantes ── */
+const balls = [];
+const ballGeo = new THREE.SphereGeometry(1, 32, 32);
+for(let i=0;i<12;i++){
+  const b = new THREE.Mesh(ballGeo, glass);
+  const rr = 0.5 + Math.random()*0.9;
+  b.scale.setScalar(rr);
+  b.position.set((Math.random()-.5)*16, (Math.random()-.5)*18, (Math.random()-.5)*6);
+  b.userData = {sp:0.4+Math.random()*1.2, ph:Math.random()*6.28, base:b.position.clone()};
+  group.add(b); balls.push(b);
+}
+
+/* ── Galaxie de particules ── */
+const N = 2600;
+const gpos = new Float32Array(N*3), gcol = new Float32Array(N*3);
+const cA = new THREE.Color(0x57e0ff), cB = new THREE.Color(0x9a6bff), cW = new THREE.Color(0xffffff);
+for(let i=0;i<N;i++){
+  const rad = 34 + Math.random()*70, th = Math.random()*6.283, ph = Math.acos(2*Math.random()-1);
+  gpos[i*3]=rad*Math.sin(ph)*Math.cos(th); gpos[i*3+1]=rad*Math.sin(ph)*Math.sin(th); gpos[i*3+2]=rad*Math.cos(ph);
+  const c = Math.random()<.2?cA:(Math.random()<.4?cB:cW);
+  gcol[i*3]=c.r; gcol[i*3+1]=c.g; gcol[i*3+2]=c.b;
+}
+const gGeo = new THREE.BufferGeometry();
+gGeo.setAttribute('position', new THREE.BufferAttribute(gpos,3));
+gGeo.setAttribute('color', new THREE.BufferAttribute(gcol,3));
+const stars = new THREE.Points(gGeo, new THREE.PointsMaterial({size:0.42, vertexColors:true, transparent:true, opacity:.9, sizeAttenuation:true, depthWrite:false, blending:THREE.AdditiveBlending}));
+scene.add(stars);
+
+/* ── Souris ── */
+const mouse={x:0,y:0,tx:0,ty:0};
+addEventListener('pointermove', e=>{ mouse.tx=(e.clientX/innerWidth*2-1); mouse.ty=-(e.clientY/innerHeight*2-1); }, {passive:true});
+addEventListener('resize', ()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+
+let t=0;
+function loop(){
+  requestAnimationFrame(loop); t+=0.016;
+  mouse.x+=(mouse.tx-mouse.x)*0.05; mouse.y+=(mouse.ty-mouse.y)*0.05;
+  group.rotation.y = mouse.x*0.7 + Math.sin(t*0.25)*0.12;
+  group.rotation.x = -mouse.y*0.45 + Math.cos(t*0.2)*0.06;
+  balls.forEach((b,i)=>{ b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*1.4;
+    b.position.x = b.userData.base.x + Math.cos(t*b.userData.sp*.8+b.userData.ph)*1.0; });
+  stars.rotation.y = t*0.015 + mouse.x*0.15; stars.rotation.x = mouse.y*0.06;
+  camera.position.x += (mouse.x*3 - camera.position.x)*0.04;
+  camera.position.y += (mouse.y*2 - camera.position.y)*0.04;
+  camera.lookAt(0,0,0);
+  renderer.render(scene, camera);
+}
+loop();
+
+/* ── Entrée + clic « Diagnostic Gratuit » ── */
+// Le module s'exécute après le parse du DOM (et souvent après `load`) :
+// on lance l'intro directement, sans attendre l'event `load`.
+if(window.gsap){
+  gsap.fromTo(group.scale, {x:0.001,y:0.001,z:0.001}, {x:1,y:1,z:1, duration:1.4, ease:'power3.out'});
+  gsap.timeline({defaults:{ease:'power3.out'}})
+    .to('.brand',{opacity:1,duration:.7},0.5)
+    .to('.sub',{opacity:1,duration:.6},0.8)
+    .to('#cta',{opacity:1,duration:.6},1.0);
+} else {
+  document.querySelectorAll('.brand,.sub,#cta').forEach(el=>el.style.opacity=1);
+}
+// Filet de sécurité : garantit que le CTA reste visible même si l'anim ne joue pas
+setTimeout(()=>{ document.querySelectorAll('.brand,.sub,#cta').forEach(el=>{ if(+getComputedStyle(el).opacity===0) el.style.opacity=1; }); }, 2600);
+document.getElementById('cta').addEventListener('click', ()=>{
+  const warp=document.getElementById('warp');
+  if(!window.gsap){ location.hash='#diagnostic'; return; }
+  gsap.timeline()
+    .to(camera.position,{z:6, duration:1.0, ease:'power2.in'},0)
+    .to(['.brand','.sub','#cta','.hint'],{opacity:0,duration:.4},0)
+    .to(warp,{opacity:1,duration:.7,ease:'power2.in'},0.25)
+    .add(()=>{ /* Sur le vrai site : ouvre ici le diagnostic (funnel) */ })
+    .to(camera.position,{z:26, duration:1.1, ease:'power3.out'},'+=.1')
+    .to(warp,{opacity:0,duration:.8,ease:'power2.out'},'<')
+    .to(['.brand','.sub','#cta','.hint'],{opacity:1,duration:.5},'-=.4');
+});
+</script>
+</body>
+</html>
