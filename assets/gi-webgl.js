@@ -24,7 +24,7 @@ if (canvas && overlay) {
     renderer.toneMappingExposure = 1.32;
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x03040c, 0.02);
+    scene.fog = new THREE.FogExp2(0x000000, 0.02);
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
@@ -36,14 +36,23 @@ if (canvas && overlay) {
     const p1 = new THREE.PointLight(0x6ea0ff, 300, 120); p1.position.set(-12,-6,10); scene.add(p1);
     const p2 = new THREE.PointLight(0x9a6bff, 200, 120); p2.position.set(12,8,-6); scene.add(p2);
 
-    // Verre "iOS" BLEU : volume teinté bleu + légère lueur, reflets nets
+    // R : verre bleu FONCÉ (volume cobalt sombre) + reflet bleu clair
     const glass = new THREE.MeshPhysicalMaterial({
-      transmission:0.9, thickness:4.0, roughness:0.03, metalness:0, ior:1.5,
+      transmission:0.82, thickness:4.5, roughness:0.03, metalness:0, ior:1.5,
       clearcoat:1, clearcoatRoughness:0.06,
-      iridescence:0.3, iridescenceIOR:1.25, iridescenceThicknessRange:[120,340],
-      attenuationColor:new THREE.Color(0x1f5cff), attenuationDistance:3.2,
-      color:new THREE.Color(0x5b9bff),
-      emissive:new THREE.Color(0x0b1f55), emissiveIntensity:0.35,
+      iridescence:0.25, iridescenceIOR:1.25, iridescenceThicknessRange:[120,320],
+      attenuationColor:new THREE.Color(0x11239e), attenuationDistance:2.6,
+      color:new THREE.Color(0x2f46d6),
+      emissive:new THREE.Color(0x0a1450), emissiveIntensity:0.45,
+      specularIntensity:1, specularColor:new THREE.Color(0x9fc4ff),
+      transparent:true, envMapIntensity:2.4
+    });
+    // Bulles : verre bleu foncé translucide (même esprit que le bouton en bas)
+    const ballMat = new THREE.MeshPhysicalMaterial({
+      transmission:1, thickness:1.4, roughness:0.03, metalness:0, ior:1.5,
+      clearcoat:1, clearcoatRoughness:0.06, iridescence:0.2,
+      attenuationColor:new THREE.Color(0x0e1b46), attenuationDistance:1.6,
+      color:new THREE.Color(0x22336e),
       specularIntensity:1, specularColor:new THREE.Color(0xbfd8ff),
       transparent:true, envMapIntensity:2.2
     });
@@ -72,7 +81,7 @@ if (canvas && overlay) {
     // billes de verre flottantes
     const balls = [], ballGeo = new THREE.SphereGeometry(1, 32, 32);
     for (let i=0;i<12;i++){
-      const b = new THREE.Mesh(ballGeo, glass);
+      const b = new THREE.Mesh(ballGeo, ballMat);
       b.scale.setScalar(0.5 + Math.random()*0.9);
       b.position.set((Math.random()-.5)*16,(Math.random()-.5)*18,(Math.random()-.5)*6);
       b.userData = { sp:0.4+Math.random()*1.2, ph:Math.random()*6.28, base:b.position.clone() };
@@ -102,14 +111,14 @@ if (canvas && overlay) {
     (function loop(){
       if (!running) return;
       requestAnimationFrame(loop); t += 0.016;
-      m.x += (m.tx-m.x)*0.05; m.y += (m.ty-m.y)*0.05;
-      grp.rotation.y = m.x*0.85 + Math.sin(t*0.5)*0.40;   // balancement gauche-droite plus marqué
-      grp.rotation.x = -m.y*0.5 + Math.cos(t*0.4)*0.16;
+      m.x += (m.tx-m.x)*0.07; m.y += (m.ty-m.y)*0.07;
+      grp.rotation.y = m.x*1.35 + Math.sin(t*0.5)*0.42;   // suit le doigt + balancement plus intense
+      grp.rotation.x = -m.y*0.8 + Math.cos(t*0.4)*0.18;
       balls.forEach(b => { b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*2.8;
         b.position.x = b.userData.base.x + Math.cos(t*b.userData.sp*.8+b.userData.ph)*2.2; });
       stars.rotation.y = t*0.015 + m.x*0.15; stars.rotation.x = m.y*0.06;
-      camera.position.x += (m.x*3 - camera.position.x)*0.04;
-      camera.position.y += (m.y*2 - camera.position.y)*0.04;
+      camera.position.x += (m.x*5.5 - camera.position.x)*0.05;
+      camera.position.y += (m.y*3.4 - camera.position.y)*0.05;
       camera.lookAt(0,0,0);
       renderer.render(scene, camera);
     })();
