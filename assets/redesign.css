@@ -120,3 +120,28 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .dg-verdict{border-left:1px solid var(--gold) !important;padding-left:18px !important;}  /* side-tab → hairline */
 /* halos sombres résiduels neutralisés (déjà pour l'essentiel) */
 .dg-anz .dg-ring,.ps-glow,.ps-device{box-shadow:none !important;}
+
+/* ══════════════════════════════════════════════════════════════════
+   BOULES CHROMÉES DANS LES BOUTONS (identiques à l'écran de chargement)
+   Injectées par assets/btn-orbs.js. Bougent en continu, léger flou iOS.
+   ══════════════════════════════════════════════════════════════════ */
+.has-orbs{position:relative !important;overflow:hidden !important;isolation:isolate !important;}
+.has-orbs>*:not(.btn-orbs){position:relative;z-index:1;}
+.btn-orbs{position:absolute !important;inset:0;border-radius:inherit;overflow:hidden;
+  z-index:-1;pointer-events:none;filter:blur(1.1px) saturate(115%);}          /* flou iOS ~10% */
+.btn-orbs::before{content:'';position:absolute;inset:0;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:.55;}    /* frost iOS derrière */
+.btn-orb{position:absolute;border-radius:50%;will-change:transform;
+  background:radial-gradient(circle at 32% 27%,#f7f9ff 0%,#d2d8e6 12%,#9aa1b3 30%,#4b5060 52%,#181b23 80%,#0d0e13 100%);
+  box-shadow:inset 0 -2px 5px rgba(0,0,0,.55),inset 0 2px 3px rgba(255,255,255,.35),0 2px 5px rgba(0,0,0,.4);}
+.btn-orb::after{content:'';position:absolute;top:16%;left:22%;width:26%;height:26%;border-radius:50%;
+  background:radial-gradient(circle,#ffffff 0%,rgba(255,255,255,.2) 60%,transparent 100%);filter:blur(.3px);}
+.bo-1{animation:boA 7.5s ease-in-out infinite;}
+.bo-2{animation:boB 9s ease-in-out infinite;}
+.bo-3{animation:boC 8.2s ease-in-out infinite;}
+.bo-4{animation:boD 10.5s ease-in-out infinite;}
+@keyframes boA{0%,100%{transform:translate(0,0)}50%{transform:translate(16px,-7px)}}
+@keyframes boB{0%,100%{transform:translate(0,0)}50%{transform:translate(-14px,6px)}}
+@keyframes boC{0%,100%{transform:translate(0,0)}33%{transform:translate(10px,8px)}66%{transform:translate(-8px,-6px)}}
+@keyframes boD{0%,100%{transform:translate(0,0)}50%{transform:translate(12px,9px)}}
+@media(prefers-reduced-motion:reduce){.btn-orb{animation:none !important;}}

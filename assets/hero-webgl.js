@@ -42,10 +42,11 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   const balls = [];
   for (let i=0;i<COUNT;i++){
     const b = new THREE.Mesh(geo, ballMat);
-    b.scale.setScalar(0.7 + Math.random()*2.1);
+    const r0 = 0.7 + Math.random()*2.1;
+    b.scale.setScalar(r0);
     b.position.set((Math.random()-.5)*44, (Math.random()-.5)*30, (Math.random()-.5)*14);
     b.renderOrder = 2;
-    b.userData = { sp:0.25+Math.random()*0.7, ph:Math.random()*6.28, base:b.position.clone() };
+    b.userData = { sp:0.25+Math.random()*0.7, ph:Math.random()*6.28, base:b.position.clone(), r0:r0 };
     orbs.add(b); balls.push(b);
   }
 
@@ -76,16 +77,28 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     new IntersectionObserver(es => { onScreen = es[0].isIntersecting; if(onScreen) tick(); }, {threshold:0.01}).observe(heroSec);
   }
 
+  // Scroll : les bulles métallisées s'envolent et montent quand on descend
+  let scrollProg = 0, rise = 0;
+  addEventListener('scroll', () => {
+    const h = (heroSec ? heroSec.offsetHeight : innerHeight) || innerHeight;
+    scrollProg = Math.min(1, Math.max(0, (window.scrollY || window.pageYOffset || 0) / h));
+  }, {passive:true});
+
   let t = 0, raf = 0;
   function frame(){
     raf = 0; if (!onScreen) return;
     t += 0.016;
     m.x += (m.tx-m.x)*0.05; m.y += (m.ty-m.y)*0.05;
+    rise += (scrollProg - rise) * 0.08;                 // suit le scroll en douceur
+    const lift = rise * rise * 34;                      // accélère vers le haut (ease-in)
+    orbs.position.y = lift;                             // les bulles montent
     orbs.rotation.y = Math.sin(t*0.06)*0.06 + m.x*0.1;
-    balls.forEach(b => {
-      b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*2.2;
+    balls.forEach((b,i) => {
+      b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*2.2 + rise*(3 + (i%5))*0.9;
       b.position.x = b.userData.base.x + Math.cos(t*b.userData.sp*0.8+b.userData.ph)*1.6;
+      b.scale.setScalar(b.userData.r0 * (1 - rise*0.45));  // se dispersent/rapetissent en montant
     });
+    stars.position.y = rise * 10;
     stars.rotation.y = t*0.012 + m.x*0.1; stars.rotation.x = m.y*0.05;
     camera.position.x += (m.x*4 - camera.position.x)*0.04;
     camera.position.y += (m.y*2.6 - camera.position.y)*0.04;
