@@ -47,11 +47,14 @@ if (canvas && overlay) {
       specularIntensity:1, specularColor:new THREE.Color(0x9fc4ff),
       transparent:true, envMapIntensity:2.4
     });
-    // Bulles : verre bleu foncé OPAQUE brillant → se chevauchent proprement (jamais coupées)
+    // Bulles : verre bleu TRANSLUCIDE (ancien look) — depthWrite:true → se croisent
+    // proprement (l'une passe devant/derrière l'autre) sans se déformer ni se couper.
     const ballMat = new THREE.MeshPhysicalMaterial({
-      color:new THREE.Color(0x0b1636), metalness:0.0, roughness:0.14,
-      clearcoat:1, clearcoatRoughness:0.05, envMapIntensity:1.7,
-      sheen:0.4, sheenRoughness:0.5, sheenColor:new THREE.Color(0x2a44cc)
+      color:new THREE.Color(0x2f46d6), metalness:0.0, roughness:0.12,
+      clearcoat:1, clearcoatRoughness:0.06, envMapIntensity:2.0,
+      transparent:true, opacity:0.72, depthWrite:true,
+      sheen:0.5, sheenRoughness:0.5, sheenColor:new THREE.Color(0x9fc4ff),
+      specularColor:new THREE.Color(0xbfe0ff), specularIntensity:1.0
     });
 
     const grp = new THREE.Group(); scene.add(grp);
@@ -133,9 +136,8 @@ if (canvas && overlay) {
       if (!running) return;
       requestAnimationFrame(loop); t += 0.016;
       m.x += (m.tx-m.x)*0.07; m.y += (m.ty-m.y)*0.07;
-      rot.x += ((rot.tx + dev.x + Math.cos(t*0.4)*0.06) - rot.x)*0.09;
-      rot.y += ((rot.ty + dev.y + Math.sin(t*0.5)*0.10) - rot.y)*0.09;
-      grp.rotation.x = rot.x; grp.rotation.y = rot.y;
+      grp.rotation.y = m.x*1.35 + dev.y + Math.sin(t*0.5)*0.42;   // suit le doigt (comme avant) + gyro
+      grp.rotation.x = -m.y*0.8 + dev.x + Math.cos(t*0.4)*0.18;
       ballsGrp.position.x = m.x*2.4; ballsGrp.position.y = m.y*1.5; ballsGrp.rotation.y = Math.sin(t*0.12)*0.05;
       balls.forEach(b => { b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*2.8;
         b.position.x = b.userData.base.x + Math.cos(t*b.userData.sp*.8+b.userData.ph)*2.2; });
@@ -152,6 +154,7 @@ if (canvas && overlay) {
     if (window.gsap) {
       gsap.fromTo(grp.scale, {x:.001,y:.001,z:.001}, {x:1,y:1,z:1, duration:1.4, ease:'power3.out'});
       gsap.timeline({defaults:{ease:'power3.out'}})
+        .to('.gi-kicker',{opacity:1,duration:.6},0.35)
         .to('.gi-brand',{opacity:1,duration:.7},0.5)
         .to('.gi-sub',{opacity:1,duration:.6},0.8)
         .to('.gi-byline',{opacity:1,duration:.6},0.95)
@@ -163,7 +166,7 @@ if (canvas && overlay) {
     showUI();
   }
 
-  function showUI(){ document.querySelectorAll('.gi-brand,.gi-sub,.gi-byline,.gi-cta').forEach(e=>e.style.opacity=1); }
+  function showUI(){ document.querySelectorAll('.gi-kicker,.gi-brand,.gi-sub,.gi-byline,.gi-cta').forEach(e=>e.style.opacity=1); }
   setTimeout(showUI, 2600);
 
   function enterSite(){
@@ -184,7 +187,7 @@ if (canvas && overlay) {
     document.body.classList.add('gi-open');
     const load=document.getElementById('gi-loading'); if(load) load.classList.remove('on');
     window.__giCta = false;
-    document.querySelectorAll('.gi-brand,.gi-sub,.gi-cta,.gi-hint').forEach(function(e){ e.style.opacity=1; });
+    document.querySelectorAll('.gi-kicker,.gi-brand,.gi-sub,.gi-cta,.gi-hint').forEach(function(e){ e.style.opacity=1; });
     if (window.__giCam) window.__giCam.position.set(0,0,26);
     window.scrollTo(0,0);
     if (!running) { running = true; if (window.__giLoop) window.__giLoop(); }
@@ -198,7 +201,7 @@ if (canvas && overlay) {
     if (window.__giCta) return; window.__giCta = true;
     const load = document.getElementById('gi-loading');
     if (window.gsap) {
-      gsap.to(['.gi-brand','.gi-sub','.gi-byline','.gi-cta','.gi-hint'], { opacity:0, duration:.35 });
+      gsap.to(['.gi-kicker','.gi-brand','.gi-sub','.gi-byline','.gi-cta','.gi-hint'], { opacity:0, duration:.35 });
       if (window.__giCam) gsap.to(window.__giCam.position, { z:9, duration:1.6, ease:'power2.inOut' });
     }
     if (load) load.classList.add('on');   // écran de chargement verre givré bleu
