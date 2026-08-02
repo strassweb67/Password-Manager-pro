@@ -103,10 +103,10 @@ if (canvas && overlay) {
       if (!running) return;
       requestAnimationFrame(loop); t += 0.016;
       m.x += (m.tx-m.x)*0.05; m.y += (m.ty-m.y)*0.05;
-      grp.rotation.y = m.x*0.7 + Math.sin(t*0.25)*0.12;
-      grp.rotation.x = -m.y*0.45 + Math.cos(t*0.2)*0.06;
-      balls.forEach(b => { b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*1.4;
-        b.position.x = b.userData.base.x + Math.cos(t*b.userData.sp*.8+b.userData.ph)*1.0; });
+      grp.rotation.y = m.x*0.85 + Math.sin(t*0.5)*0.40;   // balancement gauche-droite plus marqué
+      grp.rotation.x = -m.y*0.5 + Math.cos(t*0.4)*0.16;
+      balls.forEach(b => { b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*2.8;
+        b.position.x = b.userData.base.x + Math.cos(t*b.userData.sp*.8+b.userData.ph)*2.2; });
       stars.rotation.y = t*0.015 + m.x*0.15; stars.rotation.x = m.y*0.06;
       camera.position.x += (m.x*3 - camera.position.x)*0.04;
       camera.position.y += (m.y*2 - camera.position.y)*0.04;
