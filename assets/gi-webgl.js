@@ -32,7 +32,8 @@ if (canvas && overlay) {
     camera.position.set(0, 0, 26);
 
     scene.add(new THREE.AmbientLight(0x2a3a80, 0.6));
-    const key = new THREE.DirectionalLight(0xbfd4ff, 2.4); key.position.set(6,10,8); scene.add(key);
+    const key = new THREE.DirectionalLight(0xeaf0ff, 2.6); key.position.set(6,10,8); scene.add(key);
+    const spark = new THREE.PointLight(0xffffff, 120, 90); spark.position.set(8,14,16); scene.add(spark);
     const p1 = new THREE.PointLight(0x6ea0ff, 300, 120); p1.position.set(-12,-6,10); scene.add(p1);
     const p2 = new THREE.PointLight(0x9a6bff, 200, 120); p2.position.set(12,8,-6); scene.add(p2);
 
@@ -47,14 +48,11 @@ if (canvas && overlay) {
       specularIntensity:1, specularColor:new THREE.Color(0x9fc4ff),
       transparent:true, envMapIntensity:2.4
     });
-    // Bulles : verre bleu TRANSLUCIDE (ancien look) — depthWrite:true → se croisent
-    // proprement (l'une passe devant/derrière l'autre) sans se déformer ni se couper.
+    // Bulles : chrome gris métallisé OPAQUE (look "avant" validé) → chaque bille
+    // écrit la profondeur, la plus proche masque la plus loin : jamais coupées quand elles se croisent.
     const ballMat = new THREE.MeshPhysicalMaterial({
-      color:new THREE.Color(0x2f46d6), metalness:0.0, roughness:0.12,
-      clearcoat:1, clearcoatRoughness:0.06, envMapIntensity:2.0,
-      transparent:true, opacity:0.72, depthWrite:true,
-      sheen:0.5, sheenRoughness:0.5, sheenColor:new THREE.Color(0x9fc4ff),
-      specularColor:new THREE.Color(0xbfe0ff), specularIntensity:1.0
+      color:new THREE.Color(0x14161d), metalness:1.0, roughness:0.2,
+      clearcoat:1, clearcoatRoughness:0.1, envMapIntensity:2.1
     });
 
     const grp = new THREE.Group(); scene.add(grp);

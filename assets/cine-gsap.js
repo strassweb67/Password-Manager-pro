@@ -74,6 +74,27 @@
       });
     });
 
+    /* ── 5) NAVBAR liquid-glass : état "scrolled" ── */
+    var nav = document.querySelector('.navbar');
+    if (nav){
+      var setNav = function(){ if (window.scrollY > 40) nav.classList.add('scrolled'); else nav.classList.remove('scrolled'); };
+      setNav(); addEventListener('scroll', setNav, {passive:true});
+      if (lenis) lenis.on('scroll', setNav);
+    }
+
+    /* ── 6) WORD-REVEAL : titres marqués [data-words] ── */
+    gsap.utils.toArray('[data-words]').forEach(function(el){
+      if (el.dataset.split) return; el.dataset.split = '1';
+      var text = el.textContent.trim();
+      el.innerHTML = text.split(/(\s+)/).map(function(chunk){
+        return /\s+/.test(chunk) ? chunk : '<span class="w" style="display:inline-block">' + chunk + '</span>';
+      }).join('');
+      gsap.from(el.querySelectorAll('.w'), {
+        yPercent: 118, opacity: 0, duration: 0.95, ease: 'power4.out', stagger: 0.08,
+        scrollTrigger: { trigger: el, start: 'top 92%', toggleActions: 'play none none none' }
+      });
+    });
+
     /* ── Recalcule les positions après polices/images ── */
     window.addEventListener('load', function(){ ST.refresh(); });
     setTimeout(function(){ ST.refresh(); }, 700);
