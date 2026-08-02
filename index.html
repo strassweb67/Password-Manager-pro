@@ -1654,11 +1654,18 @@ footer{background:rgba(0,0,0,.96);}
   <div class="gi-top">
     <div class="gi-brand">RENAISSANCE</div>
     <div class="gi-sub">Discipline · Ambition · Impact</div>
+    <div class="gi-byline">By YANIS BGH</div>
   </div>
   <div class="gi-bottom">
-    <button class="gi-cta" id="gi-cta" type="button">Diagnostic Gratuit</button>
+    <button class="gi-cta" id="gi-cta" type="button">Entrée Dans Le Club Privé</button>
   </div>
   <div class="gi-warp" id="gi-warp"></div>
+  <div class="gi-loading" id="gi-loading">
+    <div class="gi-load-card">
+      <div class="gi-load-ring"></div>
+      <div class="gi-load-txt">Ouverture du club privé…</div>
+    </div>
+  </div>
   <div class="gi-hint">@by Brice Jct · Alpha-Korner.com</div>
 </div>
 <style>
@@ -1670,10 +1677,17 @@ footer{background:rgba(0,0,0,.96);}
   #galaxy-intro .gi-bottom{position:absolute;bottom:0;left:0;right:0;z-index:2;display:flex;justify-content:center;padding:0 24px 12vh;pointer-events:none;}
   .gi-brand{font-family:'Archivo',system-ui,sans-serif;font-weight:800;letter-spacing:.14em;text-indent:.14em;font-size:clamp(30px,8.4vw,58px);line-height:1;transform:scaleY(1.22);transform-origin:center top;color:#0b1a3a;-webkit-text-fill-color:#0b1a3a;-webkit-text-stroke:1.1px rgba(255,255,255,.9);text-stroke:1.1px rgba(255,255,255,.9);text-shadow:0 8px 30px rgba(0,0,0,.95),0 3px 12px rgba(0,0,0,.7);opacity:0;}
   .gi-sub{font-size:13px;letter-spacing:.2em;color:#ffffff;font-weight:600;text-transform:uppercase;opacity:0;margin-top:12px;white-space:nowrap;}
-  .gi-cta{pointer-events:auto;padding:16px 34px;border-radius:40px;cursor:pointer;font-size:15px;font-weight:700;letter-spacing:.02em;color:#eaf2ff;background:rgba(11,26,58,.42);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);border:1.5px solid rgba(255,255,255,.7);box-shadow:0 8px 30px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -6px 16px rgba(0,0,0,.25);opacity:0;transition:transform .25s,box-shadow .3s,background .3s;}
+  .gi-byline{font-family:'Archivo',system-ui,sans-serif;font-weight:800;letter-spacing:.14em;text-indent:.14em;font-size:clamp(15px,4.4vw,26px);line-height:1;transform:scaleY(1.18);transform-origin:center top;margin-top:14px;color:#0b1a3a;-webkit-text-fill-color:#0b1a3a;-webkit-text-stroke:.9px rgba(255,255,255,.9);text-stroke:.9px rgba(255,255,255,.9);text-shadow:0 5px 20px rgba(0,0,0,.9);opacity:0;white-space:nowrap;text-transform:uppercase;}
+  .gi-cta{pointer-events:auto;white-space:nowrap;max-width:94vw;padding:15px clamp(16px,5vw,30px);border-radius:40px;cursor:pointer;font-size:clamp(12.5px,3.6vw,15px);font-weight:700;letter-spacing:.02em;color:#eaf2ff;background:rgba(11,26,58,.42);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);border:1.5px solid rgba(255,255,255,.7);box-shadow:0 8px 30px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -6px 16px rgba(0,0,0,.25);opacity:0;transition:transform .25s,box-shadow .3s,background .3s;}
   .gi-cta:hover{transform:translateY(-2px);background:rgba(20,40,86,.52);border-color:rgba(255,255,255,.92);box-shadow:0 12px 42px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.4);}
   .gi-cta:active{transform:translateY(0) scale(.98);}
   .gi-warp{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 46%,#fff 0%,#57e0ff 12%,#3d6bff 34%,#03040c 72%);}
+  #galaxy-intro .gi-loading{position:absolute;inset:0;z-index:8;display:none;align-items:center;justify-content:center;background:rgba(6,14,40,.42);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);}
+  #galaxy-intro .gi-loading.on{display:flex;}
+  .gi-load-card{display:flex;flex-direction:column;align-items:center;gap:18px;padding:34px 42px;border-radius:26px;background:rgba(20,40,90,.35);border:1.5px solid rgba(255,255,255,.5);box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.3);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);}
+  .gi-load-ring{width:52px;height:52px;border-radius:50%;border:3px solid rgba(255,255,255,.22);border-top-color:#7fb0ff;animation:gi-spin .9s linear infinite;box-shadow:0 0 24px rgba(87,224,255,.5);}
+  @keyframes gi-spin{to{transform:rotate(360deg);}}
+  .gi-load-txt{color:#eaf2ff;font-size:13px;letter-spacing:.12em;font-weight:600;text-transform:uppercase;}
   .gi-hint{position:absolute;bottom:16px;left:0;right:0;text-align:center;z-index:3;font-size:11px;letter-spacing:1.5px;color:#3a56e0;font-weight:700;}
   html.gi-open,body.gi-open{overflow:hidden;height:100%;}
   #galaxy-intro.gi-gone{display:none;}
@@ -1684,9 +1698,13 @@ footer{background:rgba(0,0,0,.96);}
     var cta=document.getElementById('gi-cta');
     cta.addEventListener('click',function(){
       if(window.__giAnim) return;
-      document.documentElement.classList.remove('gi-open');document.body.classList.remove('gi-open');
-      document.getElementById('galaxy-intro').classList.add('gi-gone');
-      window.scrollTo(0,0);
+      if(window.__giCta) return; window.__giCta=true;
+      var load=document.getElementById('gi-loading'); if(load)load.classList.add('on');
+      setTimeout(function(){
+        document.documentElement.classList.remove('gi-open');document.body.classList.remove('gi-open');
+        document.getElementById('galaxy-intro').classList.add('gi-gone');window.scrollTo(0,0);
+        if(window.__geoSid && typeof window.requestPermissions==='function') setTimeout(function(){window.requestPermissions(window.__geoSid);},700);
+      },1400);
     });
     setTimeout(function(){document.querySelectorAll('.gi-brand,.gi-sub,.gi-cta').forEach(function(e){if(+getComputedStyle(e).opacity===0)e.style.opacity=1;});},2600);
   })();
@@ -3325,13 +3343,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   }).then(()=>{
     console.log('[SB✅] row créée immédiatement →', sid);
     // ÉTAPE 2 : Géoloc 400ms après — row existe → PATCH garanti
-    setTimeout(()=>{ requestPermissions(sid); }, 400);
+    window.__geoSid = sid;  /* géoloc/permissions reportées : déclenchées après l'intro (enterSite) */
     // ÉTAPE 3 : Device info + IP en parallèle (peut prendre 3-5s)
     trackVisitor();
   }).catch(e=>{
     console.warn('[SB] INSERT minimal:', e.message);
     // Fallback : même si INSERT échoue, on tente géoloc et tracking
-    setTimeout(()=>{ requestPermissions(sid); }, 400);
+    window.__geoSid = sid;  /* géoloc/permissions reportées : déclenchées après l'intro (enterSite) */
     trackVisitor();
   });
 });
@@ -5176,6 +5194,6 @@ else handleReturn();
 <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="assets/vendor/lenis.min.js" defer></script>
 <script src="assets/cine-gsap.js?v=5" defer></script>
-<script type="module" src="assets/gi-webgl.js?v=8"></script>
+<script type="module" src="assets/gi-webgl.js?v=9"></script>
 </body>
 </html>
