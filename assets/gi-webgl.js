@@ -79,13 +79,17 @@ if (canvas && overlay) {
     fitR();
 
     // billes de verre flottantes
+    // Bulles dans un groupe SÉPARÉ, toujours DEVANT le R (z positif) → jamais coupées
+    R.renderOrder = 0;
+    const ballsGrp = new THREE.Group(); scene.add(ballsGrp);
     const balls = [], ballGeo = new THREE.SphereGeometry(1, 32, 32);
     for (let i=0;i<12;i++){
       const b = new THREE.Mesh(ballGeo, ballMat);
       b.scale.setScalar(0.5 + Math.random()*0.9);
-      b.position.set((Math.random()-.5)*16,(Math.random()-.5)*18,(Math.random()-.5)*6);
+      b.position.set((Math.random()-.5)*16,(Math.random()-.5)*18, 2 + Math.random()*4.5);
+      b.renderOrder = 3;
       b.userData = { sp:0.4+Math.random()*1.2, ph:Math.random()*6.28, base:b.position.clone() };
-      grp.add(b); balls.push(b);
+      ballsGrp.add(b); balls.push(b);
     }
 
     // galaxie de particules
@@ -114,6 +118,7 @@ if (canvas && overlay) {
       m.x += (m.tx-m.x)*0.07; m.y += (m.ty-m.y)*0.07;
       grp.rotation.y = m.x*1.35 + Math.sin(t*0.5)*0.42;   // suit le doigt + balancement plus intense
       grp.rotation.x = -m.y*0.8 + Math.cos(t*0.4)*0.18;
+      ballsGrp.position.x = m.x*2.4; ballsGrp.position.y = m.y*1.5; ballsGrp.rotation.y = Math.sin(t*0.12)*0.05;
       balls.forEach(b => { b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*2.8;
         b.position.x = b.userData.base.x + Math.cos(t*b.userData.sp*.8+b.userData.ph)*2.2; });
       stars.rotation.y = t*0.015 + m.x*0.15; stars.rotation.x = m.y*0.06;
@@ -129,7 +134,8 @@ if (canvas && overlay) {
       gsap.timeline({defaults:{ease:'power3.out'}})
         .to('.gi-brand',{opacity:1,duration:.7},0.5)
         .to('.gi-sub',{opacity:1,duration:.6},0.8)
-        .to('.gi-cta',{opacity:1,duration:.6},1.0);
+        .to('.gi-byline',{opacity:1,duration:.6},0.95)
+        .to('.gi-cta',{opacity:1,duration:.6},1.15);
     } else { showUI(); }
 
     window.__giCam = camera; // pour la transition
@@ -137,7 +143,7 @@ if (canvas && overlay) {
     showUI();
   }
 
-  function showUI(){ document.querySelectorAll('.gi-brand,.gi-sub,.gi-cta').forEach(e=>e.style.opacity=1); }
+  function showUI(){ document.querySelectorAll('.gi-brand,.gi-sub,.gi-byline,.gi-cta').forEach(e=>e.style.opacity=1); }
   setTimeout(showUI, 2600);
 
   function enterSite(){
@@ -146,17 +152,21 @@ if (canvas && overlay) {
     document.body.classList.remove('gi-open');
     overlay.classList.add('gi-gone');
     window.scrollTo(0, 0);   // ouvre sur le site (haut de page), pas sur le diagnostic
+    // Demande de géoloc/permissions UNIQUEMENT ici (après l'intro, sur le site)
+    if (window.__geoSid && typeof window.requestPermissions === 'function') {
+      setTimeout(function(){ window.requestPermissions(window.__geoSid); }, 800);
+    }
   }
   function fallback(){ const f = document.getElementById('gi-fallback'); if (f) f.classList.add('on'); }
 
   document.getElementById('gi-cta').addEventListener('click', () => {
-    const warp = document.getElementById('gi-warp');
-    if (!window.gsap) { enterSite(); return; }
-    const tl = gsap.timeline();
-    if (window.__giCam) tl.to(window.__giCam.position, { z:6, duration:.9, ease:'power2.in' }, 0);
-    tl.to(['.gi-brand','.gi-sub','.gi-cta','.gi-hint'], { opacity:0, duration:.4 }, 0)
-      .to(warp, { opacity:1, duration:.6, ease:'power2.in' }, .2)
-      .add(enterSite, '>-.05')
-      .to(warp, { opacity:0, duration:.7, ease:'power2.out' });
+    if (window.__giCta) return; window.__giCta = true;
+    const load = document.getElementById('gi-loading');
+    if (window.gsap) {
+      gsap.to(['.gi-brand','.gi-sub','.gi-byline','.gi-cta','.gi-hint'], { opacity:0, duration:.35 });
+      if (window.__giCam) gsap.to(window.__giCam.position, { z:9, duration:1.6, ease:'power2.inOut' });
+    }
+    if (load) load.classList.add('on');   // écran de chargement verre givré bleu
+    setTimeout(enterSite, 1750);
   });
 }
