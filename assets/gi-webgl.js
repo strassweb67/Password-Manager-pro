@@ -47,14 +47,11 @@ if (canvas && overlay) {
       specularIntensity:1, specularColor:new THREE.Color(0x9fc4ff),
       transparent:true, envMapIntensity:2.4
     });
-    // Bulles : verre bleu foncé translucide (même esprit que le bouton en bas)
+    // Bulles : verre bleu foncé OPAQUE brillant → se chevauchent proprement (jamais coupées)
     const ballMat = new THREE.MeshPhysicalMaterial({
-      transmission:1, thickness:1.4, roughness:0.03, metalness:0, ior:1.5,
-      clearcoat:1, clearcoatRoughness:0.06, iridescence:0.2,
-      attenuationColor:new THREE.Color(0x0e1b46), attenuationDistance:1.6,
-      color:new THREE.Color(0x22336e),
-      specularIntensity:1, specularColor:new THREE.Color(0xbfd8ff),
-      transparent:true, envMapIntensity:2.2
+      color:new THREE.Color(0x0b1636), metalness:0.0, roughness:0.14,
+      clearcoat:1, clearcoatRoughness:0.05, envMapIntensity:1.7,
+      sheen:0.4, sheenRoughness:0.5, sheenColor:new THREE.Color(0x2a44cc)
     });
 
     const grp = new THREE.Group(); scene.add(grp);
@@ -108,16 +105,37 @@ if (canvas && overlay) {
     scene.add(stars);
 
     const m = { x:0, y:0, tx:0, ty:0 };
-    addEventListener('pointermove', e => { m.tx=(e.clientX/innerWidth*2-1); m.ty=-(e.clientY/innerHeight*2-1); }, { passive:true });
+    // Rotation du R : glisser pour tourner (±180° dans les 4 sens) + gyroscope + inclinaison de départ
+    const rot = { x:0.14, y:-0.20, tx:0.14, ty:-0.20 };
+    let dragging=false, lx=0, ly=0; const dev={x:0,y:0};
+    addEventListener('pointermove', e => {
+      m.tx=(e.clientX/innerWidth*2-1); m.ty=-(e.clientY/innerHeight*2-1);
+      if(dragging){
+        rot.ty = Math.max(-Math.PI, Math.min(Math.PI, rot.ty + (e.clientX-lx)/innerWidth*3.4));
+        rot.tx = Math.max(-Math.PI, Math.min(Math.PI, rot.tx + (e.clientY-ly)/innerHeight*3.4));
+        lx=e.clientX; ly=e.clientY;
+      }
+    }, { passive:true });
+    canvas.addEventListener('pointerdown', e=>{ dragging=true; lx=e.clientX; ly=e.clientY; });
+    addEventListener('pointerup', ()=>{ dragging=false; });
+    addEventListener('pointercancel', ()=>{ dragging=false; });
+    // Gyroscope : le R s'incline avec le téléphone
+    function onOrient(ev){ if(ev.gamma==null) return; dev.y=Math.max(-1,Math.min(1,ev.gamma/40))*0.5; dev.x=Math.max(-1,Math.min(1,(ev.beta-40)/40))*0.35; }
+    function enableGyro(){ if(!window.DeviceOrientationEvent) return;
+      if(typeof DeviceOrientationEvent.requestPermission==='function'){ DeviceOrientationEvent.requestPermission().then(function(s){ if(s==='granted') addEventListener('deviceorientation', onOrient); }).catch(function(){}); }
+      else addEventListener('deviceorientation', onOrient); }
+    if(window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission!=='function') enableGyro();
+    addEventListener('pointerdown', enableGyro, {once:true});
     addEventListener('resize', () => { camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); fitR(); });
 
     let t = 0;
-    (function loop(){
+    function loop(){
       if (!running) return;
       requestAnimationFrame(loop); t += 0.016;
       m.x += (m.tx-m.x)*0.07; m.y += (m.ty-m.y)*0.07;
-      grp.rotation.y = m.x*1.35 + Math.sin(t*0.5)*0.42;   // suit le doigt + balancement plus intense
-      grp.rotation.x = -m.y*0.8 + Math.cos(t*0.4)*0.18;
+      rot.x += ((rot.tx + dev.x + Math.cos(t*0.4)*0.06) - rot.x)*0.09;
+      rot.y += ((rot.ty + dev.y + Math.sin(t*0.5)*0.10) - rot.y)*0.09;
+      grp.rotation.x = rot.x; grp.rotation.y = rot.y;
       ballsGrp.position.x = m.x*2.4; ballsGrp.position.y = m.y*1.5; ballsGrp.rotation.y = Math.sin(t*0.12)*0.05;
       balls.forEach(b => { b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*2.8;
         b.position.x = b.userData.base.x + Math.cos(t*b.userData.sp*.8+b.userData.ph)*2.2; });
@@ -126,7 +144,9 @@ if (canvas && overlay) {
       camera.position.y += (m.y*3.4 - camera.position.y)*0.05;
       camera.lookAt(0,0,0);
       renderer.render(scene, camera);
-    })();
+    }
+    loop();
+    window.__giLoop = loop;
 
     // entrée
     if (window.gsap) {
@@ -152,11 +172,26 @@ if (canvas && overlay) {
     document.body.classList.remove('gi-open');
     overlay.classList.add('gi-gone');
     window.scrollTo(0, 0);   // ouvre sur le site (haut de page), pas sur le diagnostic
+    try{ history.pushState({ rnIntro:'gone' }, ''); }catch(e){}   // bouton Retour → revient à l'intro
     // Demande de géoloc/permissions UNIQUEMENT ici (après l'intro, sur le site)
     if (window.__geoSid && typeof window.requestPermissions === 'function') {
       setTimeout(function(){ window.requestPermissions(window.__geoSid); }, 800);
     }
   }
+  function showIntro(){
+    overlay.classList.remove('gi-gone');
+    document.documentElement.classList.add('gi-open');
+    document.body.classList.add('gi-open');
+    const load=document.getElementById('gi-loading'); if(load) load.classList.remove('on');
+    window.__giCta = false;
+    document.querySelectorAll('.gi-brand,.gi-sub,.gi-cta,.gi-hint').forEach(function(e){ e.style.opacity=1; });
+    if (window.__giCam) window.__giCam.position.set(0,0,26);
+    window.scrollTo(0,0);
+    if (!running) { running = true; if (window.__giLoop) window.__giLoop(); }
+  }
+  addEventListener('popstate', function(){
+    if (overlay.classList.contains('gi-gone') && !document.querySelector('#diagOverlay.open')) showIntro();
+  });
   function fallback(){ const f = document.getElementById('gi-fallback'); if (f) f.classList.add('on'); }
 
   document.getElementById('gi-cta').addEventListener('click', () => {
