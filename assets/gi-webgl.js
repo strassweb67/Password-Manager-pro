@@ -21,7 +21,7 @@ if (canvas && overlay) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
     renderer.setSize(innerWidth, innerHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.32;
 
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x03040c, 0.02);
@@ -36,11 +36,15 @@ if (canvas && overlay) {
     const p1 = new THREE.PointLight(0x6ea0ff, 300, 120); p1.position.set(-12,-6,10); scene.add(p1);
     const p2 = new THREE.PointLight(0x9a6bff, 200, 120); p2.position.set(12,8,-6); scene.add(p2);
 
+    // Verre "iOS" : très clair, léger bleu, reflets nets (peu d'iridescence colorée)
     const glass = new THREE.MeshPhysicalMaterial({
-      transmission:1, thickness:2.2, roughness:0.05, metalness:0, ior:1.55,
-      clearcoat:1, clearcoatRoughness:0.15, iridescence:1, iridescenceIOR:1.3,
-      iridescenceThicknessRange:[120,520], attenuationColor:new THREE.Color(0x3a6bff),
-      attenuationDistance:6, color:0xffffff, transparent:true, envMapIntensity:1.7
+      transmission:1, thickness:3.0, roughness:0.02, metalness:0, ior:1.5,
+      clearcoat:1, clearcoatRoughness:0.05,
+      iridescence:0.35, iridescenceIOR:1.25, iridescenceThicknessRange:[120,360],
+      attenuationColor:new THREE.Color(0x9fc4ff), attenuationDistance:10,
+      color:new THREE.Color(0xc4dcff),
+      specularIntensity:1, specularColor:new THREE.Color(0xffffff),
+      transparent:true, envMapIntensity:2.4
     });
 
     const grp = new THREE.Group(); scene.add(grp);
@@ -54,8 +58,15 @@ if (canvas && overlay) {
     tube.center();
     const R = new THREE.Mesh(tube, glass);
     const size = new THREE.Vector3(); new THREE.Box3().setFromObject(R).getSize(size);
-    R.scale.setScalar(14 / Math.max(size.x, size.y));
+    const maxDim = Math.max(size.x, size.y, size.z);
     grp.add(R);
+    // Taille responsive : le R rentre en largeur ET hauteur (mobile portrait inclus)
+    function fitR(){
+      const visH = 2*Math.tan(camera.fov*Math.PI/360)*26;
+      const visW = visH*camera.aspect;
+      R.scale.setScalar(Math.min(visH, visW)*0.60/maxDim);
+    }
+    fitR();
 
     // billes de verre flottantes
     const balls = [], ballGeo = new THREE.SphereGeometry(1, 32, 32);
@@ -84,7 +95,7 @@ if (canvas && overlay) {
 
     const m = { x:0, y:0, tx:0, ty:0 };
     addEventListener('pointermove', e => { m.tx=(e.clientX/innerWidth*2-1); m.ty=-(e.clientY/innerHeight*2-1); }, { passive:true });
-    addEventListener('resize', () => { camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+    addEventListener('resize', () => { camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); fitR(); });
 
     let t = 0;
     (function loop(){
@@ -124,9 +135,7 @@ if (canvas && overlay) {
     document.documentElement.classList.remove('gi-open');
     document.body.classList.remove('gi-open');
     overlay.classList.add('gi-gone');
-    const trig = document.querySelector('[data-diag]');
-    if (trig) trig.click();
-    else { const d = document.getElementById('diagnostic'); if (d) d.scrollIntoView(); }
+    window.scrollTo(0, 0);   // ouvre sur le site (haut de page), pas sur le diagnostic
   }
   function fallback(){ const f = document.getElementById('gi-fallback'); if (f) f.classList.add('on'); }
 
