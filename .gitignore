@@ -1,0 +1,6 @@
+# Aperçus autonomes générés (images inlinées) — non déployés
+preview/
+
+# Divers
+node_modules/
+.DS_Store
