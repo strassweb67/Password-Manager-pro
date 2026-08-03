@@ -9,6 +9,8 @@
 @font-face{font-family:'Inter';src:url('fonts/inter-latin-wght-normal.woff2') format('woff2-variations'),url('fonts/inter-latin-ext-wght-normal.woff2') format('woff2-variations');font-weight:100 900;font-display:swap;font-style:normal;}
 @font-face{font-family:'Archivo';src:url('fonts/archivo-latin-wght-normal.woff2') format('woff2-variations'),url('fonts/archivo-latin-ext-wght-normal.woff2') format('woff2-variations');font-weight:100 900;font-display:swap;font-style:normal;}
 @font-face{font-family:'Archivo Variable';src:url('fonts/archivo-latin-wght-normal.woff2') format('woff2-variations'),url('fonts/archivo-latin-ext-wght-normal.woff2') format('woff2-variations');font-weight:100 900;font-display:swap;font-style:normal;}
+/* Serif Renaissance (Trajan/Cinzel) — bas-de-casse = petites capitales */
+@font-face{font-family:'Cinzel';src:url('fonts/cinzel-latin-wght.woff2') format('woff2');font-weight:400 900;font-display:swap;font-style:normal;}
 
 /* ── Jetons dark luxe ── */
 :root{
@@ -94,14 +96,15 @@ h1,h2,h3,.footer-brand{font-family:'Archivo Variable','Archivo',system-ui,sans-s
 a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--gold) !important;outline-offset:2px !important;}
 
 /* ── HERO plein écran : titre solide (pas de dégradé), Archivo large & fort ── */
+/* Titre RENAISSANCE : serif Cinzel (grand R + petites capitales), verre bleu */
 .cine-hero__title{
-  font-family:'Archivo Variable','Archivo',system-ui,sans-serif !important;
-  font-weight:800 !important;letter-spacing:-.02em !important;}
-/* Titre RENAISSANCE : verre bleu (cohérent avec le R de l'intro) */
+  font-family:'Cinzel','Archivo Variable',Georgia,serif !important;
+  font-weight:700 !important;letter-spacing:.02em !important;}
 .cine-hero__title--glass{
+  font-family:'Cinzel',Georgia,serif !important;
   background:none !important;-webkit-background-clip:border-box !important;background-clip:border-box !important;
   color:#2f46d6 !important;-webkit-text-fill-color:#2f46d6 !important;
-  -webkit-text-stroke:1.4px rgba(255,255,255,.9) !important;
+  -webkit-text-stroke:.9px rgba(255,255,255,.85) !important;
   filter:drop-shadow(0 10px 44px rgba(47,70,214,.5)) drop-shadow(0 3px 12px rgba(0,0,0,.6)) !important;
   animation:chUp 1s cubic-bezier(.16,1,.3,1) .28s forwards !important;text-shadow:none !important;}
 .cine-hero__tagline{color:var(--ink-dim) !important;font-weight:600 !important;letter-spacing:.34em !important;}
@@ -136,12 +139,13 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
   box-shadow:inset 0 -2px 5px rgba(0,0,0,.55),inset 0 2px 3px rgba(255,255,255,.35),0 2px 5px rgba(0,0,0,.4);}
 .btn-orb::after{content:'';position:absolute;top:16%;left:22%;width:26%;height:26%;border-radius:50%;
   background:radial-gradient(circle,#ffffff 0%,rgba(255,255,255,.2) 60%,transparent 100%);filter:blur(.3px);}
-.bo-1{animation:boA 7.5s ease-in-out infinite;}
-.bo-2{animation:boB 9s ease-in-out infinite;}
-.bo-3{animation:boC 8.2s ease-in-out infinite;}
-.bo-4{animation:boD 10.5s ease-in-out infinite;}
-@keyframes boA{0%,100%{transform:translate(0,0)}50%{transform:translate(16px,-7px)}}
-@keyframes boB{0%,100%{transform:translate(0,0)}50%{transform:translate(-14px,6px)}}
-@keyframes boC{0%,100%{transform:translate(0,0)}33%{transform:translate(10px,8px)}66%{transform:translate(-8px,-6px)}}
-@keyframes boD{0%,100%{transform:translate(0,0)}50%{transform:translate(12px,9px)}}
-@media(prefers-reduced-motion:reduce){.btn-orb{animation:none !important;}}
+/* mouvement continu, plus ample — volontairement actif même si le
+   téléphone est en "réduire les animations" (demande explicite) */
+.bo-1{animation:boA 5s ease-in-out infinite !important;}
+.bo-2{animation:boB 6s ease-in-out infinite !important;}
+.bo-3{animation:boC 5.4s ease-in-out infinite !important;}
+.bo-4{animation:boD 6.6s ease-in-out infinite !important;}
+@keyframes boA{0%,100%{transform:translate(0,0)}50%{transform:translate(26px,-13px)}}
+@keyframes boB{0%,100%{transform:translate(0,0)}50%{transform:translate(-24px,12px)}}
+@keyframes boC{0%,100%{transform:translate(0,0)}33%{transform:translate(18px,14px)}66%{transform:translate(-16px,-11px)}}
+@keyframes boD{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,15px)}}
