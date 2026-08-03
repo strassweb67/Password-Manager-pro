@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var reduce = false;   /* animations forcées sur tous les appareils (demande explicite) */
   function ready(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
 
   ready(function(){

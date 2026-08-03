@@ -9,7 +9,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 (function(){
   const host = document.getElementById('heroGL');
   if (!host) return;
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduce = false;   /* animations forcées sur tous les appareils (demande explicite) */
 
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas: host, antialias:true, alpha:true, powerPreference:'high-performance' }); }
@@ -42,9 +42,9 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   const balls = [];
   for (let i=0;i<COUNT;i++){
     const b = new THREE.Mesh(geo, ballMat);
-    const r0 = 0.7 + Math.random()*2.1;
+    const r0 = 0.7 + Math.random()*1.5;
     b.scale.setScalar(r0);
-    b.position.set((Math.random()-.5)*44, (Math.random()-.5)*30, (Math.random()-.5)*14);
+    b.position.set((Math.random()-.5)*30, (Math.random()-.5)*22, (Math.random()-.5)*12);
     b.renderOrder = 2;
     b.userData = { sp:0.25+Math.random()*0.7, ph:Math.random()*6.28, base:b.position.clone(), r0:r0 };
     orbs.add(b); balls.push(b);
@@ -106,7 +106,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     renderer.render(scene, camera);
     tick();
   }
-  function tick(){ if(!raf && onScreen && !reduce) raf = requestAnimationFrame(frame); }
-
-  if (reduce){ renderer.render(scene, camera); } else { tick(); }
+  // Toujours animé (mouvement doux voulu même en "réduire les animations")
+  function tick(){ if(!raf && onScreen) raf = requestAnimationFrame(frame); }
+  tick();
 })();
