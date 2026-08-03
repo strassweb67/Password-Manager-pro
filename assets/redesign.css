@@ -14,7 +14,7 @@
 
 /* ── Jetons dark luxe ── */
 :root{
-  --bg:#08080a; --bg-2:#0b0b0e; --bg-card:#101014;
+  --bg:#03040c; --bg-2:#06070f; --bg-card:#0d0f18;
   --ink:#f5f4f1; --ink-dim:#a7a29a; --ink-faint:#6f6b64;
   --line:rgba(245,244,241,.09); --line-2:rgba(245,244,241,.16);
   --gold:#6f88ff; --gold-2:#9fb2ff; --gold-soft:rgba(90,114,255,.14);
@@ -25,7 +25,7 @@
   --r:14px;
 }
 
-html,body{background:#08080a;}
+html,body{background:#03040c;}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;letter-spacing:-.011em;}
 
 /* ── Calmer le décor (grain + aurora + particules) ── */
