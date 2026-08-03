@@ -1857,7 +1857,7 @@ footer{background:rgba(0,0,0,.96);}
     <h1 class="cine-hero__title cine-hero__title--glass" data-words>Renaissance</h1>
     <p class="cine-hero__tagline">Discipline<span>·</span>Ambition<span>·</span>Impact</p>
     <div class="ch-pitch">
-      <p class="ch-pitch-hook">Et si tu arrêtais enfin d'attendre le «&nbsp;bon moment&nbsp;» ?</p>
+      <p class="ch-pitch-hook">Et si tu arrêtais enfin d'attendre le «&nbsp;<b>bon moment</b>&nbsp;» ?</p>
       <ul class="ch-pitch-list">
         <li><strong>Formations exclusives</strong></li>
         <li>Accompagnement <strong>privé</strong></li>
@@ -1877,7 +1877,7 @@ footer{background:rgba(0,0,0,.96);}
   </a>
 </section>
 <style>
-.cine-hero{position:relative;height:100svh;min-height:580px;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;isolation:isolate;background:#03040c;}
+.cine-hero{position:relative;height:100svh;min-height:580px;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;text-align:center;isolation:isolate;background:#03040c;padding-top:clamp(86px,12.5vh,116px);padding-bottom:20px;box-sizing:border-box;}
 .cine-hero__bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 90% 70% at 50% 40%,#0a1236 0%,#03040c 72%);}
 .cine-hero__poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;opacity:.14;filter:saturate(.7) brightness(.8);mix-blend-mode:screen;}
 .cine-hero__gl{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;}
@@ -1909,7 +1909,7 @@ footer{background:rgba(0,0,0,.96);}
   animation:chUp 1s cubic-bezier(.16,1,.3,1) .28s forwards, chGrad 7s linear 1.6s infinite;
   filter:drop-shadow(0 6px 40px rgba(197,168,76,.28));}
 @keyframes chGrad{0%{background-position:0% center;}100%{background-position:200% center;}}
-.cine-hero__kick{font-family:Archivo,system-ui,sans-serif;font-weight:800;letter-spacing:.34em;text-indent:.34em;font-size:clamp(15px,4.2vw,26px);color:#8aa6ff;-webkit-text-fill-color:#8aa6ff;-webkit-text-stroke:.6px rgba(255,255,255,.35);margin-bottom:26px;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .18s forwards;
+.cine-hero__kick{font-family:Archivo,system-ui,sans-serif;font-weight:800;letter-spacing:.34em;text-indent:.34em;font-size:clamp(15px,4.2vw,26px);color:#8aa6ff;-webkit-text-fill-color:#8aa6ff;-webkit-text-stroke:.6px rgba(255,255,255,.35);margin-bottom:14px;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .18s forwards;
   /* ombre iOS sombre ~0,3mm autour + halo doux, texte lisible sur les bulles */
   text-shadow:0 0 1.4px rgba(0,0,0,.95),1px 0 1.4px rgba(3,5,14,.85),-1px 0 1.4px rgba(3,5,14,.85),0 1px 1.4px rgba(3,5,14,.85),0 0 11px rgba(3,6,20,.72),0 4px 20px rgba(47,70,214,.4);}
 /* Titre RENAISSANCE — verre bleu (cohérent avec le R de l'intro) */
@@ -1921,18 +1921,35 @@ footer{background:rgba(0,0,0,.96);}
 .cine-hero__tagline{margin-top:14px;font-size:12px;letter-spacing:5px;color:#e8f0ff;font-weight:700;text-transform:uppercase;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .42s forwards;}
 .cine-hero__tagline span{color:#8aa6ff;margin:0 8px;}
 .cine-hero__sub{margin:20px auto 0;max-width:520px;font-size:15px;line-height:1.7;color:#c7d3e6;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .54s forwards;}
-.cine-hero__cta{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:26px;width:100%;max-width:420px;margin-left:auto;margin-right:auto;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .72s forwards;}
+.cine-hero__cta{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:16px;width:100%;max-width:420px;margin-left:auto;margin-right:auto;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .72s forwards;}
 .cine-hero__cta .ch-btn{width:100%;justify-content:center;white-space:nowrap;font-size:clamp(12px,3.6vw,14px);padding:15px 18px;}
-.ch-pitch{max-width:460px;margin:clamp(48px,11vh,100px) auto 0;text-align:center;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .58s forwards;}
-/* Accroche sur UNE seule ligne sur toutes les résolutions */
-.ch-pitch-hook{font-family:Archivo,system-ui,sans-serif;font-weight:800;white-space:nowrap;font-size:clamp(11px,3.15vw,21px);letter-spacing:-.01em;color:#eaf2ff;line-height:1.25;margin-bottom:14px;
-  text-shadow:0 0 1.6px rgba(0,0,0,.98),1px 0 1.6px rgba(2,4,12,.92),-1px 0 1.6px rgba(2,4,12,.92),0 1px 1.6px rgba(2,4,12,.92),0 0 15px rgba(2,5,18,.85),0 5px 24px rgba(0,0,0,.62);}
-/* Liste à puces bleue */
-.ch-pitch-list{list-style:none;margin:0 auto;padding:0;display:inline-block;text-align:left;}
-.ch-pitch-list li{position:relative;padding-left:22px;margin:8px 0;font-size:clamp(13px,3.6vw,15px);line-height:1.45;color:#dbe4f5;
-  text-shadow:0 0 1.4px rgba(0,0,0,.9),0 1px 1.4px rgba(2,4,12,.85),0 0 10px rgba(2,5,18,.6);}
-.ch-pitch-list li::before{content:'●';position:absolute;left:2px;top:.02em;color:#6f88ff;font-size:.62em;line-height:1.9;text-shadow:0 0 8px rgba(90,120,255,.8);}
-.ch-pitch-list strong{color:#9fb2ff;font-weight:700;}
+/* Carte « verre bleu » qui met en valeur l'offre (lisible par-dessus les bulles) */
+.ch-pitch{position:relative;max-width:430px;margin:16px auto 0;text-align:left;
+  padding:20px 20px 18px;border-radius:22px;
+  background:linear-gradient(180deg,rgba(20,30,68,.74) 0%,rgba(8,12,32,.68) 100%);
+  border:1px solid rgba(122,152,255,.30);
+  -webkit-backdrop-filter:blur(15px) saturate(1.25);backdrop-filter:blur(15px) saturate(1.25);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 20px 55px rgba(0,0,0,.55),0 0 44px rgba(64,96,235,.30),0 0 100px rgba(64,96,235,.14);
+  opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .58s forwards;}
+/* liseré néon bleu doux autour de la carte */
+.ch-pitch::before{content:'';position:absolute;inset:-1px;border-radius:23px;padding:1px;pointer-events:none;
+  background:linear-gradient(140deg,rgba(140,166,255,.55),rgba(140,166,255,0) 40%,rgba(140,166,255,0) 60%,rgba(140,166,255,.42));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;}
+/* Accroche = titre de la carte, centrée, avec un séparateur */
+.ch-pitch-hook{font-family:Archivo,system-ui,sans-serif;font-weight:800;white-space:normal;text-align:center;
+  font-size:clamp(15px,4.3vw,20px);letter-spacing:-.01em;color:#f2f6ff;line-height:1.28;
+  margin:0 0 14px;padding-bottom:14px;border-bottom:1px solid rgba(122,152,255,.20);
+  text-shadow:0 1px 10px rgba(2,5,18,.55);}
+.ch-pitch-hook b,.ch-pitch-hook em{font-style:normal;color:#9fb2ff;}
+/* Liste des inclus — coche bleue premium */
+.ch-pitch-list{list-style:none;margin:0;padding:0;}
+.ch-pitch-list li{position:relative;padding-left:30px;margin:11px 0;font-size:clamp(13.5px,3.7vw,15px);line-height:1.4;color:#e4ebfb;}
+.ch-pitch-list li::before{content:'✓';position:absolute;left:0;top:.04em;width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center;border-radius:50%;
+  font-size:11px;font-weight:900;color:#fff;
+  background:linear-gradient(135deg,#5a78ff,#3a52d6);
+  box-shadow:0 0 10px rgba(90,120,255,.7),inset 0 1px 1px rgba(255,255,255,.4);}
+.ch-pitch-list strong{color:#aebeff;font-weight:800;}
 .ch-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:15px 26px;border-radius:40px;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:transform .18s,box-shadow .3s,background .3s,border-color .3s;position:relative;overflow:hidden;}
 /* même balayage lumineux + press que les .btn-fp (effet validé) */
 .ch-btn::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
@@ -2207,7 +2224,8 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
       <div><span>Réseau privé &amp; séminaires</span><span>Inclus</span></div>
       <div><span>Résiliation</span><span>À tout moment</span></div>
     </div>
-    <a href="https://www.skool.com/rennaissance-5383/about" target="_blank" rel="noopener" class="btn-fp primary" data-log="Tarif → Skool" style="width:100%;">Rejoindre sur Skool</a>
+    <a href="#" class="btn-fp primary" data-diag data-log="Tarif → Rejoindre (site)" style="width:100%;">Rejoindre Renaissance</a>
+    <p style="margin-top:12px;font-size:12px;line-height:1.6;color:#9fb2ff;text-align:center;">Paiement 100&nbsp;% sécurisé, directement sur ce site — par carte bancaire (Revolut). Aucune plateforme externe.</p>
   </div>
 </section>
 
@@ -2215,11 +2233,12 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <section class="section dossier" id="faq">
   <div class="sec-head rev"><h2 class="sec-t">Questions <span class="y">fréquentes</span></h2></div>
   <div class="faq-list rev rev-d1">
-    <details class="faq-it"><summary>C'est quoi Renaissance, concrètement&nbsp;?</summary><p>Un programme à six modules accessible pour 10$/mois via Skool, avec un cercle privé et des soirées BGH Party en complément.</p></details>
+    <details class="faq-it"><summary>C'est quoi Renaissance, concrètement&nbsp;?</summary><p>Un programme à six modules accessible directement sur ce site, avec un cercle privé et des soirées BGH Party en complément. Tout se passe ici — inscription, paiement et accès.</p></details>
     <details class="faq-it"><summary>Le diagnostic est vraiment gratuit&nbsp;?</summary><p>Oui, 100% offert et sans carte bancaire. Treize questions, deux minutes, et tu reçois immédiatement ton profil complet avec ton analyse personnalisée.</p></details>
     <details class="faq-it"><summary>Zyra Protocol est disponible maintenant&nbsp;?</summary><p>Pas encore — bêta fermée. Rejoins la liste d'attente pour un accès prioritaire.</p></details>
     <details class="faq-it"><summary>Comment fonctionnent les soirées BGH Party&nbsp;?</summary><p>Entrée sélective, sur invitation. Les membres du programme sont prévenus en priorité.</p></details>
-    <details class="faq-it"><summary>Je peux annuler à tout moment&nbsp;?</summary><p>Oui, résiliable directement depuis Skool, sans engagement.</p></details>
+    <details class="faq-it"><summary>Comment se passe le paiement&nbsp;?</summary><p>Directement sur ce site, en quelques secondes, par carte bancaire via notre système sécurisé Revolut. Tu n'as aucune plateforme externe à créer.</p></details>
+    <details class="faq-it"><summary>Je peux annuler à tout moment&nbsp;?</summary><p>Oui, sans engagement. Il te suffit de nous écrire depuis le site pour résilier à tout moment.</p></details>
   </div>
 </section>
 
@@ -2229,7 +2248,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
   <h2 class="sec-t rev">Dans six mois, tu auras <span class="y">commencé ou pas.</span></h2>
   <div class="rang mt-m rev rev-d1" style="justify-content:center;">
     <a href="#" class="btn-fp primary" data-diag data-log="Final → Diagnostic offert">Faire mon diagnostic offert</a>
-    <a href="https://www.skool.com/rennaissance-5383/about" target="_blank" rel="noopener" class="fil" data-log="Final → Skool direct">Rejoindre directement Renaissance</a>
+    <a href="#" class="fil" data-diag data-log="Final → Rejoindre (site)">Rejoindre directement Renaissance</a>
   </div>
   <div class="credits-box mt-l rev rev-d2" style="max-width:26rem;">
     <span class="credits-k">Ingénierie &amp; design</span>
@@ -4596,7 +4615,7 @@ function showVisitorDetail(v){
 
 /* ── CONFIG OFFRE — un seul endroit à modifier ── */
 var DG_OFFER = {
-  url:   "https://www.skool.com/rennaissance-5383/about",
+  url:   "",   /* espace membre après paiement (laisse vide → retour accueil) */
   price: "29€",
   value: "+10 082€ de valeur",
   note:  "Accès immédiat · Sans engagement · Résiliable à tout moment"
@@ -4612,14 +4631,15 @@ var LS_KEY = "rn_diag_leads";
       paiement sur :  https://TON-DOMAINE/renaissance.html?rvlt=success
    → Au retour, la fiche passe automatiquement en « Paiement validé »
      dans l'admin (onglet Paiements).
-   Tant que REVOLUT_LINK est vide, le bouton bascule sur l'offre Skool. */
+   Tant que REVOLUT_LINK est vide, le paiement affiche un message « bientôt
+   disponible » sur le site (aucune redirection externe). */
 var PAY = {
   provider:     "revolut",
   REVOLUT_LINK: "",          // ← colle ici ton lien de paiement Revolut
   amount:       "29",
   currency:     "EUR",
   returnParam:  "rvlt",      // ?rvlt=success au retour de Revolut
-  fallbackUrl:  DG_OFFER.url  // secours si aucun lien Revolut configuré
+  fallbackUrl:  ""           // plus aucune plateforme externe (paiement 100% sur le site)
 };
 window.__PAY = PAY;
 
@@ -5018,8 +5038,24 @@ function goToPayment(){
       amount:PAY.amount, currency:PAY.currency, ts:Date.now()
     }));
   }catch(e){}
-  if(link){ window.location.href=link; }
-  else{ window.open(PAY.fallbackUrl,"_blank","noopener"); }
+  if(link){ window.location.href=link; return; }
+  /* Aucune plateforme externe : si le lien Revolut n'est pas encore posé,
+     on reste sur le site et on affiche un message clair. */
+  showPayComingSoon();
+}
+/* Écran on-site quand le paiement Revolut n'est pas encore configuré */
+function showPayComingSoon(){
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(ellipse at 50% 30%,rgba(64,96,235,.16),#030307 60%);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;';
+  ov.innerHTML='<div style="max-width:440px;text-align:center;background:#0c0d18;border:1px solid rgba(122,152,255,.35);border-radius:20px;padding:40px 30px;box-shadow:0 30px 80px rgba(0,0,0,.8);">'
+    +'<div style="width:70px;height:70px;margin:0 auto 20px;border-radius:50%;background:rgba(90,120,255,.16);border:1px solid rgba(122,152,255,.5);display:flex;align-items:center;justify-content:center;font-size:34px;">🔒</div>'
+    +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:22px;letter-spacing:1px;color:#f1f5f9;margin-bottom:10px;">Paiement sécurisé sur le site</h2>'
+    +'<p style="font-size:14px;color:#94a3b8;line-height:1.7;margin-bottom:22px;">Ta demande est bien enregistrée. Le paiement par carte se fait directement ici via Revolut — tu vas être recontacté très vite pour finaliser ton accès. Aucune plateforme externe.</p>'
+    +'<button type="button" style="display:block;width:100%;padding:15px;background:linear-gradient(135deg,#5a78ff,#3a52d6);color:#fff;border:none;border-radius:12px;font-weight:800;letter-spacing:1px;font-size:13px;cursor:pointer;">J\'AI COMPRIS</button>'
+    +'</div>';
+  ov.querySelector('button').onclick=function(){ ov.remove(); };
+  ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove(); });
+  document.body.appendChild(ov);
 }
 window.__goToPayment=goToPayment;
 
@@ -5330,7 +5366,7 @@ function showPaidScreen(ctx){
     +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:24px;letter-spacing:2px;color:#f1f5f9;margin-bottom:10px;">PAIEMENT VALIDÉ</h2>'
     +'<p style="font-size:14px;color:#94a3b8;line-height:1.7;margin-bottom:8px;">Bienvenue dans <b style="color:#22c55e;">Renaissance</b>. Ton accès est débloqué et ta fiche est transmise à l\'équipe pour ton appel de cadrage.</p>'
     +(ctx&&ctx.email?'<p style="font-size:12px;color:#475569;margin-bottom:24px;">Confirmation envoyée à '+esc(ctx.email)+'</p>':'<div style="height:14px;"></div>')
-    +'<a href="'+((window.__PAY&&window.__PAY.fallbackUrl)||'https://www.skool.com/rennaissance-5383/about')+'" target="_blank" rel="noopener" style="display:block;padding:15px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border-radius:12px;font-weight:800;letter-spacing:1px;font-size:13px;text-decoration:none;margin-bottom:12px;">ACCÉDER À MON ESPACE →</a>'
+    +'<a href="'+((window.__PAY&&window.__PAY.fallbackUrl)||'index.html')+'" style="display:block;padding:15px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border-radius:12px;font-weight:800;letter-spacing:1px;font-size:13px;text-decoration:none;margin-bottom:12px;">ACCÉDER À MON ESPACE →</a>'
     +'<a href="index.html" style="display:block;color:#475569;font-size:12px;text-decoration:none;">Retour à l\'accueil</a>'
     +'</div>';
   document.body.appendChild(ov);
