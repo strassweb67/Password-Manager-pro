@@ -181,6 +181,7 @@ if (canvas && overlay) {
   }
   function showIntro(){
     overlay.classList.remove('gi-gone');
+    overlay.classList.remove('gi-load-mode');
     document.documentElement.classList.add('gi-open');
     document.body.classList.add('gi-open');
     const load=document.getElementById('gi-loading'); if(load) load.classList.remove('on');
@@ -197,6 +198,7 @@ if (canvas && overlay) {
 
   document.getElementById('gi-cta').addEventListener('click', () => {
     if (window.__giCta) return; window.__giCta = true;
+    overlay.classList.add('gi-load-mode');   // masque textes + bouton, garde l'anim + la carte
     const load = document.getElementById('gi-loading');
     if (window.gsap) {
       gsap.to(['.gi-kicker','.gi-brand','.gi-sub','.gi-byline','.gi-cta','.gi-hint'], { opacity:0, duration:.35 });
