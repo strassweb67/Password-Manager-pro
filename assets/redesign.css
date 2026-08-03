@@ -43,7 +43,9 @@ h1,h2,h3,.footer-brand{font-family:'Archivo Variable','Archivo',system-ui,sans-s
   text-transform:none !important;}
 .sec-t .tl>span,.sec-t span{background:none !important;-webkit-text-fill-color:currentColor !important;color:inherit !important;}
 /* le mot mis en avant dans les titres → or mat (au lieu d'indigo/dégradé) */
-.sec-t b,.sec-t .accent,.sec-t em,.sec-t .hl,.sec-t strong{color:var(--gold) !important;font-style:normal !important;font-weight:800 !important;background:none !important;-webkit-text-fill-color:var(--gold) !important;}
+.sec-t b,.sec-t .accent,.sec-t em,.sec-t .hl,.sec-t strong,.sec-t .y{color:#3a56e0 !important;font-style:normal !important;font-weight:800 !important;background:none !important;-webkit-text-fill-color:#3a56e0 !important;}
+/* titre forcé sur une seule ligne, toutes résolutions */
+.sec-t--1line{white-space:nowrap !important;font-size:clamp(15px,4.6vw,30px) !important;}
 
 /* ── Boutons : sobres, petit rayon, pas de glow néon ── */
 .btn-fp,.nav-diag,.cta{

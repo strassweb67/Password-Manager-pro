@@ -205,6 +205,6 @@ if (canvas && overlay) {
       if (window.__giCam) gsap.to(window.__giCam.position, { z:9, duration:1.6, ease:'power2.inOut' });
     }
     if (load) load.classList.add('on');   // écran de chargement verre givré bleu
-    setTimeout(enterSite, 1750);
+    setTimeout(enterSite, 2250);
   });
 }
