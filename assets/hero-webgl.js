@@ -11,10 +11,18 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   if (!host) return;
   const reduce = false;   /* animations forcées sur tous les appareils (demande explicite) */
 
+  // Détection perf : navigateurs in-app + mobile → allègement pour rester fluide
+  var _ua = navigator.userAgent || '';
+  var IN_APP = /Instagram|FBAN|FBAV|FB_IAB|Snapchat|WhatsApp|Line|Messenger|TikTok|Twitter|GSA/i.test(_ua);
+  var MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(_ua);
+  var LOW = IN_APP || MOBILE;
+  var DPR_CAP = IN_APP ? 1.15 : (MOBILE ? 1.5 : 2);
+  var SPH = LOW ? 24 : 32;
+
   let renderer;
-  try { renderer = new THREE.WebGLRenderer({ canvas: host, antialias:true, alpha:true, powerPreference:'high-performance' }); }
+  try { renderer = new THREE.WebGLRenderer({ canvas: host, antialias:!LOW, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false }); }
   catch(e){ return; }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, DPR_CAP));
   renderer.setSize(innerWidth, innerHeight);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.18;
@@ -37,8 +45,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     clearcoat:1, clearcoatRoughness:0.1, envMapIntensity:2.1
   });
   const orbs = new THREE.Group(); scene.add(orbs);
-  const geo = new THREE.SphereGeometry(1, 32, 32);
-  const COUNT = innerWidth < 720 ? 9 : 14;
+  const geo = new THREE.SphereGeometry(1, SPH, SPH);
+  const COUNT = LOW ? 8 : 14;
   const balls = [];
   for (let i=0;i<COUNT;i++){
     const b = new THREE.Mesh(geo, ballMat);
@@ -51,7 +59,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   }
 
   // Poussière d'étoiles
-  const N = innerWidth < 720 ? 1400 : 2600;
+  const N = LOW ? 1000 : 2600;
   const pos = new Float32Array(N*3), col = new Float32Array(N*3);
   const cA = new THREE.Color(0x57e0ff), cB = new THREE.Color(0x9a6bff), cW = new THREE.Color(0xffffff);
   for (let i=0;i<N;i++){

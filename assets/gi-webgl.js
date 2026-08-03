@@ -14,11 +14,19 @@ if (canvas && overlay) {
   window.__giAnim = true;              // signale au fallback inline que le module a pris la main
   let running = true, renderer = null;
 
-  try { renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true }); }
+  // Détection perf : navigateurs in-app (Snap/Insta/FB/WhatsApp…) + mobile → allègement
+  var _ua = navigator.userAgent || '';
+  var IN_APP = /Instagram|FBAN|FBAV|FB_IAB|Snapchat|WhatsApp|Line|Messenger|TikTok|Twitter|GSA/i.test(_ua);
+  var MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(_ua);
+  var DPR_CAP = IN_APP ? 1.15 : (MOBILE ? 1.5 : 2);
+  var LOW = IN_APP || MOBILE;
+  var SPH = LOW ? 24 : 32, TUB_T = LOW ? 280 : 320, TUB_R = LOW ? 20 : 24, NPART = LOW ? 1700 : 2600;
+
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias:!LOW, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false }); }
   catch (e) { fallback(); }
 
   if (renderer) {
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, DPR_CAP));
     renderer.setSize(innerWidth, innerHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.32;
@@ -62,7 +70,7 @@ if (canvas && overlay) {
     const sub = data.paths[0].subPaths[0];
     const pts = sub.getPoints(64).map(pt => new THREE.Vector3(pt.x, -pt.y, 0));
     const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.15);
-    const tube = new THREE.TubeGeometry(curve, 320, 5.2, 24, false);
+    const tube = new THREE.TubeGeometry(curve, TUB_T, 5.2, TUB_R, false);
     tube.center();
     const R = new THREE.Mesh(tube, glass);
     const size = new THREE.Vector3(); new THREE.Box3().setFromObject(R).getSize(size);
@@ -80,8 +88,8 @@ if (canvas && overlay) {
     // Bulles dans un groupe SÉPARÉ, toujours DEVANT le R (z positif) → jamais coupées
     R.renderOrder = 0;
     const ballsGrp = new THREE.Group(); scene.add(ballsGrp);
-    const balls = [], ballGeo = new THREE.SphereGeometry(1, 32, 32);
-    for (let i=0;i<12;i++){
+    const balls = [], ballGeo = new THREE.SphereGeometry(1, SPH, SPH);
+    for (let i=0;i<(LOW?8:12);i++){
       const b = new THREE.Mesh(ballGeo, ballMat);
       b.scale.setScalar(0.5 + Math.random()*0.9);
       b.position.set((Math.random()-.5)*16,(Math.random()-.5)*18, 2 + Math.random()*4.5);
@@ -91,7 +99,7 @@ if (canvas && overlay) {
     }
 
     // galaxie de particules
-    const N = 2600, gp = new Float32Array(N*3), gc = new Float32Array(N*3);
+    const N = NPART, gp = new Float32Array(N*3), gc = new Float32Array(N*3);
     const cA = new THREE.Color(0x57e0ff), cB = new THREE.Color(0x9a6bff), cW = new THREE.Color(0xffffff);
     for (let i=0;i<N;i++){
       const rad=34+Math.random()*70, th=Math.random()*6.283, ph=Math.acos(2*Math.random()-1);
