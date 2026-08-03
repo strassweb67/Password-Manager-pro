@@ -29,14 +29,19 @@ for (const [ref, file] of Object.entries(fonts)) {
 // 2) HTML
 let html = read('index.html');
 
-// 2z) images → URL brute GitHub (déjà en ligne) : aucune image à uploader
-const RAW = 'https://raw.githubusercontent.com/strassweb67/password-manager-pro/main/';
+// 2z) images → intégrées en base64 dans le HTML (qualité 100% identique,
+//     fichiers d'origine inchangés) : rien d'externe, tout dans index.html
+const mime = f => f.endsWith('.png') ? 'image/png' : 'image/jpeg';
+const dataURI = f => 'data:' + mime(f) + ';base64,' + b64(f);
+// l'avatar est désormais intégré (ne peut plus échouer) → on retire le fallback
+// onerror qui, sinon, doublerait l'image en base64 (~3 Mo inutiles)
+html = html.split(` onerror="this.src='./avatar-yanis.jpg'"`).join('');
 ['yanis-lambo.jpg', 'avatar-yanis.jpg', 'bg-bgh-party.png', 'bg-renaissance.jpg'].forEach(f => {
-  html = html.split('./' + f).join(RAW + f);
+  html = html.split('./' + f).join(dataURI(f));
 });
-// avatar : source principale pointant vers un ancien dépôt → dépôt en ligne réel
+// avatar : source principale pointant vers un ancien dépôt → image intégrée
 html = html.split('https://raw.githubusercontent.com/yanis-bgh/renaissance/main/avatar-yanis.jpg')
-           .join(RAW + 'avatar-yanis.jpg');
+           .join(dataURI('avatar-yanis.jpg'));
 
 // 2a) CSS intégré
 html = html.replace('<link rel="stylesheet" href="assets/redesign.css?v=14">',
