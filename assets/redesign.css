@@ -80,8 +80,10 @@ h1,h2,h3,.footer-brand{font-family:'Archivo Variable','Archivo',system-ui,sans-s
 
 /* ── Badges / tags : hairline discret ── */
 .badge,.card-tag,.badge-fp,.soon-badge,.launch-badge,.dg-kick{
-  background:rgba(185,151,91,.08) !important;color:var(--gold) !important;border:1px solid rgba(185,151,91,.28) !important;
+  background:rgba(90,114,255,.12) !important;color:#9fb2ff !important;border:1px solid rgba(120,150,255,.34) !important;
   box-shadow:none !important;font-weight:700 !important;letter-spacing:.14em !important;}
+/* badge du diagnostic : pill compacte (pas de boîte pleine largeur "coupée") */
+.dg-kick{display:inline-block !important;border-radius:999px !important;padding:.34rem .8rem !important;width:auto !important;}
 
 /* ── Navbar : pill flottante liquid-glass bleu (gérée dans le <style> du hero) ── */
 
