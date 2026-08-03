@@ -29,6 +29,15 @@ for (const [ref, file] of Object.entries(fonts)) {
 // 2) HTML
 let html = read('index.html');
 
+// 2z) images → URL brute GitHub (déjà en ligne) : aucune image à uploader
+const RAW = 'https://raw.githubusercontent.com/strassweb67/password-manager-pro/main/';
+['yanis-lambo.jpg', 'avatar-yanis.jpg', 'bg-bgh-party.png', 'bg-renaissance.jpg'].forEach(f => {
+  html = html.split('./' + f).join(RAW + f);
+});
+// avatar : source principale pointant vers un ancien dépôt → dépôt en ligne réel
+html = html.split('https://raw.githubusercontent.com/yanis-bgh/renaissance/main/avatar-yanis.jpg')
+           .join(RAW + 'avatar-yanis.jpg');
+
 // 2a) CSS intégré
 html = html.replace('<link rel="stylesheet" href="assets/redesign.css?v=14">',
   '<style id="redesign-css">\n' + css + '\n</style>');
@@ -76,8 +85,7 @@ copy('assets/vendor/three/three.core.js', 'three.core.js');
 copy('assets/vendor/three/jsm/environments/RoomEnvironment.js', 'RoomEnvironment.js');
 copy('assets/vendor/three/jsm/loaders/SVGLoader.js', 'SVGLoader.js');
 
-// 6) images (déjà référencées à plat ./xxx)
-['yanis-lambo.jpg', 'avatar-yanis.jpg', 'bg-bgh-party.png', 'bg-renaissance.jpg'].forEach(f => copy(f, f));
+// 6) images : PLUS copiées — chargées depuis GitHub (RAW) → rien à uploader
 
 const files = fs.readdirSync(OUT);
 console.log('FLAT files (' + files.length + '):');
