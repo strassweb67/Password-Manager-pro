@@ -134,11 +134,15 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
   z-index:-1;pointer-events:none;filter:blur(1.1px) saturate(115%);}          /* flou iOS ~10% */
 .btn-orbs::before{content:'';position:absolute;inset:0;
   backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:.55;}    /* frost iOS derrière */
+/* Chrome noir brillant — IDENTIQUE aux bulles de la page de chargement */
 .btn-orb{position:absolute;border-radius:50%;will-change:transform;
-  background:radial-gradient(circle at 32% 27%,#f7f9ff 0%,#d2d8e6 12%,#9aa1b3 30%,#4b5060 52%,#181b23 80%,#0d0e13 100%);
-  box-shadow:inset 0 -2px 5px rgba(0,0,0,.55),inset 0 2px 3px rgba(255,255,255,.35),0 2px 5px rgba(0,0,0,.4);}
-.btn-orb::after{content:'';position:absolute;top:16%;left:22%;width:26%;height:26%;border-radius:50%;
-  background:radial-gradient(circle,#ffffff 0%,rgba(255,255,255,.2) 60%,transparent 100%);filter:blur(.3px);}
+  background:
+    radial-gradient(circle at 50% 116%, rgba(150,172,214,.4) 0%, rgba(150,172,214,0) 42%),
+    radial-gradient(circle at 33% 23%, #ffffff 0%, rgba(255,255,255,.5) 5%, rgba(255,255,255,0) 14%),
+    radial-gradient(circle at 44% 34%, #454b5a 0%, #22262f 30%, #0e1016 60%, #05060d 100%);
+  box-shadow:inset 0 -4px 10px rgba(140,165,210,.22),inset 0 2px 4px rgba(255,255,255,.1),0 5px 14px rgba(0,0,0,.55);}
+.btn-orb::after{content:'';position:absolute;top:20%;left:52%;width:14%;height:14%;border-radius:50%;
+  background:radial-gradient(circle,#ffffff 0%,rgba(255,255,255,.25) 55%,transparent 100%);filter:blur(.3px);}
 /* mouvement continu, plus ample — volontairement actif même si le
    téléphone est en "réduire les animations" (demande explicite) */
 .bo-1{animation:boA 5s ease-in-out infinite !important;}
