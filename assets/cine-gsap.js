@@ -95,6 +95,37 @@
       });
     });
 
+    /* ── 7) CADRE PHOTO pro : révélation 3D au scroll + parallax ── */
+    gsap.utils.toArray('[data-photo-frame]').forEach(function(el){
+      gsap.set(el, { transformPerspective: 1100 });
+      gsap.from(el, {
+        opacity: 0, y: 60, scale: 0.84, rotateX: 12, transformOrigin: '50% 100%',
+        duration: 1.1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 86%', toggleActions: 'play none none none' }
+      });
+      var img = el.querySelector('img');
+      if (img) gsap.fromTo(img, { yPercent: -8 }, { yPercent: 8, ease: 'none',
+        scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 1 } });
+    });
+
+    /* ── 8) REVEALS en cascade sur tout le contenu jusqu'en bas ── */
+    var revealSel = '.unique-box, .pill-fp, .carte-fp, .card, .mod-row, .faq-it, .use-case, '
+                  + '.targets-block, .credit, .sec-t, .hero-sub, .footer-brand, .dg-axis, .zw-feat';
+    gsap.utils.toArray(revealSel).forEach(function(el){
+      if (el.closest('#diagOverlay') || el.closest('.cine-hero') || el.dataset.cineIn != null) return;
+      if (el.dataset.rvDone) return; el.dataset.rvDone = '1';
+      gsap.from(el, {
+        opacity: 0, y: 40, duration: 0.8, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' }
+      });
+    });
+
+    /* ── 9) Bulles chromées "drip" qui s'envolent en montant au scroll ── */
+    gsap.utils.toArray('.drip').forEach(function(d){
+      gsap.to(d.querySelectorAll('i'), { yPercent: -260, opacity: 0.15, ease: 'none', stagger: 0.04,
+        scrollTrigger: { trigger: d.closest('section,header') || d, start: 'top 60%', end: 'bottom top', scrub: 1 } });
+    });
+
     /* ── Recalcule les positions après polices/images ── */
     window.addEventListener('load', function(){ ST.refresh(); });
     setTimeout(function(){ ST.refresh(); }, 700);

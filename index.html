@@ -866,11 +866,19 @@ footer{background:rgba(0,0,0,.96);}
   padding:.4rem .75rem;border-radius:.5rem;white-space:nowrap;margin-right:42px;
 }
 .kicker.zy{background:var(--zyra);color:#000;}
-.drip{position:absolute;left:calc(100% + 5px);top:0;bottom:0;width:38px;pointer-events:none;}
-.drip i{position:absolute;left:0;height:2px;border-radius:2px;background:linear-gradient(to right,var(--accent),transparent);display:block;}
-.kicker.zy + .drip i,.drip.zy i{background:linear-gradient(to right,var(--zyra),transparent);}
-.drip i:nth-child(1){top:20%;width:36px;} .drip i:nth-child(2){top:36%;width:22px;}
-.drip i:nth-child(3){top:50%;width:31px;} .drip i:nth-child(4){top:64%;width:16px;} .drip i:nth-child(5){top:80%;width:26px;}
+/* Ligne de bulles chromées (remplace les traits gris) — flottent + montent au scroll */
+.drip{position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);width:74px;height:26px;pointer-events:none;}
+.drip i{position:absolute;top:50%;border-radius:50%;display:block;will-change:transform;
+  background:
+    radial-gradient(circle at 33% 24%, #ffffff 0%, rgba(255,255,255,.5) 5%, rgba(255,255,255,0) 16%),
+    radial-gradient(circle at 44% 34%, #3a404e 0%, #191c25 34%, #0b0d13 66%, #050609 100%);
+  box-shadow:inset 0 -1px 2px rgba(150,170,210,.25),0 2px 4px rgba(0,0,0,.5);}
+.drip i:nth-child(1){left:0;width:11px;height:11px;margin-top:-5.5px;animation:dripBob 3.2s ease-in-out infinite;}
+.drip i:nth-child(2){left:15px;width:6px;height:6px;margin-top:-3px;animation:dripBob 3.8s ease-in-out infinite .5s;}
+.drip i:nth-child(3){left:26px;width:13px;height:13px;margin-top:-6.5px;animation:dripBob 3.4s ease-in-out infinite 1s;}
+.drip i:nth-child(4){left:44px;width:7px;height:7px;margin-top:-3.5px;animation:dripBob 4.2s ease-in-out infinite 1.4s;}
+.drip i:nth-child(5){left:56px;width:9px;height:9px;margin-top:-4.5px;animation:dripBob 3.6s ease-in-out infinite 1.9s;}
+@keyframes dripBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 
 /* ── Titres de section : Anton italique centré, comme .l-sec-t de référence ── */
 .sec-t{font-family:var(--disp);font-style:italic;text-transform:uppercase;font-size:clamp(1.5rem,4.4vw,2.35rem);
@@ -923,18 +931,27 @@ footer{background:rgba(0,0,0,.96);}
   opacity:0;animation:heroFade .8s var(--ease) .4s forwards;}
 @keyframes heroFade{to{opacity:1;}}
 
-.hero-photo-fx{width:min(62vw,300px);margin:1.6rem auto 0;position:relative;
-  opacity:0;animation:heroFade .6s var(--ease) .2s forwards;}
-.hero-photo-wrap{position:relative;aspect-ratio:4/5;border-radius:1.25rem;overflow:hidden;background:#0a0a0a;
-  -webkit-mask-image:radial-gradient(ellipse 90% 88% at 50% 45%,#000 52%,rgba(0,0,0,.6) 70%,transparent 90%);
-  mask-image:radial-gradient(ellipse 90% 88% at 50% 45%,#000 52%,rgba(0,0,0,.6) 70%,transparent 90%);}
-.hero-photo-wrap img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;
-  filter:contrast(1.08) saturate(1.1) brightness(1.02);}
-.hero-photo-wrap::after{content:'';position:absolute;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-  background-size:180px 180px;mix-blend-mode:overlay;opacity:.18;pointer-events:none;z-index:1;}
-.hero-photo-wrap::before{content:'';position:absolute;bottom:0;left:0;right:0;height:35%;
-  background:linear-gradient(to top,rgba(228, 226, 221,.14),transparent);pointer-events:none;z-index:3;}
+/* Cadre photo pro : verre bleu, halo, reflet animé, révélé au scroll */
+.hero-photo-fx{width:min(78vw,360px);margin:2rem auto 0;position:relative;perspective:1100px;}
+.hero-photo-fx::before{content:'';position:absolute;inset:-14px;z-index:-1;border-radius:28px;
+  background:radial-gradient(60% 60% at 50% 30%,rgba(47,70,214,.4),transparent 70%);filter:blur(22px);}
+.hero-photo-wrap{position:relative;aspect-ratio:3/4;border-radius:20px;overflow:hidden;background:#05060c;
+  border:1.5px solid rgba(255,255,255,.16);
+  box-shadow:0 34px 80px -22px rgba(0,0,0,.85),0 0 0 1px rgba(60,90,200,.3),0 12px 44px rgba(47,70,214,.28),inset 0 1px 0 rgba(255,255,255,.16);}
+.hero-photo-wrap img{width:100%;height:100%;object-fit:cover;object-position:50% 34%;display:block;
+  filter:contrast(1.06) saturate(1.08) brightness(1.02);transform:scale(1.02);transition:transform .6s var(--ease);}
+.hero-photo-fx:hover .hero-photo-wrap img{transform:scale(1.06);}
+.hero-photo-wrap::before{content:'';position:absolute;bottom:0;left:0;right:0;height:42%;z-index:3;pointer-events:none;
+  background:linear-gradient(to top,rgba(3,4,12,.72),transparent);}
+/* liseré haut brillant + coins */
+.hero-photo-wrap::after{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 0 34px rgba(60,90,200,.18);}
+/* reflet diagonal animé */
+.hero-photo-shine{position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:inherit;overflow:hidden;}
+.hero-photo-shine::before{content:'';position:absolute;top:-60%;left:-45%;width:55%;height:230%;
+  background:linear-gradient(112deg,transparent 30%,rgba(255,255,255,.3) 50%,transparent 70%);
+  transform:rotate(7deg);animation:photoShine 5.5s ease-in-out infinite;}
+@keyframes photoShine{0%{left:-55%}58%,100%{left:135%}}
 
 .unique-box{margin:1.6rem auto 0;max-width:30rem;background:linear-gradient(135deg,rgba(228, 226, 221,.07),rgba(228, 226, 221,.02));
   border:1px solid rgba(228, 226, 221,.22);border-radius:1rem;padding:1.05rem 1.2rem;
@@ -1873,8 +1890,8 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
   </h1>
   <p class="hero-sub">Formation, réseau privé et suivi IA réunis dans un seul cercle — un programme pour progresser, des soirées pour te connecter, une app pour ne jamais lâcher entre les deux.</p>
 
-  <div class="hero-photo-fx">
-    <div class="hero-photo-wrap"><img src="./avatar-yanis.jpg" alt="Yanis BGH"></div>
+  <div class="hero-photo-fx" data-photo-frame>
+    <div class="hero-photo-wrap"><img src="./yanis-lambo.jpg" alt="Yanis BGH" loading="lazy"><span class="hero-photo-shine" aria-hidden="true"></span></div>
   </div>
 
   <div class="unique-box">
@@ -5250,7 +5267,7 @@ else handleReturn();
 <script src="assets/vendor/gsap.min.js" defer></script>
 <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="assets/vendor/lenis.min.js" defer></script>
-<script src="assets/cine-gsap.js?v=7" defer></script>
+<script src="assets/cine-gsap.js?v=8" defer></script>
 <script type="module" src="assets/gi-webgl.js?v=12"></script>
 <script type="module" src="assets/hero-webgl.js?v=3"></script>
 </body>
