@@ -1778,12 +1778,12 @@ footer{background:rgba(0,0,0,.96);}
 /* Chrome noir brillant — identique aux bulles de la page de chargement */
 .cine-orb{position:absolute;z-index:-1;border-radius:50%;pointer-events:none;
   background:
-    radial-gradient(circle at 50% 116%, rgba(150,172,214,.42) 0%, rgba(150,172,214,0) 42%),
-    radial-gradient(circle at 33% 23%, #ffffff 0%, rgba(255,255,255,.5) 5%, rgba(255,255,255,0) 14%),
-    radial-gradient(circle at 44% 34%, #454b5a 0%, #22262f 30%, #0e1016 60%, #05060d 100%);
-  box-shadow:inset 0 -4px 11px rgba(140,165,210,.24),inset 0 2px 4px rgba(255,255,255,.12),0 7px 20px rgba(0,0,0,.55);}
-.cine-orb::after{content:'';position:absolute;top:20%;left:52%;width:13%;height:13%;border-radius:50%;
-  background:radial-gradient(circle,#fff 0%,rgba(255,255,255,.25) 55%,transparent 100%);}
+    radial-gradient(circle at 50% 118%, rgba(150,172,214,.34) 0%, rgba(150,172,214,0) 40%),
+    radial-gradient(circle at 32% 22%, #ffffff 0%, rgba(255,255,255,.45) 4%, rgba(255,255,255,0) 11%),
+    radial-gradient(circle at 44% 34%, #2b303b 0%, #14171f 32%, #090b11 62%, #040508 100%);
+  box-shadow:inset 0 -4px 11px rgba(140,165,210,.2),inset 0 2px 4px rgba(255,255,255,.1),0 7px 20px rgba(0,0,0,.6);}
+.cine-orb::after{content:'';position:absolute;top:19%;left:53%;width:12%;height:12%;border-radius:50%;
+  background:radial-gradient(circle,#fff 0%,rgba(255,255,255,.2) 55%,transparent 100%);}
 .cine-orb--1{width:clamp(30px,9vw,48px);aspect-ratio:1;top:20%;left:4%;animation:cineOrbA 8s ease-in-out infinite;}
 .cine-orb--2{width:clamp(22px,6.5vw,36px);aspect-ratio:1;top:9%;right:6%;animation:cineOrbB 10s ease-in-out infinite;}
 .cine-orb--3{width:clamp(26px,7.5vw,40px);aspect-ratio:1;top:44%;right:12%;animation:cineOrbC 9s ease-in-out infinite;}
@@ -5233,7 +5233,6 @@ else handleReturn();
 <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="assets/vendor/lenis.min.js" defer></script>
 <script src="assets/cine-gsap.js?v=7" defer></script>
-<script src="assets/btn-orbs.js?v=1" defer></script>
 <script type="module" src="assets/gi-webgl.js?v=12"></script>
 <script type="module" src="assets/hero-webgl.js?v=3"></script>
 </body>
