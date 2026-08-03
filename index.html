@@ -866,11 +866,11 @@ footer{background:rgba(0,0,0,.96);}
   padding:.4rem .75rem;border-radius:.5rem;white-space:nowrap;margin-right:42px;
 }
 .kicker.zy{background:var(--zyra);color:#000;}
-/* "L'écosystème complet" → titre haut, plus grand, centré, bleu Renaissance */
-.kicker-eco{background:transparent !important;color:#3a56e0 !important;
-  font-size:clamp(1rem,4.6vw,1.6rem) !important;letter-spacing:.12em !important;padding:0 !important;margin:0 auto !important;
-  border-radius:0 !important;box-shadow:none !important;
-  text-shadow:0 3px 16px rgba(47,70,214,.5),0 1px 3px rgba(0,0,0,.7);}
+/* "L'écosystème complet" → conteneur pill BLEU (comme avant, en bleu), centré */
+.kicker-eco{background:#3a56e0 !important;color:#fff !important;
+  font-size:clamp(.78rem,3.4vw,1.05rem) !important;letter-spacing:.1em !important;padding:.5rem 1.15rem !important;margin:0 auto !important;
+  border-radius:999px !important;box-shadow:0 10px 30px rgba(47,70,214,.5) !important;text-shadow:none !important;}
+.kicker-eco .drip{display:none !important;}
 /* Ligne de bulles chromées (remplace les traits gris) — flottent + montent au scroll */
 .drip{position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);width:74px;height:26px;pointer-events:none;}
 .drip i{position:absolute;top:50%;border-radius:50%;display:block;will-change:transform;
@@ -1697,7 +1697,7 @@ footer{background:rgba(0,0,0,.96);}
 }
 </style>
 <style id="fix-overflow-x">html,body{overflow-x:hidden!important;max-width:100%;}</style>
-<link rel="stylesheet" href="assets/redesign.css?v=12">
+<link rel="stylesheet" href="assets/redesign.css?v=13">
 <script type="importmap">{"imports":{"three":"./assets/vendor/three/three.module.js","three/addons/":"./assets/vendor/three/jsm/"}}</script>
 </head>
 <body>
@@ -1885,13 +1885,13 @@ footer{background:rgba(0,0,0,.96);}
 @keyframes cineOrbB{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,24px)}}
 @keyframes cineOrbC{0%,100%{transform:translate(0,0)}33%{transform:translate(16px,-16px)}66%{transform:translate(-16px,14px)}}
 .cine-hero__eyebrow{font-size:11px;letter-spacing:5px;color:#e8e6e1;font-weight:700;text-transform:uppercase;margin-bottom:16px;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .15s forwards;}
-.cine-hero__title{font-family:Archivo,system-ui,sans-serif;font-weight:900;font-size:clamp(30px,9vw,104px);line-height:.96;letter-spacing:1px;text-indent:1px;max-width:100%;
+.cine-hero__title{font-family:Archivo,system-ui,sans-serif;font-weight:900;font-size:clamp(38px,11vw,120px);line-height:.96;letter-spacing:1px;text-indent:1px;max-width:100%;margin-top:6px;
   background:linear-gradient(90deg,#fff 0%,#cdb583 26%,#b9975b 50%,#cdb583 74%,#fff 100%);background-size:200% auto;
   -webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;
   animation:chUp 1s cubic-bezier(.16,1,.3,1) .28s forwards, chGrad 7s linear 1.6s infinite;
   filter:drop-shadow(0 6px 40px rgba(197,168,76,.28));}
 @keyframes chGrad{0%{background-position:0% center;}100%{background-position:200% center;}}
-.cine-hero__kick{font-family:Archivo,system-ui,sans-serif;font-weight:800;letter-spacing:.34em;text-indent:.34em;font-size:clamp(15px,4.2vw,26px);color:#8aa6ff;-webkit-text-fill-color:#8aa6ff;-webkit-text-stroke:.6px rgba(255,255,255,.35);margin-bottom:10px;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .18s forwards;
+.cine-hero__kick{font-family:Archivo,system-ui,sans-serif;font-weight:800;letter-spacing:.34em;text-indent:.34em;font-size:clamp(15px,4.2vw,26px);color:#8aa6ff;-webkit-text-fill-color:#8aa6ff;-webkit-text-stroke:.6px rgba(255,255,255,.35);margin-bottom:26px;opacity:0;animation:chUp .9s cubic-bezier(.16,1,.3,1) .18s forwards;
   /* ombre iOS sombre ~0,3mm autour + halo doux, texte lisible sur les bulles */
   text-shadow:0 0 1.4px rgba(0,0,0,.95),1px 0 1.4px rgba(3,5,14,.85),-1px 0 1.4px rgba(3,5,14,.85),0 1px 1.4px rgba(3,5,14,.85),0 0 11px rgba(3,6,20,.72),0 4px 20px rgba(47,70,214,.4);}
 /* Titre RENAISSANCE — verre bleu (cohérent avec le R de l'intro) */
