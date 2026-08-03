@@ -1676,7 +1676,15 @@ footer{background:rgba(0,0,0,.96);}
   #galaxy-intro .gi-top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;flex-direction:column;align-items:center;gap:6px;padding:calc(4vh + 2cm) 20px 0;text-align:center;pointer-events:none;}
   #galaxy-intro .gi-bottom{position:absolute;bottom:0;left:0;right:0;z-index:2;display:flex;justify-content:center;padding:0 24px 12vh;pointer-events:none;}
   .gi-kicker{font-family:'Archivo',system-ui,sans-serif;font-weight:800;letter-spacing:.34em;text-indent:.34em;font-size:clamp(19px,5.4vw,38px);line-height:1;text-align:center;transform:scaleY(1.14);transform-origin:center top;margin-bottom:10px;color:#ffffff;-webkit-text-fill-color:#ffffff;-webkit-text-stroke:1.1px rgba(0,0,0,.92);text-stroke:1.1px rgba(0,0,0,.92);text-shadow:0 3px 14px rgba(0,0,0,.7);opacity:0;}
-  .gi-brand{font-family:'Cinzel',Georgia,serif;font-weight:700;letter-spacing:.085em;text-indent:.085em;white-space:nowrap;font-size:clamp(38px,11.2vw,80px);line-height:1;transform:scaleY(1.12);transform-origin:center;color:#2f46d6;-webkit-text-fill-color:#2f46d6;-webkit-text-stroke:1px rgba(255,255,255,.9);text-stroke:1px rgba(255,255,255,.9);text-shadow:0 10px 34px rgba(47,70,214,.5),0 4px 14px rgba(0,0,0,.85);opacity:0;}
+  /* Renaissance : verre bleu brillant 3D (même esprit que le R WebGL) */
+  .gi-brand{font-family:'Cinzel',Georgia,serif;font-weight:700;letter-spacing:.085em;text-indent:.085em;white-space:nowrap;font-size:clamp(38px,11.2vw,80px);line-height:1;transform:scaleY(1.12);transform-origin:center;
+    background:linear-gradient(176deg,#aec1ff 0%,#4f6bf0 19%,#ffffff 38%,#e2e9ff 45%,#2f46d6 61%,#15227c 100%);
+    background-size:100% 250%;background-position:50% 26%;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+    -webkit-text-stroke:.85px rgba(255,255,255,.55);text-stroke:.85px rgba(255,255,255,.55);
+    filter:drop-shadow(0 9px 28px rgba(47,70,214,.62)) drop-shadow(0 2px 5px rgba(0,0,0,.55));
+    animation:giBrandShine 3.6s ease-in-out infinite;opacity:0;}
+  @keyframes giBrandShine{0%,100%{background-position:50% 20%}50%{background-position:50% 78%}}
   .gi-sub{font-size:13px;letter-spacing:.2em;color:#ffffff;font-weight:600;text-transform:uppercase;opacity:0;margin-top:12px;white-space:nowrap;}
   .gi-byline{font-family:'Archivo',system-ui,sans-serif;font-weight:800;letter-spacing:.14em;text-indent:.14em;font-size:clamp(15px,4.4vw,26px);line-height:1;transform:scaleY(1.18);transform-origin:center top;margin-top:14px;color:#0b1a3a;-webkit-text-fill-color:#0b1a3a;-webkit-text-stroke:.9px rgba(255,255,255,.9);text-stroke:.9px rgba(255,255,255,.9);text-shadow:0 5px 20px rgba(0,0,0,.9);opacity:0;white-space:nowrap;text-transform:uppercase;}
   .gi-cta{pointer-events:auto;white-space:nowrap;max-width:94vw;padding:15px clamp(16px,5vw,30px);border-radius:40px;cursor:pointer;font-size:clamp(12.5px,3.6vw,15px);font-weight:700;letter-spacing:.02em;color:#eaf2ff;background:rgba(11,26,58,.42);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);border:1.5px solid rgba(255,255,255,.7);box-shadow:0 8px 30px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -6px 16px rgba(0,0,0,.25);opacity:0;transition:transform .25s,box-shadow .3s,background .3s;}
