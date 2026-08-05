@@ -26,8 +26,25 @@
         easing: function(t){ return Math.min(1, 1.001 - Math.pow(2, -10 * t)); }
       });
       lenis.on('scroll', ST.update);
+      window.__lenis = lenis;
       gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
       gsap.ticker.lagSmoothing(0);
+
+      // Liens d'ancrage (#…) → défilement fluide fiable.
+      // Lenis « tient » la position de scroll : un saut d'ancre natif est repris
+      // par Lenis → rien ne bouge. On stoppe Lenis, on anime le scroll natif,
+      // puis on resynchronise Lenis. Robuste sur tout appareil.
+      document.addEventListener('click', function(e){
+        var a = e.target.closest('a[href^="#"]');
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.length < 2) return;          // ignore href="#" (boutons data-diag)
+        var tgt = document.querySelector(href);
+        if (!tgt) return;
+        e.preventDefault();
+        if (lenis && lenis.scrollTo) lenis.scrollTo(tgt, { offset: -84, duration: 1.25 });
+        else tgt.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
 
       // Stoppe le smooth scroll quand l'overlay diagnostic est ouvert
       var ov = document.getElementById('diagOverlay');
