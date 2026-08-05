@@ -1195,6 +1195,9 @@ footer{background:rgba(0,0,0,.96);}
 }
 #diagOverlay.open{display:block;}
 #diagOverlay.vis{opacity:1;}
+/* Textes du diagnostic en blanc (questionnaire + résultat) */
+#diagOverlay{--text-dim:#eef3ff;--text-faint:#cbd6ee;}
+#diagOverlay .dg-ax-txt,#diagOverlay .dg-qsub,#diagOverlay .dg-tag,#diagOverlay .dg-glab,#diagOverlay .dg-oledger div,#diagOverlay .dg-gap{color:#eef3ff !important;}
 #diagOverlay::before{
   content:'';position:fixed;width:640px;height:640px;top:-240px;left:-200px;border-radius:50%;
   background:radial-gradient(circle,rgba(47,70,214,.22) 0%,transparent 65%);pointer-events:none;z-index:0;
@@ -1217,7 +1220,7 @@ footer{background:rgba(0,0,0,.96);}
 @keyframes dgB{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(14px,-22px) scale(1.06);}}
 .dg-shell{
   position:relative;z-index:2;max-width:640px;margin:0 auto;min-height:100%;
-  display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 18px) 20px calc(env(safe-area-inset-bottom,0px) + 34px);
+  display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 18px) 20px calc(env(safe-area-inset-bottom,0px) + 96px);
 }
 .dg-top{position:sticky;top:0;z-index:5;padding-top:2px;background:linear-gradient(to bottom,rgba(5,6,12,.92),rgba(5,6,12,.55) 70%,transparent);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
 
@@ -1370,6 +1373,16 @@ footer{background:rgba(0,0,0,.96);}
 }
 .dg-gap b{color:#fff;}
 
+/* ── Radar / toile d'araignée des compétences ── */
+.dg-radar{margin:4px auto 26px;text-align:center;max-width:330px;padding:10px 8px 6px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(20,28,58,.4),rgba(8,11,26,.36));border:1px solid rgba(134,164,255,.22);}
+.dg-radar-t{font-family:var(--titre);font-weight:800;font-size:.86rem;color:#eef3ff;letter-spacing:.02em;margin-bottom:2px;}
+.dg-radar-svg{width:100%;height:auto;overflow:visible;filter:drop-shadow(0 0 18px rgba(90,120,255,.28));}
+.dg-radar-poly{transform-box:fill-box;transform-origin:center;animation:radarIn 1.1s cubic-bezier(.16,1,.3,1) .35s both;}
+@keyframes radarIn{0%{transform:scale(.12);opacity:0;}60%{opacity:1;}100%{transform:scale(1);opacity:1;}}
+.dg-radar-lbl{fill:#e7eefc;font:700 9px 'Inter',sans-serif;}
+.dg-radar-val{fill:#93a8ff;font:800 9px 'Inter',sans-serif;}
+.dg-radar-note{font-size:.74rem;line-height:1.5;color:#c6d2ea;margin:2px 4px 0;}
 .dg-axes{display:flex;flex-direction:column;gap:20px;margin-bottom:28px;}
 .dg-axis{background:var(--bg-card);border:1.5px solid var(--border);border-radius:16px;padding:17px 16px;}
 .dg-axis.prio{border-color:var(--border-h);position:relative;}
@@ -4957,8 +4970,39 @@ function rAnz(){
     +'<div class="dg-anz-line" id="dgL3"><span class="ck">✓</span>Génération de ton analyse personnalisée</div>'
     +'</div></div></div>';
 }
+/* Radar / toile d'araignée des compétences business */
+function dgRadar(pts){
+  var N=pts.length, cx=140, cy=140, R=78;
+  function pt(i,f){ var a=(-90 + i*(360/N))*Math.PI/180; return [cx+R*f*Math.cos(a), cy+R*f*Math.sin(a)]; }
+  var svg='';
+  [0.25,0.5,0.75,1].forEach(function(lv){
+    var p=pts.map(function(_,i){var q=pt(i,lv);return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ');
+    svg+='<polygon points="'+p+'" fill="none" stroke="rgba(134,164,255,'+(lv===1?0.34:0.13)+')" stroke-width="1"/>';
+  });
+  pts.forEach(function(_,i){var q=pt(i,1);svg+='<line x1="'+cx+'" y1="'+cy+'" x2="'+q[0].toFixed(1)+'" y2="'+q[1].toFixed(1)+'" stroke="rgba(134,164,255,.15)" stroke-width="1"/>';});
+  var dp=pts.map(function(p,i){var q=pt(i,Math.max(0.08,p.v/100));return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ');
+  svg+='<polygon class="dg-radar-poly" points="'+dp+'" fill="rgba(90,120,255,.28)" stroke="#6f88ff" stroke-width="2"/>';
+  pts.forEach(function(p,i){var q=pt(i,Math.max(0.08,p.v/100));svg+='<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="3" fill="#9fb2ff"/>';});
+  pts.forEach(function(p,i){
+    var q=pt(i,1.2), a=(-90+i*(360/N)), c=Math.cos(a*Math.PI/180);
+    var anchor=c>0.15?'start':(c<-0.15?'end':'middle');
+    svg+='<text x="'+q[0].toFixed(1)+'" y="'+(q[1]-2).toFixed(1)+'" text-anchor="'+anchor+'" class="dg-radar-lbl">'+p.label+'</text>';
+    svg+='<text x="'+q[0].toFixed(1)+'" y="'+(q[1]+9).toFixed(1)+'" text-anchor="'+anchor+'" class="dg-radar-val">'+p.v+'%</text>';
+  });
+  return '<div class="dg-radar"><div class="dg-radar-t">Ta cartographie complète</div>'
+    +'<svg viewBox="0 0 280 300" class="dg-radar-svg" aria-hidden="true">'+svg+'</svg>'
+    +'<p class="dg-radar-note">Tes leviers business, notés sur le diagnostic — chaque branche est un chantier qu\'on ouvre dans le programme.</p></div>';
+}
 function rRes(){
   var r=S.res;
+  var radar=[
+    {label:"Physique",v:r.axes[0].score},
+    {label:"Business",v:r.axes[1].score},
+    {label:"Réseau",v:r.axes[2].score},
+    {label:"Discipline",v:r.axes[3].score},
+    {label:"Mental",v:Math.round((r.axes[3].score+r.axes[2].score)/2)},
+    {label:"Action",v:Math.max(12,Math.round(r.exploite*0.95))}
+  ];
   var axes=r.axes.map(function(a){
     return '<div class="dg-axis'+(a.label===r.prio.label?" prio":"")+'">'
       +(a.label===r.prio.label?'<span class="dg-prio-tag">Priorité n°1</span>':'')
@@ -4976,6 +5020,7 @@ function rRes(){
     +'<div class="dg-gauge hot"><div class="dg-gnum"><span class="dg-gn" data-t="'+r.potentiel+'">0</span>%</div><div class="dg-glab">Potentiel détecté</div></div>'
     +'<div class="dg-gauge"><div class="dg-gnum"><span class="dg-gn" data-t="'+r.exploite+'">0</span>%</div><div class="dg-glab">Potentiel exploité</div></div>'
     +'</div>'
+    +dgRadar(radar)
     +'<div class="dg-gap">Un écart de <b>'+(r.potentiel-r.exploite)+' points</b> sépare ce que tu pourrais être de ce que tu exploites aujourd’hui. Cet écart a un nom : <b>l’absence de système</b>. Et c’est précisément ce qui se corrige le plus vite.</div>'
     +'<div class="dg-axes">'+axes+'</div>'
     +'<div class="dg-verdict">'+r.verdict+'</div>'
