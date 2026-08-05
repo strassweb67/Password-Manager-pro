@@ -18,7 +18,14 @@ if (canvas && overlay) {
   var _ua = navigator.userAgent || '';
   var IN_APP = /Instagram|FBAN|FBAV|FB_IAB|Snapchat|WhatsApp|Line|Messenger|TikTok|Twitter|GSA/i.test(_ua);
   var MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(_ua);
-  var DPR_CAP = IN_APP ? 1.15 : (MOBILE ? 1.5 : 2);
+  var LOWMEM = (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+               (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  // Résolution INTERNE de rendu (pixel ratio). L'effet "transmission" (verre)
+  // se recalcule à cette résolution À CHAQUE IMAGE : c'est ce qui saturait le
+  // GPU et faisait planter Yandex/Firefox. On l'abaisse sur mobile / appareils
+  // faibles → même rendu, mêmes couleurs, mêmes matériaux, mêmes textes, juste
+  // moins de pixels internes (imperceptible avec le flou du verre), GPU soulagé.
+  var DPR_CAP = IN_APP ? 1.0 : (LOWMEM ? 1.1 : (MOBILE ? 1.3 : 2));
   var LOW = IN_APP || MOBILE;
   var SPH = LOW ? 24 : 32, TUB_T = LOW ? 280 : 320, TUB_R = LOW ? 20 : 24, NPART = LOW ? 1700 : 2600;
 
@@ -31,14 +38,14 @@ if (canvas && overlay) {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.32;
 
-    // Perte de contexte WebGL (GPU saturé / repris par le navigateur) : sans
-    // ça, le canvas reste noir et figé → « l'écran devient sombre et bug ».
-    // On l'intercepte : on stoppe la boucle et on bascule sur le fallback
-    // statique au lieu de laisser un écran mort.
+    // Perte de contexte WebGL (GPU saturé / repris par le navigateur).
+    // IMPORTANT : on N'AFFICHE PAS de filtre sombre bloquant. On stoppe juste
+    // la boucle et on garde les textes + le bouton cliquables ; le navigateur
+    // peut restaurer le contexte → on relance. Rien ne verrouille la page.
     canvas.addEventListener('webglcontextlost', function(ev){
       ev.preventDefault();          // permet au navigateur de restaurer plus tard
       running = false;
-      fallback();
+      if (typeof showUI === 'function') showUI();   // textes/CTA restent visibles et cliquables
     }, false);
     canvas.addEventListener('webglcontextrestored', function(){
       if (!running) { running = true; if (window.__giLoop) window.__giLoop(); }
