@@ -85,6 +85,25 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     new IntersectionObserver(es => { onScreen = es[0].isIntersecting; if(onScreen) tick(); }, {threshold:0.01}).observe(heroSec);
   }
 
+  // Ne PAS rendre le hero tant que l'intro plein écran est affichée : il est
+  // caché derrière l'overlay, mais son rendu consommerait le GPU EN MÊME TEMPS
+  // que l'intro → 2 scènes WebGL lourdes simultanées, cause des « écrans qui
+  // s'assombrissent » sur GPU mobiles limités. On attend la fin de l'intro.
+  // L'overlay #galaxy-intro est présent dès le HTML initial (avant tout script),
+  // et reçoit la classe « gi-gone » à la fin de l'intro : c'est le signal fiable,
+  // sans course avec l'ajout tardif de « gi-open » sur <html>.
+  const introOverlay = document.getElementById('galaxy-intro');
+  function introUp(){ return introOverlay && !introOverlay.classList.contains('gi-gone'); }
+  if (introOverlay && window.MutationObserver){
+    new MutationObserver(function(){ if(!introUp()) tick(); })
+      .observe(introOverlay, { attributes:true, attributeFilter:['class'] });
+  }
+
+  // Perte de contexte WebGL : on arrête proprement (le fond redevient
+  // transparent, la page reste utilisable) au lieu de figer.
+  host.addEventListener('webglcontextlost', function(ev){ ev.preventDefault(); onScreen = false; }, false);
+  host.addEventListener('webglcontextrestored', function(){ onScreen = true; tick(); }, false);
+
   // Scroll : les bulles métallisées s'envolent et montent quand on descend
   let scrollProg = 0, rise = 0;
   addEventListener('scroll', () => {
@@ -94,7 +113,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
   let t = 0, raf = 0;
   function frame(){
-    raf = 0; if (!onScreen) return;
+    raf = 0; if (!onScreen || introUp()) return;
     t += 0.016;
     m.x += (m.tx-m.x)*0.05; m.y += (m.ty-m.y)*0.05;
     rise += (scrollProg - rise) * 0.08;                 // suit le scroll en douceur

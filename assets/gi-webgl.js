@@ -31,6 +31,19 @@ if (canvas && overlay) {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.32;
 
+    // Perte de contexte WebGL (GPU saturé / repris par le navigateur) : sans
+    // ça, le canvas reste noir et figé → « l'écran devient sombre et bug ».
+    // On l'intercepte : on stoppe la boucle et on bascule sur le fallback
+    // statique au lieu de laisser un écran mort.
+    canvas.addEventListener('webglcontextlost', function(ev){
+      ev.preventDefault();          // permet au navigateur de restaurer plus tard
+      running = false;
+      fallback();
+    }, false);
+    canvas.addEventListener('webglcontextrestored', function(){
+      if (!running) { running = true; if (window.__giLoop) window.__giLoop(); }
+    }, false);
+
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x000000, 0.02);
     const pmrem = new THREE.PMREMGenerator(renderer);
