@@ -777,6 +777,9 @@ footer{
   position:relative;z-index:2;
 }
 .footer-brand{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--text-faint);}
+.footer-brice{display:block;margin-top:10px;font-size:10px;letter-spacing:1.5px;color:var(--text-faint);
+  opacity:.55;cursor:pointer;user-select:none;transition:opacity .25s,color .25s;}
+.footer-brice:hover{opacity:1;color:var(--accent);}
 .footer-copy{font-size:8.5px;color:var(--text-faint);opacity:.6;margin-top:1px;}
 .footer-r{width:14px;height:14px;color:var(--text);opacity:.25;}
 .footer-tag{font-size:8.5px;color:var(--text-faint);letter-spacing:1px;text-transform:uppercase;opacity:.6;}
@@ -2499,6 +2502,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
     <svg viewBox="0 0 100 100" fill="none"><path d="M16.5 90L16.5 10L58 10Q85 10 85 24Q85 35.5 58 35.5L38 35.5L63 81" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
   </span>
   <span class="footer-tag">Discipline · Ambition · Impact</span>
+  <span id="brice-admin" class="footer-brice" role="button" tabindex="0" title="Accès">@brice</span>
 </footer>
 
 <!-- ━━━━ STICKY CTA DIAGNOSTIC ━━━━ -->
@@ -3846,6 +3850,14 @@ function renderVisitorCard(v, container){
   card.addEventListener('click',()=>showVisitorDetail(v));
   container.appendChild(card);
 }
+/* Crédit « @brice » en bas de page → ouvre la fenêtre mot de passe admin */
+(function(){
+  var b=document.getElementById('brice-admin');
+  if(!b) return;
+  var openAdmin=function(){ var t=document.getElementById('sig-admin-trigger'); if(t) t.click(); };
+  b.addEventListener('click',openAdmin);
+  b.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openAdmin(); } });
+})();
 document.getElementById('sig-admin-trigger').addEventListener('click',function(){
   const ov=document.createElement('div');
   ov.id='admin-ov';
