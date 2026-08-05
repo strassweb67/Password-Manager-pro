@@ -16,14 +16,25 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   var MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(_ua);
   var DPR_CAP = MOBILE ? 1.6 : 2;
 
+  // ── STABILITÉ MOBILE ────────────────────────────────────────────────
+  // Chaque diamant crée son PROPRE contexte WebGL (renderer + PMREM +
+  // RoomEnvironment + matériau à transmission = la fonctionnalité la plus
+  // lourde de three.js). Avec l'intro et le hero déjà actifs, 3 diamants
+  // de plus = 5 contextes simultanés : les GPU mobiles saturent (mémoire /
+  // chaleur) et le navigateur tue l'onglet au bout de ~10-20 s.
+  // → Sur mobile ET en WebView in-app, on retombe sur le diamant CSS (dégradé
+  //   bleu, quasi identique à cette taille). Le vrai verre WebGL reste sur
+  //   desktop, où le budget contexte n'est pas un problème.
+  var NO_GL = IN_APP || MOBILE;
+
   // Exposé pour les canvases créés dynamiquement (ex. modal géoloc)
   window.__glDiamond = function(canvas, idx){
-    if (IN_APP) { canvas.classList.add('gl-off'); return; }
+    if (NO_GL) { canvas.classList.add('gl-off'); return; }
     makeDiamond(canvas, idx || 0);
   };
 
-  // Dans les WebViews in-app : on masque (fallback CSS) pour garder la fluidité
-  if (IN_APP) { nodes.forEach(function(c){ c.classList.add('gl-off'); }); return; }
+  // Mobile / in-app : fallback CSS (aucun contexte WebGL supplémentaire)
+  if (NO_GL) { nodes.forEach(function(c){ c.classList.add('gl-off'); }); return; }
 
   nodes.forEach(makeDiamond);
 
