@@ -906,7 +906,7 @@ footer{background:rgba(0,0,0,.96);}
 /* ── Titres de section : Anton italique centré, comme .l-sec-t de référence ── */
 .sec-t{font-family:var(--disp);font-style:italic;text-transform:uppercase;font-size:clamp(1.5rem,4.4vw,2.35rem);
   text-align:center;line-height:1.02;margin:0 auto;max-width:24ch;}
-.sec-sub{text-align:center;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:.9rem;line-height:1.6;
+.sec-sub{text-align:center;color:#eaf1ff;font-family:'Inter',sans-serif;font-size:.9rem;line-height:1.6;
   max-width:44ch;margin:.7rem auto 0;}
 .sec-head{margin-bottom:2.4rem;}
 
@@ -1031,7 +1031,7 @@ footer{background:rgba(0,0,0,.96);}
 @keyframes stepFloat{0%,100%{transform:translateY(0) rotate(-2.2deg);}50%{transform:translateY(-6px) rotate(2.2deg);}}
 @keyframes stepShine{0%,66%{transform:translateX(-140%);}82%,100%{transform:translateX(140%);}}
 .step h3{font-family:var(--titre);font-weight:800;font-size:1.02rem;margin-bottom:.3rem;color:#eef3ff;}
-.step p{color:var(--text-dim);font-size:.86rem;line-height:1.55;font-family:'Inter',sans-serif;}
+.step p{color:#f4f8ff;font-size:.86rem;line-height:1.55;font-family:'Inter',sans-serif;}
 
 /* ── Cartes simples (écosystème / modules), surface2, pas de glow générique ── */
 .grille-cartes{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;}
@@ -1153,7 +1153,7 @@ footer{background:rgba(0,0,0,.96);}
   background:linear-gradient(140deg,#eaf1ff 0%,#8ea6ff 55%,#3a52d6 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
   filter:drop-shadow(0 2px 10px rgba(90,120,255,.5));}
 .mkn-body h3{font-family:var(--titre);font-weight:800;font-size:1rem;color:#eff4ff;margin-bottom:.3rem;line-height:1.2;}
-.mkn-body p{color:#c6d2ea;font-size:.86rem;line-height:1.55;font-family:'Inter',sans-serif;}
+.mkn-body p{color:#f4f8ff;font-size:.86rem;line-height:1.55;font-family:'Inter',sans-serif;}
 /* ── Schéma animé « parcours » : nœuds chromés + connecteurs qui coulent ── */
 .flow{max-width:30rem;margin:0 auto;display:flex;flex-direction:column;}
 .flow-step{display:flex;gap:1.1rem;align-items:flex-start;}
@@ -2363,6 +2363,19 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
   </div>
 </section>
 
+<!-- ━━━━━━━━━━━━━━━━━━━━━━ MÉCANISME (psychologie) ━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="section dossier" id="mecanisme">
+  <div class="sec-head rev">
+    <h2 class="sec-t">Pourquoi ça marche <span class="y">quand le reste a échoué</span></h2>
+    <p class="sec-sub">Pas de magie — trois leviers psychologiques que les meilleurs utilisent, appliqués à toi.</p>
+  </div>
+  <div class="mkn rev rev-d1">
+    <div class="mkn-card"><span class="mkn-num">01</span><div class="mkn-body"><h3>Ton environnement bat ta motivation</h3><p>La discipline ne se force pas, elle s'attrape. Entoure-toi de gens qui construisent, et ta trajectoire change toute seule — c'est le cercle qui fait l'homme.</p></div></div>
+    <div class="mkn-card"><span class="mkn-num">02</span><div class="mkn-body"><h3>Le cerveau agit sur la preuve, pas la promesse</h3><p>Ton diagnostic te met face à tes vrais chiffres. On ne te motive pas avec des mots : on te confronte à ta réalité — c'est là que la décision se prend vraiment.</p></div></div>
+    <div class="mkn-card"><span class="mkn-num">03</span><div class="mkn-body"><h3>Deviens-le avant de l'avoir</h3><p>On ne te vend pas un programme, on te fait changer d'identité. Les résultats qui durent viennent de qui tu deviens — pas de ce que tu forces.</p></div></div>
+  </div>
+</section>
+
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ ÉCOSYSTÈME ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="ecosysteme">
   <div class="sec-head rev">
@@ -2439,20 +2452,6 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
     <div class="avis-card"><div class="avis-stars">★★★★★</div><p class="avis-q">« En 3 mois j'ai repris le sport, lancé mon premier business et surtout je me suis entouré des bonnes personnes. Le vrai déclic. »</p><div class="avis-who"><span class="avis-av">K</span><span class="avis-name">Karim<span>23 ans · membre Renaissance</span></span></div></div>
     <div class="avis-card"><div class="avis-stars">★★★★★</div><p class="avis-q">« Le diagnostic m'a mis une claque — j'ai enfin vu où je perdais mon temps. Aujourd'hui j'ai une routine et mes premiers revenus. »</p><div class="avis-who"><span class="avis-av">E</span><span class="avis-name">Enzo<span>20 ans · membre Renaissance</span></span></div></div>
     <div class="avis-card"><div class="avis-stars">★★★★★</div><p class="avis-q">« Le réseau change tout. Les soirées BGH m'ont ouvert des portes que je n'imaginais même pas. On avance vite quand on est bien entouré. »</p><div class="avis-who"><span class="avis-av">S</span><span class="avis-name">Sofiane<span>26 ans · membre Renaissance</span></span></div></div>
-  </div>
-</section>
-
-<!-- ━━━━━━━━━━━━━━━━━━━━━━ DIAGNOSTIC ━━━━━━━━━━━━━━━━━━━━━━ -->
-<!-- ━━━━━━━━━━━━━━━━━━━━━━ MÉCANISME (psychologie) ━━━━━━━━━━━━━━━━━━━━━━ -->
-<section class="section dossier" id="mecanisme">
-  <div class="sec-head rev">
-    <h2 class="sec-t">Pourquoi ça marche <span class="y">quand le reste a échoué</span></h2>
-    <p class="sec-sub">Pas de magie — trois leviers psychologiques que les meilleurs utilisent, appliqués à toi.</p>
-  </div>
-  <div class="mkn rev rev-d1">
-    <div class="mkn-card"><span class="mkn-num">01</span><div class="mkn-body"><h3>Ton environnement bat ta motivation</h3><p>La discipline ne se force pas, elle s'attrape. Entoure-toi de gens qui construisent, et ta trajectoire change toute seule — c'est le cercle qui fait l'homme.</p></div></div>
-    <div class="mkn-card"><span class="mkn-num">02</span><div class="mkn-body"><h3>Le cerveau agit sur la preuve, pas la promesse</h3><p>Ton diagnostic te met face à tes vrais chiffres. On ne te motive pas avec des mots : on te confronte à ta réalité — c'est là que la décision se prend vraiment.</p></div></div>
-    <div class="mkn-card"><span class="mkn-num">03</span><div class="mkn-body"><h3>Deviens-le avant de l'avoir</h3><p>On ne te vend pas un programme, on te fait changer d'identité. Les résultats qui durent viennent de qui tu deviens — pas de ce que tu forces.</p></div></div>
   </div>
 </section>
 
