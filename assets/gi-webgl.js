@@ -68,11 +68,15 @@ if (canvas && overlay) {
     // R : tube 3D verre tracé sur le logo de la marque
     const data = new SVGLoader().parse('<svg viewBox="0 0 100 100"><path d="M16.5 90L16.5 10L58 10Q85 10 85 24Q85 35.5 58 35.5L38 35.5L63 81"/></svg>');
     const sub = data.paths[0].subPaths[0];
-    // Échantillonnage dense + Catmull-Rom « centripetal » → pas de pincement
-    // (cusp) ni de couture aux angles serrés du R (le trait qui coupait en haut)
-    const pts = sub.getPoints(220).map(pt => new THREE.Vector3(pt.x, -pt.y, 0));
-    const curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
-    const tube = new THREE.TubeGeometry(curve, Math.max(TUB_T, 480), 5.2, TUB_R, false);
+    // Forme d'origine (Catmull-Rom) — MAIS petit galbe en z pour rendre la
+    // courbe non-planaire : ça stabilise les repères de Frenet du tube et
+    // supprime la couture/trait en haut (les courbes plates font « flipper »
+    // le repère du tube → cross-section qui se pince = trait noir).
+    const _p = sub.getPoints(96);
+    const _n = _p.length;
+    const pts = _p.map((pt, i) => new THREE.Vector3(pt.x, -pt.y, Math.sin((i/(_n-1))*Math.PI)*0.9));
+    const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.15);
+    const tube = new THREE.TubeGeometry(curve, Math.max(TUB_T, 400), 5.2, TUB_R, false);
     tube.center();
     const R = new THREE.Mesh(tube, glass);
     const size = new THREE.Vector3(); new THREE.Box3().setFromObject(R).getSize(size);
