@@ -17,11 +17,15 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   var MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(_ua);
   var LOWMEM = (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
                (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  var WEAKBROWSER = MOBILE && /YaBrowser|Firefox|FxiOS|Opera Mini|OPR\//i.test(_ua);
+  function glLite(){ try{ return localStorage.getItem('rn_gl_lite')==='1'; }catch(e){ return false; } }
+  function markLite(){ try{ localStorage.setItem('rn_gl_lite','1'); }catch(e){} }
+  var LITE = IN_APP || LOWMEM || WEAKBROWSER || glLite();
   var LOW = IN_APP || MOBILE;
   // Résolution interne abaissée sur mobile / appareils faibles (invisible,
   // soulage le GPU — cohérent avec l'intro).
-  var DPR_CAP = IN_APP ? 1.0 : (LOWMEM ? 1.1 : (MOBILE ? 1.3 : 2));
-  var SPH = LOW ? 24 : 32;
+  var DPR_CAP = LITE ? 1.0 : (LOWMEM ? 1.1 : (MOBILE ? 1.3 : 2));
+  var SPH = LITE ? 20 : (LOW ? 24 : 32);
 
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas: host, antialias:!LOW, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false }); }
@@ -50,7 +54,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   });
   const orbs = new THREE.Group(); scene.add(orbs);
   const geo = new THREE.SphereGeometry(1, SPH, SPH);
-  const COUNT = LOW ? 8 : 14;
+  const COUNT = LITE ? 5 : (LOW ? 8 : 14);
   const balls = [];
   for (let i=0;i<COUNT;i++){
     const b = new THREE.Mesh(geo, ballMat);
@@ -63,7 +67,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   }
 
   // Poussière d'étoiles
-  const N = LOW ? 1000 : 2600;
+  const N = LITE ? 500 : (LOW ? 1000 : 2600);
   const pos = new Float32Array(N*3), col = new Float32Array(N*3);
   const cA = new THREE.Color(0x57e0ff), cB = new THREE.Color(0x9a6bff), cW = new THREE.Color(0xffffff);
   for (let i=0;i<N;i++){
@@ -104,8 +108,12 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   }
 
   // Perte de contexte WebGL : on arrête proprement (le fond redevient
-  // transparent, la page reste utilisable) au lieu de figer.
-  host.addEventListener('webglcontextlost', function(ev){ ev.preventDefault(); onScreen = false; }, false);
+  // transparent, la page reste utilisable) au lieu de figer + disjoncteur :
+  // l'appareil passe en mode léger pour les prochains chargements.
+  host.addEventListener('webglcontextlost', function(ev){
+    ev.preventDefault(); onScreen = false; markLite();
+    try{ if(!sessionStorage.getItem('rn_gl_reloaded')){ sessionStorage.setItem('rn_gl_reloaded','1'); setTimeout(function(){ location.reload(); }, 60); } }catch(e){}
+  }, false);
   host.addEventListener('webglcontextrestored', function(){ onScreen = true; tick(); }, false);
 
   // Scroll : les bulles métallisées s'envolent et montent quand on descend
