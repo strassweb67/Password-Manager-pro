@@ -1067,10 +1067,24 @@ footer{background:rgba(0,0,0,.96);}
 .credits-link:hover{background:var(--accent);color:#fff;}
 
 /* ── Tarif : simple box vitrée avec ledger ── */
-.tarif-box{max-width:28rem;margin:0 auto;background:var(--bg-card);border:1.5px solid var(--border-h);border-radius:1.2rem;
-  padding:1.8rem 1.6rem;text-align:center;}
-.tarif-num{font-family:var(--disp);font-size:3rem;color:#fff;}
-.tarif-num span{font-size:1rem;color:var(--text-dim);font-family:'Inter',sans-serif;}
+.tarif-box{position:relative;max-width:28rem;margin:0 auto;border-radius:1.6rem;
+  background:linear-gradient(180deg,rgba(20,28,58,.6),rgba(8,11,26,.55));border:1px solid rgba(134,164,255,.4);
+  padding:2rem 1.6rem 1.7rem;text-align:center;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 50px rgba(72,104,242,.28),0 0 120px rgba(72,104,242,.14);
+  animation:pitchGlow 3.8s ease-in-out 1.6s infinite;}
+.tarif-box::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:56%;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,rgba(150,176,255,.9),transparent);box-shadow:0 0 14px rgba(120,150,255,.9);}
+.tarif-anchor{display:flex;flex-direction:column;align-items:center;gap:1px;margin-bottom:.2rem;}
+.tarif-old{font-family:var(--disp);font-size:1.15rem;color:#8ea3d6;text-decoration:line-through;text-decoration-color:rgba(230,90,90,.8);}
+.tarif-old-lbl{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:#7d8bb5;}
+.tarif-num{font-family:var(--disp);font-size:3.4rem;line-height:1;
+  background:linear-gradient(105deg,#c7d4f6 0%,#fff 42%,#fff 58%,#c7d4f6 100%);background-size:230% auto;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(150,180,255,.4));animation:titleShine 5s linear 1.4s infinite;}
+.tarif-num span{font-size:1rem;color:var(--text-dim);font-family:'Inter',sans-serif;-webkit-text-fill-color:var(--text-dim);}
+.tarif-guar{display:flex;flex-wrap:wrap;justify-content:center;gap:7px 12px;margin:1.1rem auto .4rem;}
+.tarif-guar span{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;color:#c7d3e6;font-family:'Inter',sans-serif;}
+.tarif-guar span::before{content:'✓';display:inline-flex;width:15px;height:15px;align-items:center;justify-content:center;border-radius:50%;font-size:9px;font-weight:900;color:#fff;background:linear-gradient(135deg,#5a78ff,#3a52d6);box-shadow:0 0 7px rgba(90,120,255,.6);}
 .tarif-ledger{margin:1.3rem 0;display:flex;flex-direction:column;gap:.6rem;text-align:left;}
 .tarif-ledger div{display:flex;justify-content:space-between;font-size:.82rem;padding-bottom:.55rem;border-bottom:1px solid var(--border);font-family:'Inter',sans-serif;}
 .tarif-ledger div:last-child{border:none;}
@@ -2181,7 +2195,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
     <div class="zw-txt rv" data-rv>
       <div class="zw-eyebrow"><span class="zw-slashes"><i></i><i></i><i></i></span>Bienvenue · bientôt disponible</div>
       <h2 class="sec-t"><span class="tl"><span>Ton suivi, <span class="zy">tous les jours.</span></span></span></h2>
-      <p class="sec-sub">Zyra lit tes données d'entraînement, de sommeil et de nutrition, puis ajuste ton programme du lendemain.</p>
+      <p class="sec-sub">Zyra lit tes données d'entraînement, de sommeil et de nutrition — et réécrit ton programme du lendemain pendant que tu dors. Ton coach ne dort jamais.</p>
       <div class="zw-feats">
         <div class="zw-feat"><span class="zw-check">✓</span><div><b>Analyse quotidienne</b><p>Recommandations chiffrées chaque matin, basées sur tes vraies données de la veille.</p></div></div>
         <div class="zw-feat"><span class="zw-check">✓</span><div><b>Progression semaine par semaine</b><p>Ton évolution physique mesurée et suivie, sans rien noter toi-même.</p></div></div>
@@ -2247,10 +2261,26 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
   </div>
 </section>
 
+<div class="slash-band thin" aria-hidden="true"></div>
+<!-- ━━━━━━━━━━━━━━━━━━━━━━ MÉCANISME (psychologie) ━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="section dossier" id="mecanisme">
+  <div class="sec-head rev">
+    <h2 class="sec-t">Pourquoi ça marche <span class="y">quand le reste a échoué</span></h2>
+    <p class="sec-sub">Pas de magie — trois leviers psychologiques que les meilleurs utilisent, appliqués à toi.</p>
+  </div>
+  <div class="steps rev rev-d1">
+    <div class="step"><div class="step-ico">01</div><div><h3>Ton environnement bat ta motivation</h3><p>La discipline ne se force pas, elle s'attrape. Entoure-toi de gens qui construisent, et ta trajectoire change toute seule — c'est le cercle qui fait l'homme.</p></div></div>
+    <div class="step"><div class="step-ico">02</div><div><h3>Le cerveau agit sur la preuve, pas la promesse</h3><p>Ton diagnostic te met face à tes vrais chiffres. On ne te motive pas avec des mots : on te confronte à ta réalité — c'est là que la décision se prend vraiment.</p></div></div>
+    <div class="step"><div class="step-ico">03</div><div><h3>Deviens-le avant de l'avoir</h3><p>On ne te vend pas un programme, on te fait changer d'identité. Les résultats qui durent viennent de qui tu deviens — pas de ce que tu forces.</p></div></div>
+  </div>
+</section>
+
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ TARIF ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="tarif">
-  <div class="sec-head rev"><h2 class="sec-t">Un seul tarif, <span class="y">tout est dedans</span></h2></div>
+  <div class="sec-head rev"><h2 class="sec-t">Un seul tarif, <span class="y">tout est dedans</span></h2>
+    <p class="sec-sub">Près de 5 000€ de contenu. Le prix d'un café par semaine.</p></div>
   <div class="tarif-box rev rev-d1">
+    <div class="tarif-anchor"><span class="tarif-old">4 982€</span><span class="tarif-old-lbl">de valeur réelle</span></div>
     <p class="tarif-num">10$<span>/mois</span></p>
     <div class="tarif-ledger">
       <div><span>Six modules</span><span>Inclus</span></div>
@@ -2258,8 +2288,9 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
       <div><span>Réseau privé &amp; séminaires</span><span>Inclus</span></div>
       <div><span>Résiliation</span><span>À tout moment</span></div>
     </div>
-    <a href="#" class="btn-fp primary" data-diag data-log="Tarif → Rejoindre (site)" style="width:100%;">Rejoindre Renaissance</a>
-    <p style="margin-top:12px;font-size:12px;line-height:1.6;color:#9fb2ff;text-align:center;">Paiement 100&nbsp;% sécurisé, directement sur ce site — par carte bancaire (Revolut). Aucune plateforme externe.</p>
+    <a href="#" class="btn-fp primary" data-diag data-log="Tarif → Rejoindre (site)" style="width:100%;">Rejoindre Renaissance maintenant</a>
+    <div class="tarif-guar"><span>Sans engagement</span><span>Résiliable à tout moment</span><span>Accès immédiat</span><span>Paiement sécurisé</span></div>
+    <p style="margin-top:10px;font-size:12px;line-height:1.6;color:#9fb2ff;text-align:center;">Paiement 100&nbsp;% sécurisé, directement sur ce site — par carte bancaire (Revolut). Aucune plateforme externe.</p>
   </div>
 </section>
 
