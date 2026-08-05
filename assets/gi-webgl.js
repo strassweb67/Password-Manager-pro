@@ -26,11 +26,11 @@ if (canvas && overlay) {
   // repasse en mode léger de façon permanente (auto-réparation, jamais 2 plantages).
   function glLite(){ try{ return localStorage.getItem('rn_gl_lite')==='1'; }catch(e){ return false; } }
   function markLite(){ try{ localStorage.setItem('rn_gl_lite','1'); }catch(e){} }
-  // MODE LÉGER : pas d'effet "transmission" (verre traversant) — le poste le plus
-  // lourd pour le GPU. Le R reste bleu, brillant, lumineux (juste opaque au lieu
-  // de traversant, quasi invisible sur fond noir). Actif seulement sur appareils
-  // faibles / navigateurs fragiles / appareils ayant déjà planté.
-  var LITE = IN_APP || LOWMEM || WEAKBROWSER || glLite();
+  // Effet complet (transmission verre + bulles) restauré PARTOUT sauf sur les
+  // navigateurs fragiles confirmés (Yandex, Firefox mobile), les WebViews
+  // in-app, et les appareils ayant déjà planté (disjoncteur). Chrome, Safari,
+  // Edge, Samsung, desktop et téléphones capables retrouvent le rendu « avant ».
+  var LITE = IN_APP || WEAKBROWSER || glLite();
   var giDisposed = false;
   // Résolution INTERNE de rendu (pixel ratio). L'effet "transmission" (verre)
   // se recalcule à cette résolution À CHAQUE IMAGE : c'est ce qui saturait le
@@ -41,12 +41,11 @@ if (canvas && overlay) {
   var LOW = IN_APP || MOBILE;
   var SPH = LOW ? 24 : 32, TUB_T = LOW ? 280 : 320, TUB_R = LOW ? 20 : 24, NPART = LITE ? 500 : (LOW ? 1700 : 2600);
 
-  // On GARDE le vrai R 3D WebGL partout (c'est la signature). Ce qui alourdit
-  // et « fait tout bouger », ce sont les bulles flottantes + le fond du hero :
-  // sur navigateurs fragiles (Yandex/Firefox mobile) on les retire, mais on
-  // laisse le R. Le SVG statique ne sert QUE de filet de sécurité si l'appareil
-  // a DÉJÀ planté une fois (disjoncteur) — sinon on ne le voit jamais.
-  var NO_INTRO_GL = glLite();
+  // Le R 3D WebGL complet (verre + bulles) est rendu PARTOUT, SAUF sur les
+  // navigateurs qui gèlent le GPU même avec un minimum de WebGL (Yandex,
+  // Firefox mobile), les WebViews in-app, et les appareils ayant déjà planté :
+  // ceux-là reçoivent le R statique (SVG), seul moyen de ne JAMAIS geler.
+  var NO_INTRO_GL = IN_APP || WEAKBROWSER || glLite();
 
   if (!NO_INTRO_GL) {
     try { renderer = new THREE.WebGLRenderer({ canvas, antialias:!LOW, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false }); }
