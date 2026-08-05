@@ -991,12 +991,31 @@ footer{background:rgba(0,0,0,.96);}
    STEPS — piliers et listes simples en rangées horizontales, pas de
    grille de cartes identiques
    ═══════════════════════════════════════════════════════════════════ */
-.steps{display:flex;flex-direction:column;gap:.7rem;}
-.step{display:flex;gap:1rem;align-items:flex-start;background:var(--bg-card);border:1px solid var(--border);
-  border-radius:.9rem;padding:1.1rem 1.2rem;}
-.step-ico{width:40px;height:40px;border-radius:.7rem;background:var(--accent-soft);border:1px solid var(--border-h);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent-2);font-family:var(--disp);font-size:16px;}
-.step h3{font-family:var(--titre);font-weight:800;font-size:1rem;margin-bottom:.3rem;}
+.steps{display:flex;flex-direction:column;gap:.85rem;}
+.step{position:relative;display:flex;gap:1.05rem;align-items:flex-start;overflow:hidden;
+  background:linear-gradient(180deg,rgba(18,26,54,.55),rgba(8,11,26,.5));border:1px solid rgba(134,164,255,.24);
+  border-radius:1rem;padding:1.15rem 1.2rem;box-shadow:0 12px 34px rgba(0,0,0,.4),0 0 30px rgba(70,100,235,.10);
+  transition:transform .3s var(--e),border-color .3s,box-shadow .3s;}
+@media(hover:hover){.step:hover{transform:translateY(-3px);border-color:rgba(134,164,255,.5);box-shadow:0 18px 46px rgba(0,0,0,.5),0 0 42px rgba(70,100,235,.22);}}
+/* Numéros chromés « 4D » — même esprit métal/brillance que le R de l'intro */
+.step-ico{position:relative;width:54px;height:54px;border-radius:16px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Archivo',var(--disp),sans-serif;font-weight:900;font-size:23px;letter-spacing:-.02em;color:#eef3ff;
+  background:radial-gradient(circle at 34% 24%,#3c4353 0%,#1b1f29 42%,#0b0e16 100%);
+  border:1px solid rgba(134,164,255,.42);
+  box-shadow:inset 0 1.5px 1px rgba(255,255,255,.3),inset 0 -7px 14px rgba(0,0,0,.55),0 10px 24px rgba(0,0,0,.5),0 0 24px rgba(84,114,255,.3);
+  text-shadow:0 1px 0 rgba(255,255,255,.45),0 2px 4px rgba(0,0,0,.6),0 0 14px rgba(120,150,255,.65);
+  animation:stepFloat 5.5s ease-in-out infinite;transform-style:preserve-3d;}
+.step-ico::after{content:'';position:absolute;inset:0;border-radius:16px;pointer-events:none;
+  background:linear-gradient(115deg,transparent 34%,rgba(255,255,255,.5) 48%,transparent 62%);
+  transform:translateX(-140%);animation:stepShine 4.5s ease-in-out infinite;}
+.step:nth-child(2) .step-ico{animation-delay:.4s;}
+.step:nth-child(3) .step-ico{animation-delay:.8s;}
+.step:nth-child(2) .step-ico::after{animation-delay:.6s;}
+.step:nth-child(3) .step-ico::after{animation-delay:1.2s;}
+@keyframes stepFloat{0%,100%{transform:translateY(0) rotate(-2.2deg);}50%{transform:translateY(-6px) rotate(2.2deg);}}
+@keyframes stepShine{0%,66%{transform:translateX(-140%);}82%,100%{transform:translateX(140%);}}
+.step h3{font-family:var(--titre);font-weight:800;font-size:1.02rem;margin-bottom:.3rem;color:#eef3ff;}
 .step p{color:var(--text-dim);font-size:.86rem;line-height:1.55;font-family:'Inter',sans-serif;}
 
 /* ── Cartes simples (écosystème / modules), surface2, pas de glow générique ── */
@@ -1004,8 +1023,9 @@ footer{background:rgba(0,0,0,.96);}
 .carte-fp{background:var(--surface2);border:1px solid var(--border);border-radius:1rem;overflow:hidden;
   display:flex;flex-direction:column;transition:border-color .25s,transform .25s;}
 .carte-fp:hover{border-color:var(--border-h);transform:translateY(-3px);}
-.carte-media{height:150px;overflow:hidden;position:relative;}
-.carte-media img{width:100%;height:100%;object-fit:cover;filter:contrast(1.05) saturate(1.05);}
+.carte-media{height:200px;overflow:hidden;position:relative;background:#05060c;}
+.carte-media::before{content:'';position:absolute;inset:-14%;z-index:0;background-image:inherit;background-size:cover;background-position:center;filter:blur(22px) brightness(.42) saturate(1.15);}
+.carte-media img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;filter:contrast(1.05) saturate(1.05);}
 .carte-corps{padding:1.1rem 1.2rem 1.3rem;display:flex;flex-direction:column;flex:1;}
 .carte-corps h3{font-family:var(--titre);font-weight:800;font-size:1.05rem;margin:.5rem 0 .4rem;}
 .carte-corps p{color:var(--text-dim);font-size:.84rem;line-height:1.55;font-family:'Inter',sans-serif;margin-bottom:.9rem;flex:1;}
@@ -1864,7 +1884,7 @@ footer{background:rgba(0,0,0,.96);}
       <span class="ch-stat"><i>✓</i><b>10$</b>/mois</span>
       <span class="ch-stat"><i>✓</i><b>24/7</b>&nbsp;suivi</span>
     </div>
-    <p class="ch-value">Six modules, un réseau privé et un suivi quotidien — <strong>plus de 10&nbsp;000€ de valeur</strong> réunis dans un seul accès, sans engagement.</p>
+    <p class="ch-value">Six modules, un réseau privé et un suivi quotidien — <strong>près de 5&nbsp;000€ de valeur</strong> réunis dans un seul accès, sans engagement.</p>
     <div class="cine-hero__cta">
       <a href="#" class="ch-btn ch-btn--gold" data-diag data-log="Hero → Diagnostic gratuit">Faire le diagnostic gratuit</a>
       <a href="#ecosysteme" class="ch-btn ch-btn--ghost" data-log="Hero → Écosystème">Découvrir l'écosystème exclusif</a>
@@ -2070,7 +2090,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
   </div>
   <div class="grille-cartes rev rev-d1">
     <a class="carte-fp" href="#ecosysteme" data-log="Écosystème → Renaissance">
-      <div class="carte-media"><img src="./bg-renaissance.jpg" alt="Renaissance" data-cine-par data-cine-amp="0.12"></div>
+      <div class="carte-media" style="background-image:url('./bg-renaissance.jpg')"><img src="./bg-renaissance.jpg" alt="Renaissance" data-cine-par data-cine-amp="0.12"></div>
       <div class="carte-corps">
         <span class="etat-fp actif">Actif · accès immédiat</span>
         <h3>Renaissance</h3>
@@ -2079,7 +2099,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
       </div>
     </a>
     <a class="carte-fp" href="#bgh-party-focus" data-log="Écosystème → BGH Party">
-      <div class="carte-media"><img src="./bg-bgh-party.png" alt="BGH Party" style="object-position:center 30%;" data-cine-par data-cine-amp="0.12"></div>
+      <div class="carte-media" style="background-image:url('./bg-bgh-party.png')"><img src="./bg-bgh-party.png" alt="BGH Party" data-cine-par data-cine-amp="0.12"></div>
       <div class="carte-corps">
         <span class="etat-fp attente">Sur invitation</span>
         <h3>BGH Party</h3>
@@ -2108,15 +2128,15 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
     <p class="sec-sub">Tout est débloqué dès l'inscription. Rien n'est verrouillé.</p>
   </div>
   <div class="liste-mod rev rev-d1">
-    <div class="mod-row"><span class="m-i">01</span><span class="m-c"><h4>Looksmaxing</h4><span class="m-d">Posture, peau, style, présentation</span></span><span class="m-p">997€</span></div>
-    <div class="mod-row"><span class="m-i">02</span><span class="m-c"><h4>Développement physique</h4><span class="m-d">Entraînement et nutrition sur-mesure</span></span><span class="m-p">497€</span></div>
-    <div class="mod-row"><span class="m-i">03</span><span class="m-c"><h4>Clipping BGH</h4><span class="m-d">Créer et monter du contenu qui capte</span></span><span class="m-p">397€</span></div>
-    <div class="mod-row"><span class="m-i">04</span><span class="m-c"><h4>Réseau privé</h4><span class="m-d">Soirées, séminaires, membres du cercle</span></span><span class="m-p">2997€</span></div>
-    <div class="mod-row"><span class="m-i">05</span><span class="m-c"><h4>Revenus &amp; systèmes IA</h4><span class="m-d">Automatisations, revenu hors temps de présence</span></span><span class="m-p">3197€</span></div>
-    <div class="mod-row"><span class="m-i">06</span><span class="m-c"><h4>Coaching &amp; suivi</h4><span class="m-d">Sessions de groupe, suivi personnalisé</span></span><span class="m-p">1997€</span></div>
+    <div class="mod-row"><span class="m-i">01</span><span class="m-c"><h4>Looksmaxing</h4><span class="m-d">Posture, peau, style, présentation</span></span><span class="m-p">497€</span></div>
+    <div class="mod-row"><span class="m-i">02</span><span class="m-c"><h4>Développement physique</h4><span class="m-d">Entraînement et nutrition sur-mesure</span></span><span class="m-p">397€</span></div>
+    <div class="mod-row"><span class="m-i">03</span><span class="m-c"><h4>Clipping BGH</h4><span class="m-d">Créer et monter du contenu qui capte</span></span><span class="m-p">297€</span></div>
+    <div class="mod-row"><span class="m-i">04</span><span class="m-c"><h4>Réseau privé</h4><span class="m-d">Soirées, séminaires, membres du cercle</span></span><span class="m-p">1497€</span></div>
+    <div class="mod-row"><span class="m-i">05</span><span class="m-c"><h4>Revenus &amp; systèmes IA</h4><span class="m-d">Automatisations, revenu hors temps de présence</span></span><span class="m-p">1497€</span></div>
+    <div class="mod-row"><span class="m-i">06</span><span class="m-c"><h4>Coaching &amp; suivi</h4><span class="m-d">Sessions de groupe, suivi personnalisé</span></span><span class="m-p">797€</span></div>
   </div>
   <div class="valeur-box mt-l rev rev-d2">
-    <p class="valeur-num">+<span class="count-up y" data-count="10082">0</span>€</p>
+    <p class="valeur-num">+<span class="count-up y" data-count="4982">0</span>€</p>
     <p class="lead" style="margin:0 auto;">de contenu réuni dans un seul accès à 10$/mois.</p>
   </div>
 </section>
@@ -2141,7 +2161,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
     <p class="sec-sub">Plus qu'une soirée, une expérience d'élite — le prolongement en vrai de tout ce que le programme construit.</p>
   </div>
   <div class="carte-fp rev rev-d1" style="max-width:640px;margin:0 auto;">
-    <div class="carte-media" style="height:220px;"><img src="./bg-bgh-party.png" alt="BGH Party" data-cine-par data-cine-amp="0.12"></div>
+    <div class="carte-media" style="height:260px;background-image:url('./bg-bgh-party.png')"><img src="./bg-bgh-party.png" alt="BGH Party" data-cine-par data-cine-amp="0.12"></div>
     <div class="carte-corps">
       <div class="badges" style="justify-content:flex-start;margin-top:0;">
         <span class="badge-fp">Entrée sélective</span><span class="badge-fp">Cercle fermé</span><span class="badge-fp">Nourriture comprise</span>
@@ -4632,7 +4652,7 @@ function showVisitorDetail(v){
 var DG_OFFER = {
   url:   "",   /* espace membre après paiement (laisse vide → retour accueil) */
   price: "29€",
-  value: "+10 082€ de valeur",
+  value: "+4 982€ de valeur",
   note:  "Accès immédiat · Sans engagement · Résiliable à tout moment"
 };
 var LS_KEY = "rn_diag_leads";
