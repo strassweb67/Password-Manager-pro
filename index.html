@@ -1596,6 +1596,24 @@ footer{background:rgba(0,0,0,.96);}
 @keyframes zw-pop{70%{transform:scale(1.15) rotate(3deg);}100%{transform:scale(1) rotate(0);}}
 .zw-feat b{display:block;font-family:var(--titre);font-weight:800;font-size:.88rem;color:#fff;margin-bottom:.15rem;}
 .zw-feat p{margin:0;font-size:.78rem;color:var(--text-dim);line-height:1.5;}
+/* ── Schéma animé Zyra : données → IA → programme ajusté (identité jaune) ── */
+.zyra-schema{display:flex;flex-direction:column;align-items:center;gap:.55rem;max-width:24rem;margin:0 0 1.5rem;padding:1.1rem 1rem;
+  border:1px solid rgba(255,236,0,.22);border-radius:1rem;background:linear-gradient(180deg,rgba(255,236,0,.05),rgba(255,236,0,.015));}
+.zs-lbl{font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:#c9bd4d;font-family:var(--disp);}
+.zs-ins{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center;}
+.zs-chip{font-size:.72rem;font-weight:700;padding:.34rem .7rem;border-radius:999px;color:#ffec00;
+  background:rgba(255,236,0,.08);border:1px solid rgba(255,236,0,.32);font-family:'Inter',sans-serif;}
+.zs-arrow{width:2px;height:20px;background:rgba(255,236,0,.22);position:relative;overflow:hidden;border-radius:2px;}
+.zs-arrow i{position:absolute;left:0;top:-55%;width:100%;height:55%;background:linear-gradient(180deg,transparent,#ffec00,transparent);animation:flowDown 1.5s linear infinite;}
+.zs-arrow:nth-of-type(4) i{animation-delay:.75s;}
+.zs-core{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--disp);font-weight:800;font-size:.66rem;line-height:1.05;color:#1a1600;letter-spacing:.04em;
+  background:radial-gradient(circle at 34% 26%,#fff9b0 0%,#ffec00 52%,#d9c900 100%);
+  box-shadow:0 0 22px rgba(255,236,0,.55),inset 0 -5px 9px rgba(170,150,0,.45),inset 0 2px 3px rgba(255,255,255,.6);
+  animation:zsCore 2.4s ease-in-out infinite;}
+@keyframes zsCore{0%,100%{box-shadow:0 0 20px rgba(255,236,0,.5),inset 0 -5px 9px rgba(170,150,0,.45),inset 0 2px 3px rgba(255,255,255,.6);}50%{box-shadow:0 0 42px rgba(255,236,0,.9),inset 0 -5px 9px rgba(170,150,0,.45),inset 0 2px 3px rgba(255,255,255,.7);}}
+.zs-out{font-size:.82rem;font-weight:700;color:#fff;text-align:center;padding:.5rem .9rem;border-radius:.7rem;font-family:'Inter',sans-serif;
+  background:rgba(255,236,0,.07);border:1px solid rgba(255,236,0,.3);}
 .zw-cta{display:flex;flex-direction:column;align-items:flex-start;gap:.7rem;}
 .zw-cta .btn-fp{width:min(100%,300px);justify-content:center;}
 .zw-note{font-size:.7rem;color:var(--text-faint);margin:0;}
@@ -2227,6 +2245,14 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
         <div class="zw-feat"><span class="zw-check">✓</span><div><b>Analyse quotidienne</b><p>Recommandations chiffrées chaque matin, basées sur tes vraies données de la veille.</p></div></div>
         <div class="zw-feat"><span class="zw-check">✓</span><div><b>Progression semaine par semaine</b><p>Ton évolution physique mesurée et suivie, sans rien noter toi-même.</p></div></div>
         <div class="zw-feat"><span class="zw-check">✓</span><div><b>Rappels quand tu décroches</b><p>Zyra te relance au bon moment pour que la discipline tienne dans la durée.</p></div></div>
+      </div>
+      <div class="zyra-schema rev rev-d1" aria-hidden="true">
+        <span class="zs-lbl">Tes données</span>
+        <div class="zs-ins"><span class="zs-chip">Sommeil</span><span class="zs-chip">Entraînement</span><span class="zs-chip">Nutrition</span></div>
+        <div class="zs-arrow"><i></i></div>
+        <div class="zs-core"><span>ZYRA<br>IA</span></div>
+        <div class="zs-arrow"><i></i></div>
+        <div class="zs-out">Ton programme de demain, ajusté au chiffre près</div>
       </div>
       <div class="zw-cta">
         <a href="https://aifitness.alpha-korner.com" target="_blank" rel="noopener" class="btn-fp zy" data-log="Zyra Focus → Waitlist">Rejoindre la liste d'attente</a>
