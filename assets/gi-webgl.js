@@ -41,8 +41,16 @@ if (canvas && overlay) {
   var LOW = IN_APP || MOBILE;
   var SPH = LOW ? 24 : 32, TUB_T = LOW ? 280 : 320, TUB_R = LOW ? 20 : 24, NPART = LOW ? 1700 : 2600;
 
-  try { renderer = new THREE.WebGLRenderer({ canvas, antialias:!LOW, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false }); }
-  catch (e) { fallback(); }
+  // ZÉRO WEBGL sur les navigateurs qui gèlent malgré tout (Yandex, Firefox
+  // mobile), les WebViews in-app, et tout appareil ayant déjà planté : on
+  // affiche un R statique (SVG bleu lumineux) au lieu du 3D. Sans contexte
+  // WebGL, l'écran NE PEUT PLUS geler. Le 3D reste sur Chrome/Safari/desktop.
+  var NO_INTRO_GL = IN_APP || WEAKBROWSER || glLite();
+
+  if (!NO_INTRO_GL) {
+    try { renderer = new THREE.WebGLRenderer({ canvas, antialias:!LOW, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false }); }
+    catch (e) { renderer = null; }
+  }
 
   if (renderer) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, DPR_CAP));
@@ -224,7 +232,28 @@ if (canvas && overlay) {
 
     window.__giCam = camera; // pour la transition
   } else {
+    buildStaticIntro();   // R statique (SVG) — aucun WebGL, ne peut pas geler
     showUI();
+  }
+
+  // R statique bleu lumineux (SVG) pour les navigateurs sans WebGL fiable.
+  function buildStaticIntro(){
+    var f = document.getElementById('gi-fallback'); if (f) f.classList.add('on');
+    if (document.getElementById('gi-static-r')) return;
+    var wrap = document.createElement('div');
+    wrap.id = 'gi-static-r'; wrap.setAttribute('aria-hidden','true');
+    wrap.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2;';
+    wrap.innerHTML = '<svg width="min(52vw,220px)" viewBox="0 0 100 100" style="width:min(52vw,220px);height:auto;overflow:visible;filter:drop-shadow(0 0 26px rgba(90,120,255,.6));animation:giRfloat 4.2s ease-in-out infinite;">'
+      + '<defs><linearGradient id="giRg" x1="0" y1="0" x2="1" y2="1">'
+      + '<stop offset="0" stop-color="#9fb4ff"/><stop offset=".5" stop-color="#3a52d6"/><stop offset="1" stop-color="#1a2a9e"/>'
+      + '</linearGradient></defs>'
+      + '<path d="M16.5 90L16.5 10L58 10Q85 10 85 24Q85 35.5 58 35.5L38 35.5L63 81" fill="none" stroke="url(#giRg)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    overlay.appendChild(wrap);
+    if (!document.getElementById('gi-static-kf')){
+      var st = document.createElement('style'); st.id = 'gi-static-kf';
+      st.textContent = '@keyframes giRfloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}';
+      document.head.appendChild(st);
+    }
   }
 
   function showUI(){ document.querySelectorAll('.gi-kicker,.gi-brand,.gi-sub,.gi-byline,.gi-cta').forEach(e=>e.style.opacity=1); }
