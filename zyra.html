@@ -5,18 +5,84 @@
 <meta charset="UTF-8">
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#03040c">
-<title>Zyra — L'app qui adapte ton corps chaque jour</title>
-<meta name="description" content="Zyra lit tes données d'entraînement et de récupération et ajuste ton programme du lendemain, tous les jours. Un coach IA dans ta poche. Rejoins la liste d'attente.">
+<meta name="theme-color" content="#000000">
+<title>Zyra — Ton coach IA de sport, dans ta poche</title>
+<meta name="description" content="Zyra analyse tes photos, ton sommeil, ta récupération et ta nutrition, puis génère ta séance privée du lendemain — chaque jour. L'app IA qui remplace ton coach. Avant-première : rejoins la liste d'attente.">
 <link rel="stylesheet" href="assets/offer.css?v=3">
-<script type="importmap">{"imports":{"three":"./assets/vendor/three/three.module.js","three/addons/":"./assets/vendor/three/jsm/"}}</script>
+<style id="zyra-theme">
+/* ══ UNIVERS ZYRA — or & noir (couleurs de l'app) ══ */
+:root{--blue:#ffcc00;--blue-2:#ffe14d;--blue-3:#fff07a;--line:rgba(255,204,0,.24);--line-h:rgba(255,204,0,.5);}
+body{background:radial-gradient(ellipse 90% 60% at 50% -12%,#1c1600 0%,#000 62%),#000;}
+.marq{background:linear-gradient(90deg,#ffcc00,#ffd21e 50%,#ffcc00);border-bottom:1px solid rgba(255,230,140,.6);box-shadow:0 2px 20px rgba(255,204,0,.45);}
+.marq-i{color:#0a0900;text-shadow:none;} .marq-d{color:rgba(10,9,0,.5);}
+.nav .logo{color:#ffcc00;} .nav .soc a:hover{color:#ffd21e;}
+.pill{background:#ffcc00;color:#0a0900;border:1px solid rgba(255,235,150,.85);box-shadow:0 0 22px rgba(255,204,0,.7),0 0 46px rgba(255,180,0,.4);}
+h1.title{background:linear-gradient(105deg,#fff2b0 0%,#ffffff 42%,#ffffff 58%,#fff2b0 100%);text-shadow:0 0 26px rgba(255,204,0,.4);}
+.tagline b{color:#ffd21e;} .hero-sub strong{color:#ffe14d;}
+.price-tag{color:#ffd21e;text-shadow:0 0 22px rgba(255,204,0,.6);}
+.btn-primary{background:linear-gradient(135deg,#ffd21e,#ffcc00 60%,#ffe14d);color:#0a0900;
+  box-shadow:0 10px 34px rgba(255,204,0,.5),0 0 0 1px rgba(255,235,150,.6),inset 0 1px 0 rgba(255,255,255,.4);}
+.btn-primary:hover{box-shadow:0 16px 46px rgba(255,214,30,.7),0 0 0 1.4px rgba(255,235,150,.8);}
+.kick{color:#ffd21e;} .sec-h .y{color:#ffd21e;}
+.value{border-color:var(--line-h);box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 50px rgba(255,204,0,.22);}
+.value-num{background:linear-gradient(105deg,#fff2b0,#fff 45%,#fff2b0);}
+.guar span::before{background:linear-gradient(135deg,#ffe14d,#ffcc00);color:#0a0900;}
+.who-i .ck{background:linear-gradient(135deg,#ffe14d,#ffcc00);color:#0a0900;}
+.step-n{background:linear-gradient(135deg,#ffe14d,#ffcc00);color:#0a0900;box-shadow:0 0 16px rgba(255,204,0,.6);}
+.email{background:linear-gradient(135deg,rgba(255,204,0,.16),rgba(255,204,0,.03));border-color:var(--line-h);}
+.orb{filter:saturate(.6) brightness(.9);}
+/* Diamant or (CSS pur — cohérent partout, aucun WebGL) */
+.zdia{width:86px;height:86px;margin:6px auto 4px;border-radius:22px;transform:rotate(45deg);
+  background:radial-gradient(circle at 36% 30%,#fff7c8 0%,#ffd21e 42%,#a87e00 100%);
+  box-shadow:0 0 32px rgba(255,204,0,.6),0 10px 28px rgba(0,0,0,.6),inset 0 2px 7px rgba(255,255,255,.55),inset 0 -6px 14px rgba(120,90,0,.4);
+  animation:zdiaFloat 4.2s ease-in-out infinite;}
+.zdia.sm{width:56px;height:56px;border-radius:15px;margin-bottom:6px;}
+@keyframes zdiaFloat{0%,100%{transform:rotate(45deg) translateY(0);}50%{transform:rotate(45deg) translateY(-9px);}}
+/* Maquette téléphone (UI de l'app, or/noir) */
+.zphone{width:min(278px,80vw);margin:36px auto 0;border-radius:40px;background:linear-gradient(#0c0c0a,#050504);
+  border:2px solid #221d0a;box-shadow:0 34px 90px rgba(0,0,0,.75),0 0 70px rgba(255,204,0,.13);padding:18px 15px 20px;position:relative;overflow:hidden;}
+.zphone::before{content:'';position:absolute;top:9px;left:50%;transform:translateX(-50%);width:80px;height:5px;border-radius:99px;background:#000;}
+.zph-top{display:flex;justify-content:space-between;align-items:center;margin:14px 4px 4px;}
+.zph-logo{font-family:'Archivo',sans-serif;font-weight:900;letter-spacing:2px;color:#fff;font-size:14px;} .zph-logo i{font-style:normal;color:#ffcc00;}
+.zph-live{display:inline-flex;align-items:center;gap:5px;font-family:'Archivo',sans-serif;font-weight:800;font-size:9px;letter-spacing:1.5px;color:#ffcc00;}
+.zph-live i{width:6px;height:6px;border-radius:50%;background:#ffcc00;box-shadow:0 0 8px #ffcc00;animation:zblink 1.4s infinite;}
+@keyframes zblink{0%,100%{opacity:1;}50%{opacity:.25;}}
+.zring{width:132px;height:132px;margin:16px auto 6px;border-radius:50%;position:relative;display:grid;place-items:center;
+  background:conic-gradient(#ffcc00 0% 82%,rgba(255,204,0,.14) 82% 100%);box-shadow:0 0 30px rgba(255,204,0,.35);}
+.zring::before{content:'';position:absolute;inset:11px;border-radius:50%;background:#080806;}
+.zring-in{position:relative;text-align:center;} .zring-in b{display:block;font-family:'Archivo',sans-serif;font-weight:900;font-size:36px;color:#fff;line-height:1;}
+.zring-in span{font-size:8.5px;letter-spacing:2px;color:#ffcc00;text-transform:uppercase;}
+.zbar{margin-top:11px;}
+.zbar-h{display:flex;justify-content:space-between;align-items:baseline;font-family:'Archivo',sans-serif;font-size:9.5px;letter-spacing:1px;color:#9a9068;text-transform:uppercase;margin-bottom:4px;}
+.zbar-h b{color:#fff;font-size:11px;letter-spacing:0;}
+.zbar-t{height:8px;border-radius:99px;background:rgba(255,204,0,.13);overflow:hidden;}
+.zbar-t i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#b38a00,#ffcc00);}
+/* Grille de fonctionnalités */
+.zgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:640px;margin:32px auto 0;}
+@media(max-width:600px){.zgrid{grid-template-columns:1fr;}}
+.zfeat{background:linear-gradient(180deg,rgba(32,27,8,.6),rgba(10,9,4,.5));border:1px solid rgba(255,204,0,.22);border-left:3px solid #ffcc00;border-radius:16px;padding:18px 18px;}
+.zfeat .zi{font-size:24px;margin-bottom:9px;}
+.zfeat h3{font-family:'Archivo',sans-serif;font-weight:800;font-size:14.5px;color:#fff;margin-bottom:5px;}
+.zfeat p{font-size:12.5px;color:#d6cfae;line-height:1.55;}
+/* Comparaison coach vs Zyra */
+.zvs{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:600px;margin:30px auto 0;}
+.zvs-col{border-radius:18px;padding:20px 18px;}
+.zvs-col.coach{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);}
+.zvs-col.zyra{background:linear-gradient(180deg,rgba(255,204,0,.14),rgba(255,204,0,.03));border:1px solid rgba(255,204,0,.45);box-shadow:0 0 34px rgba(255,204,0,.16);}
+.zvs-h{font-family:'Archivo',sans-serif;font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;}
+.zvs-col.coach .zvs-h{color:#9aa0ae;} .zvs-col.zyra .zvs-h{color:#ffd21e;}
+.zvs-li{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.5;color:#cdd2dc;margin-bottom:9px;}
+.zvs-li .m{flex:none;font-weight:900;} .zvs-col.coach .zvs-li .m{color:#ff6b6b;} .zvs-col.zyra .zvs-li .m{color:#5ddf9a;}
+.zvs-col.zyra .zvs-li{color:#f0e9d0;}
+</style>
+<script src="assets/offer.js?v=2" defer></script>
 </head>
 <body>
 
 <div class="marq" aria-hidden="true"><div class="marq-t">
-  <span class="marq-i">Bientôt disponible</span><span class="marq-d">·</span>
+  <span class="marq-i">Avant-première · bientôt</span><span class="marq-d">·</span>
   <span class="marq-i">Ton coach IA dans la poche</span><span class="marq-d">·</span>
-  <span class="marq-i">Programme recalculé chaque jour</span><span class="marq-d">·</span>
+  <span class="marq-i">Séance privée recalculée chaque jour</span><span class="marq-d">·</span>
   <span class="marq-i">Liste d'attente ouverte</span><span class="marq-d">·</span>
 </div></div>
 
@@ -36,35 +102,59 @@
 
 <!-- ══════════════ HERO ══════════════ -->
 <header class="hero">
-  <span class="pill reveal">◆ Bientôt · liste d'attente ouverte</span>
-  <canvas class="gl-diamond reveal d1" data-gl-diamond width="192" height="192" aria-hidden="true"></canvas>
+  <span class="pill reveal">◆ Avant-première · liste d'attente ouverte</span>
+  <span class="zdia reveal d1" aria-hidden="true"></span>
   <h1 class="title reveal d1">ZYRA</h1>
-  <p class="tagline reveal d2">Data<b>·</b>IA<b>·</b>Résultats</p>
+  <p class="tagline reveal d2">Ton coach IA<b>·</b>7 j / 7</p>
   <p class="hero-sub reveal d3">
-    Ton corps change tous les jours. <strong>Ton programme devrait suivre.</strong>
-    Zyra lit tes données d'entraînement et de récupération, et recalcule ta séance du
-    lendemain — <strong>chaque jour, automatiquement.</strong> Le coach qui ne dort jamais.
+    L'app de sport qui <strong>remplace ton coach.</strong> Zyra lit tes photos, ton sommeil,
+    ta récupération et ta nutrition — puis génère <strong>ta séance privée du lendemain,
+    chaque jour, automatiquement.</strong> Le coach qui ne dort jamais.
   </p>
   <div class="cta-row reveal d4">
     <a class="btn btn-primary" href="#waitlist">Rejoindre la liste d'attente →</a>
-    <a class="btn btn-ghost" href="#how">Comment ça marche</a>
+    <a class="btn btn-ghost" href="#app">Découvrir l'app</a>
+  </div>
+
+  <!-- Maquette de l'app -->
+  <div class="zphone reveal d4" aria-hidden="true">
+    <div class="zph-top">
+      <span class="zph-logo">ZYRA <i>///</i></span>
+      <span class="zph-live"><i></i> LIVE</span>
+    </div>
+    <div class="zring"><div class="zring-in"><b>82</b><span>Score du jour</span></div></div>
+    <div class="zbar"><div class="zbar-h">Sommeil <b>7 h 42</b></div><div class="zbar-t"><i style="width:78%"></i></div></div>
+    <div class="zbar"><div class="zbar-h">Entraînement <b>92 %</b></div><div class="zbar-t"><i style="width:92%"></i></div></div>
+    <div class="zbar"><div class="zbar-h">Nutrition <b>1 870 kcal</b></div><div class="zbar-t"><i style="width:64%"></i></div></div>
   </div>
 </header>
 
-<!-- ══════════════ LE PROBLÈME (psychologie) ══════════════ -->
+<!-- ══════════════ LE PROBLÈME ══════════════ -->
 <section class="sec">
   <div class="wrap">
     <p class="kick reveal">Le vrai problème</p>
-    <h2 class="sec-h reveal">Un programme figé ne <span class="y">te connaît pas.</span></h2>
+    <h2 class="sec-h reveal">Un coach coûte cher. Un programme figé <span class="y">ne te connaît pas.</span></h2>
     <p class="sec-p reveal d1">
-      Tu as mal dormi ? Il s'en fiche. Tu es en pleine forme ? Il te bride quand même.
+      Tu as mal dormi ? Ton programme s'en fiche. Tu es en pleine forme ? Il te bride quand même.
       Résultat : tu forces quand il faut récupérer, tu lèves le pied quand tu pourrais tout casser.
       Zyra supprime le hasard — <strong>elle adapte l'effort à ton état réel, chaque matin.</strong>
     </p>
-    <div class="grid3">
-      <div class="card reveal d1"><div class="ic">📈</div><h3>Elle lit tes données</h3><p>Séances, sommeil, récupération, énergie. Zyra comprend où tu en es vraiment aujourd'hui.</p></div>
-      <div class="card reveal d2"><div class="ic">🧠</div><h3>Elle décide pour toi</h3><p>Charge, volume, intensité, repos : recalculés chaque jour. Fini les programmes qui ne bougent jamais.</p></div>
-      <div class="card reveal d3"><div class="ic">🚀</div><h3>Elle te fait progresser</h3><p>Chaque séance tombe au bon moment. Plus de plateau, plus de blessure bête, que du résultat.</p></div>
+  </div>
+</section>
+
+<!-- ══════════════ CE QUE FAIT ZYRA ══════════════ -->
+<section class="sec" id="app">
+  <div class="wrap">
+    <p class="kick reveal">Ce que fait l'app</p>
+    <h2 class="sec-h reveal">Un vrai coach IA <span class="y">dans ta poche.</span></h2>
+    <p class="sec-p reveal d1">Tout ce qu'un coach fait pour toi — analyser, décider, corriger, motiver — sauf qu'il est là 24h/24 et qu'il ne te lâche jamais.</p>
+    <div class="zgrid">
+      <div class="zfeat reveal d1"><div class="zi">📸</div><h3>Analyse par photo</h3><p>Envoie tes photos : Zyra mesure ton évolution physique, repère ce qui bloque et adapte ton plan — comme un coach qui te voit vraiment.</p></div>
+      <div class="zfeat reveal d1"><div class="zi">🏋️</div><h3>Exercices privés sur-mesure</h3><p>Ta séance du jour, générée pour TON niveau, ton matériel et ton objectif. Chaque exo est choisi pour toi, pas copié d'un programme générique.</p></div>
+      <div class="zfeat reveal d2"><div class="zi">📊</div><h3>Score du jour</h3><p>Chaque matin, une note claire basée sur ton sommeil, ta récupération et ta charge. Tu sais exactement quoi faire aujourd'hui.</p></div>
+      <div class="zfeat reveal d2"><div class="zi">🌙</div><h3>Sommeil &amp; récupération</h3><p>Zyra sait quand pousser et quand te faire récupérer. Plus de surentraînement, plus de blessure bête.</p></div>
+      <div class="zfeat reveal d3"><div class="zi">🥗</div><h3>Nutrition guidée</h3><p>Calories et macros ajustées à ta séance et à ton objectif. Tu manges pour progresser, sans te prendre la tête.</p></div>
+      <div class="zfeat reveal d3"><div class="zi">🔔</div><h3>Rappels intelligents</h3><p>Zyra te relance au bon moment pour que la discipline tienne dans la durée — même les jours sans motivation.</p></div>
     </div>
   </div>
 </section>
@@ -73,11 +163,35 @@
 <section class="sec" id="how">
   <div class="wrap">
     <p class="kick reveal">En 3 temps</p>
-    <h2 class="sec-h reveal">Ton coach IA, <span class="y">tous les jours.</span></h2>
+    <h2 class="sec-h reveal">Ta séance se recalcule <span class="y">chaque nuit.</span></h2>
     <div class="steps">
-      <div class="step reveal d1"><div class="step-n">1</div><div><h4>Tu t'entraînes</h4><p>Tu logues ta séance en quelques secondes. Zyra capte tout : charges, ressenti, récupération.</p></div></div>
-      <div class="step reveal d2"><div class="step-n">2</div><div><h4>Zyra analyse la nuit</h4><p>Pendant que tu dors, l'IA croise tes données et calcule la séance optimale pour demain.</p></div></div>
-      <div class="step reveal d3"><div class="step-n">3</div><div><h4>Tu ouvres l'app</h4><p>Ta séance du jour est déjà prête, ajustée à ton état réel. Tu n'as plus qu'à exécuter.</p></div></div>
+      <div class="step reveal d1"><div class="step-n">1</div><div><h4>Tu t'entraînes &amp; tu logues</h4><p>Séance, ressenti, photos, sommeil : quelques secondes suffisent. Zyra capte tout.</p></div></div>
+      <div class="step reveal d2"><div class="step-n">2</div><div><h4>L'IA analyse pendant que tu dors</h4><p>Zyra croise tes données de la veille et calcule la séance optimale pour demain.</p></div></div>
+      <div class="step reveal d3"><div class="step-n">3</div><div><h4>Tu ouvres l'app le matin</h4><p>Ta séance privée du jour est déjà prête, ajustée à ton état réel. Tu n'as plus qu'à exécuter.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ COACH vs ZYRA ══════════════ -->
+<section class="sec">
+  <div class="wrap">
+    <p class="kick reveal">Pourquoi Zyra</p>
+    <h2 class="sec-h reveal">Un coach privé, <span class="y">sans le prix.</span></h2>
+    <div class="zvs">
+      <div class="zvs-col coach reveal d1">
+        <div class="zvs-h">Un coach classique</div>
+        <div class="zvs-li"><span class="m">✕</span>200 à 800€ par mois</div>
+        <div class="zvs-li"><span class="m">✕</span>Dispo quelques heures par semaine</div>
+        <div class="zvs-li"><span class="m">✕</span>Même plan pour tout le monde</div>
+        <div class="zvs-li"><span class="m">✕</span>Ne voit pas ton sommeil ni ta récup</div>
+      </div>
+      <div class="zvs-col zyra reveal d2">
+        <div class="zvs-h">Avec Zyra</div>
+        <div class="zvs-li"><span class="m">✓</span>Un tarif accessible, tarif fondateur en avant-première</div>
+        <div class="zvs-li"><span class="m">✓</span>Dispo 24h/24, 7j/7</div>
+        <div class="zvs-li"><span class="m">✓</span>Un plan unique, calculé pour toi</div>
+        <div class="zvs-li"><span class="m">✓</span>Analyse photo, sommeil, récup &amp; nutrition</div>
+      </div>
     </div>
   </div>
 </section>
@@ -91,35 +205,35 @@
     <div class="who">
       <div class="who-i reveal d1"><span class="ck">✓</span><span>Tu débutes et tu ne sais pas quoi faire ni combien — Zyra décide à ta place.</span></div>
       <div class="who-i reveal d1"><span class="ck">✓</span><span>Tu stagnes et tu veux enfin casser ton plateau.</span></div>
-      <div class="who-i reveal d2"><span class="ck">✓</span><span>Tu manques de temps et tu veux zéro prise de tête pour programmer.</span></div>
+      <div class="who-i reveal d2"><span class="ck">✓</span><span>Tu n'as pas les moyens d'un coach privé mais tu en veux les résultats.</span></div>
       <div class="who-i reveal d2"><span class="ck">✓</span><span>Tu veux progresser en sécurité, sans te blesser bêtement.</span></div>
     </div>
   </div>
 </section>
 
-<!-- ══════════════ WAITLIST / EMAIL ══════════════ -->
+<!-- ══════════════ WAITLIST / EMAIL (avant-première) ══════════════ -->
 <section class="sec" id="waitlist">
   <div class="wrap">
     <p class="kick reveal">Accès anticipé</p>
     <h2 class="sec-h reveal">Sois parmi les <span class="y">premiers</span> à l'utiliser.</h2>
     <p class="sec-p reveal d1">
-      Zyra arrive bientôt. Les inscrits à la liste d'attente reçoivent l'accès en avant-première —
-      et un tarif de lancement réservé.
+      Zyra n'est pas encore ouverte au public. Laisse ton email : tu reçois l'accès en
+      <strong style="color:#ffe14d">avant-première</strong> et un <strong style="color:#ffe14d">tarif fondateur</strong> réservé aux inscrits.
     </p>
     <div class="email reveal d1" data-source="zyra">
-      <canvas class="gl-diamond" data-gl-diamond width="140" height="140" style="width:60px;height:60px;margin-bottom:6px;" aria-hidden="true"></canvas>
+      <span class="zdia sm" aria-hidden="true"></span>
       <h2>Rejoindre la liste d'attente</h2>
-      <p>Accès prioritaire au lancement + tarif fondateur. Aucune carte demandée.</p>
+      <p>Accès prioritaire au lancement + tarif fondateur. Aucune carte demandée, aucun engagement.</p>
       <form class="eform" data-source="zyra">
         <input class="einput" type="email" placeholder="ton@email.com" required autocomplete="email">
         <input class="einput einput-tel" type="tel" inputmode="tel" placeholder="Téléphone (optionnel)" autocomplete="tel">
-        <button class="btn btn-primary" type="submit">M'inscrire →</button>
+        <button class="btn btn-primary" type="submit">M'inscrire en avant-première →</button>
       </form>
       <p class="enote">On te prévient uniquement au lancement de Zyra. Désinscription en un clic.</p>
       <div class="esucc">
         <div class="ic">🚀</div>
         <h2>Tu es sur la liste.</h2>
-        <p>Tu seras prévenu dès l'ouverture de Zyra, avant tout le monde. À très vite.</p>
+        <p>Tu seras prévenu dès l'ouverture de Zyra, avant tout le monde, avec ton tarif fondateur. À très vite.</p>
       </div>
     </div>
   </div>
@@ -130,7 +244,5 @@
   <div class="f-tag">Le coach qui ne dort jamais</div>
 </footer>
 
-<script type="module" src="assets/accent-webgl.js?v=6"></script>
-<script src="assets/offer.js?v=2" defer></script>
 </body>
 </html>
