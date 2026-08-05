@@ -775,18 +775,18 @@ body{padding-bottom:0;}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━ FOOTER ━━━━━━━━━━━━━━━━━━━━━━ */
 footer{
-  border-top:1px solid var(--border);padding:12px 24px;
+  border-top:1px solid var(--border);padding:28px 24px 32px;
   background:rgba(3,3,7,.96);
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;
+  display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;
   position:relative;z-index:2;
 }
-.footer-brand{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--text-faint);}
-.footer-brice{display:block;margin-top:10px;font-size:10px;letter-spacing:1.5px;color:var(--text-faint);
-  opacity:.55;cursor:pointer;user-select:none;transition:opacity .25s,color .25s;}
+.footer-r{width:26px;height:26px;color:var(--text);opacity:.5;margin-bottom:2px;}
+.footer-brand{font-size:12px;font-weight:800;letter-spacing:3.5px;color:var(--text-dim);}
+.footer-tag{font-size:9px;color:var(--text-faint);letter-spacing:2px;text-transform:uppercase;opacity:.6;}
+.footer-copy{font-size:9px;color:var(--text-faint);opacity:.45;}
+.footer-brice{margin-top:10px;font-size:10.5px;letter-spacing:1.5px;color:var(--text-faint);
+  opacity:.5;cursor:pointer;user-select:none;transition:opacity .25s,color .25s;}
 .footer-brice:hover{opacity:1;color:var(--accent);}
-.footer-copy{font-size:8.5px;color:var(--text-faint);opacity:.6;margin-top:1px;}
-.footer-r{width:14px;height:14px;color:var(--text);opacity:.25;}
-.footer-tag{font-size:8.5px;color:var(--text-faint);letter-spacing:1px;text-transform:uppercase;opacity:.6;}
 
 
 /* ━━━━━━━━━━━━━━━━━━━━━━ RESPONSIVE ━━━━━━━━━━━━━━━━━━━━━━ */
@@ -1230,6 +1230,7 @@ footer{background:rgba(0,0,0,.96);}
 
 /* ── Sticky CTA flottant ── */
 #diagSticky{
+  display:none !important;   /* bouton flottant retiré (demande) */
   position:fixed;left:50%;bottom:52px;transform:translate(-50%,90px);
   z-index:99998;display:inline-flex;align-items:center;gap:.55rem;
   font-family:var(--disp);text-transform:uppercase;letter-spacing:.05em;font-size:.8rem;
@@ -1664,9 +1665,11 @@ footer{background:rgba(0,0,0,.96);}
 .zw-slashes i:nth-child(2){animation-delay:.18s;opacity:.55;}
 .zw-slashes i:nth-child(3){animation-delay:.36s;opacity:.3;}
 @keyframes zw-slash{0%,70%,100%{transform:skewX(-20deg) scaleY(1);}35%{transform:skewX(-20deg) scaleY(.45);}}
-.zw-txt{text-align:left;}
-.zw-txt .sec-t{text-align:left;margin:1rem 0 .8rem;}
-.zw-txt .sec-sub{text-align:left;margin:0 0 1.4rem;max-width:44ch;}
+.zw-txt{text-align:center;}
+.zw-txt .sec-t{text-align:center;margin:1rem auto .8rem;}
+.zw-txt .sec-sub{text-align:center;margin:0 auto 1.4rem;max-width:44ch;}
+.zw-txt .zw-eyebrow{justify-content:center;}
+.zw-txt .zw-cta{align-items:center;}
 .zw-feats{display:grid;gap:.6rem;margin:0 0 1.6rem;}
 .zw-feat{display:flex;align-items:flex-start;gap:.8rem;border:1px solid rgba(255,255,255,.09);border-radius:.85rem;
   padding:.8rem .9rem;background:rgba(255,255,255,.03);transition:transform .25s var(--e),border-color .25s var(--e),background .25s var(--e);}
@@ -2505,14 +2508,12 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 </section>
 
 <footer>
-  <div>
-    <div class="footer-brand">RENAISSANCE</div>
-    <div class="footer-copy">© 2026 Renaissance. Tous droits réservés.</div>
-  </div>
   <span class="footer-r">
     <svg viewBox="0 0 100 100" fill="none"><path d="M16.5 90L16.5 10L58 10Q85 10 85 24Q85 35.5 58 35.5L38 35.5L63 81" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
   </span>
-  <span class="footer-tag">Discipline · Ambition · Impact</span>
+  <div class="footer-brand">RENAISSANCE</div>
+  <div class="footer-tag">Discipline · Ambition · Impact</div>
+  <div class="footer-copy">© 2026 Renaissance. Tous droits réservés.</div>
   <span id="brice-admin" class="footer-brice" role="button" tabindex="0" title="Accès">@brice</span>
 </footer>
 
@@ -5797,6 +5798,6 @@ else handleReturn();
 <script src="assets/cine-gsap.js?v=11" defer></script>
 <script type="module" src="assets/gi-webgl.js?v=23"></script>
 <script type="module" src="assets/hero-webgl.js?v=9"></script>
-<script type="module" src="assets/accent-webgl.js?v=7"></script>
+<script type="module" src="assets/accent-webgl.js?v=8"></script>
 </body>
 </html>

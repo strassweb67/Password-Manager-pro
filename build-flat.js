@@ -64,7 +64,7 @@ html = html.replace('<script type="module" src="assets/gi-webgl.js?v=23"></scrip
   '<script type="module" src="gi-webgl.js"></script>');
 html = html.replace('<script type="module" src="assets/hero-webgl.js?v=9"></script>',
   '<script type="module" src="hero-webgl.js"></script>');
-html = html.replace('<script type="module" src="assets/accent-webgl.js?v=7"></script>',
+html = html.replace('<script type="module" src="assets/accent-webgl.js?v=8"></script>',
   '<script type="module" src="accent-webgl.js"></script>');
 
 fs.writeFileSync(path.join(OUT, 'index.html'), html);
