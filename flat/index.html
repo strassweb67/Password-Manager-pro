@@ -1091,19 +1091,46 @@ footer{background:rgba(0,0,0,.96);}
 .tarif-ledger span:first-child{color:var(--text-dim);}
 .tarif-ledger span:last-child{font-weight:700;color:#fff;}
 
-/* ── FAQ : liste simple, pas de cartes-accordéon décorées ── */
-.faq-list{display:flex;flex-direction:column;gap:1px;}
-.faq-it{background:var(--bg-card);border:1px solid var(--border);border-radius:.8rem;overflow:hidden;}
-.faq-it+.faq-it{margin-top:.5rem;}
-.faq-it summary{list-style:none;cursor:pointer;padding:1rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;
-  font-family:var(--titre);font-weight:700;font-size:.9rem;}
+/* ── FAQ : accordéon verre néon premium ── */
+.faq-list{display:flex;flex-direction:column;gap:.6rem;}
+.faq-it{background:linear-gradient(180deg,rgba(20,28,58,.42),rgba(8,11,26,.4));border:1px solid rgba(134,164,255,.22);border-radius:1rem;overflow:hidden;
+  transition:border-color .3s,box-shadow .3s,background .3s;}
+.faq-it:hover{border-color:rgba(134,164,255,.4);box-shadow:0 0 26px rgba(70,100,235,.14);}
+.faq-it[open]{border-color:rgba(134,164,255,.5);box-shadow:0 0 34px rgba(70,100,235,.22);background:linear-gradient(180deg,rgba(24,34,68,.55),rgba(10,14,32,.5));}
+.faq-it summary{list-style:none;cursor:pointer;padding:1.05rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  font-family:var(--titre);font-weight:700;font-size:.92rem;color:#eaf1ff;transition:color .2s;}
 .faq-it summary::-webkit-details-marker{display:none;}
-.faq-it summary::after{content:'+';font-size:1.1rem;color:var(--accent-2);flex-shrink:0;transition:transform .3s;}
-.faq-it[open] summary::after{transform:rotate(45deg);}
-.faq-it p{padding:0 1.2rem 1.1rem;color:var(--text-dim);font-size:.85rem;line-height:1.6;font-family:'Inter',sans-serif;}
+.faq-it summary::after{content:'+';display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;
+  font-size:1rem;font-weight:800;color:#fff;flex-shrink:0;transition:transform .35s cubic-bezier(.16,1,.3,1),background .3s;
+  background:linear-gradient(135deg,#5a78ff,#3a52d6);box-shadow:0 0 10px rgba(90,120,255,.5);}
+.faq-it[open] summary::after{transform:rotate(135deg);}
+.faq-it p{padding:0 1.2rem 1.15rem;color:var(--text-dim);font-size:.86rem;line-height:1.65;font-family:'Inter',sans-serif;
+  animation:faqOpen .4s ease;}
+@keyframes faqOpen{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
 
+/* ── Schéma animé « parcours » : nœuds chromés + connecteurs qui coulent ── */
+.flow{max-width:30rem;margin:0 auto;display:flex;flex-direction:column;}
+.flow-step{display:flex;gap:1.1rem;align-items:flex-start;}
+.flow-node{position:relative;width:56px;height:56px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Archivo',var(--disp),sans-serif;font-weight:900;font-size:20px;color:#eef3ff;
+  background:radial-gradient(circle at 34% 24%,#3c4353 0%,#1b1f29 42%,#0b0e16 100%);
+  border:1px solid rgba(134,164,255,.5);
+  box-shadow:inset 0 1.5px 1px rgba(255,255,255,.3),inset 0 -6px 12px rgba(0,0,0,.5),0 8px 22px rgba(0,0,0,.5),0 0 24px rgba(84,114,255,.4);
+  text-shadow:0 1px 0 rgba(255,255,255,.4),0 0 13px rgba(120,150,255,.7);}
+.flow-node::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(120,150,255,.5);animation:flowPulse 2.6s ease-out infinite;}
+.flow-step:nth-child(3) .flow-node::after{animation-delay:.8s;}
+.flow-step:nth-child(5) .flow-node::after{animation-delay:1.6s;}
+@keyframes flowPulse{0%{transform:scale(1);opacity:.7;}100%{transform:scale(1.55);opacity:0;}}
+.flow-lbl{padding-top:.45rem;}
+.flow-lbl b{font-family:var(--titre);font-weight:800;font-size:1rem;color:#eef3ff;}
+.flow-lbl p{color:var(--text-dim);font-size:.84rem;line-height:1.5;margin-top:.25rem;font-family:'Inter',sans-serif;}
+.flow-link{height:32px;width:2px;margin:2px 0 2px 27px;position:relative;overflow:hidden;background:rgba(134,164,255,.18);border-radius:2px;}
+.flow-link i{position:absolute;left:0;top:-45%;width:100%;height:45%;background:linear-gradient(180deg,transparent,#7c9bff,transparent);animation:flowDown 1.9s linear infinite;}
+.flow-link:nth-of-type(4) i{animation-delay:.95s;}
+@keyframes flowDown{0%{top:-45%;}100%{top:100%;}}
 .section{padding:clamp(48px,7vh,84px) 0;}
 .final{text-align:center;padding:clamp(56px,8vh,90px) 0 2.5rem;}
+.final-reassure{margin:1.1rem auto 0;font-size:.76rem;letter-spacing:.06em;color:#8ea3d6;font-family:'Inter',sans-serif;}
 
 @media(max-width:640px){
   .grille-cartes{grid-template-columns:1fr;}
@@ -2436,6 +2463,30 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
   </div>
 </section>
 
+<!-- ━━━━━━━━━━━━━━━━━━━━━━ PARCOURS (schéma animé) ━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="section dossier" id="parcours">
+  <div class="sec-head rev">
+    <h2 class="sec-t">Ton chemin, <span class="y">en trois temps</span></h2>
+    <p class="sec-sub">Simple, cadré, sans te noyer — voilà exactement comment on avance.</p>
+  </div>
+  <div class="flow rev rev-d1">
+    <div class="flow-step">
+      <div class="flow-node"><span>01</span></div>
+      <div class="flow-lbl"><b>Le diagnostic</b><p>2 minutes. Ton point de blocage identifié et chiffré, sans complaisance.</p></div>
+    </div>
+    <div class="flow-link"><i></i></div>
+    <div class="flow-step">
+      <div class="flow-node"><span>02</span></div>
+      <div class="flow-lbl"><b>Le programme &amp; le cercle</b><p>Tes six modules débloqués, un suivi quotidien et un environnement qui te tire vers le haut.</p></div>
+    </div>
+    <div class="flow-link"><i></i></div>
+    <div class="flow-step">
+      <div class="flow-node"><span>03</span></div>
+      <div class="flow-lbl"><b>La transformation</b><p>Physique, revenus, mental. Tu deviens la version que tu repoussais — et elle tient.</p></div>
+    </div>
+  </div>
+</section>
+
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ TARIF ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="tarif">
   <div class="sec-head rev"><h2 class="sec-t">Un seul tarif, <span class="y">tout est dedans</span></h2>
@@ -2472,10 +2523,12 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ FINAL ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="final dossier">
   <h2 class="sec-t rev">Dans six mois, tu auras <span class="y">commencé ou pas.</span></h2>
+  <p class="sec-sub rev rev-d1" style="margin:.9rem auto 0;">Le diagnostic est gratuit et prend 2 minutes. Ne rien faire — <strong style="color:#aebeff;">ça</strong>, c'est le vrai risque.</p>
   <div class="rang mt-m rev rev-d1" style="justify-content:center;">
     <a href="#" class="btn-fp primary" data-diag data-log="Final → Diagnostic offert">Faire mon diagnostic offert</a>
     <a href="#" class="fil" data-diag data-log="Final → Rejoindre (site)">Rejoindre directement Renaissance</a>
   </div>
+  <p class="final-reassure rev rev-d1">100&nbsp;% offert · Sans carte bancaire · Résultat immédiat</p>
   <div class="credits-box mt-l rev rev-d2" style="max-width:26rem;">
     <span class="credits-k">Ingénierie &amp; design</span>
     <a href="https://alpha-korner.com" target="_blank" rel="noopener" class="credits-link">Brice Jacotet · Alpha OS</a>
