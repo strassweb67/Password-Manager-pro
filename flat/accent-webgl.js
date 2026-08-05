@@ -14,12 +14,20 @@ import { RoomEnvironment } from './RoomEnvironment.js';
   var _ua = navigator.userAgent || '';
   var IN_APP = /Instagram|FBAN|FBAV|FB_IAB|Snapchat|WhatsApp|Line|Messenger|TikTok|Twitter|GSA/i.test(_ua);
   var MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(_ua);
+  var DPR_CAP = MOBILE ? 1.6 : 2;
+
+  // Exposé pour les canvases créés dynamiquement (ex. modal géoloc)
+  window.__glDiamond = function(canvas, idx){
+    if (IN_APP) { canvas.classList.add('gl-off'); return; }
+    makeDiamond(canvas, idx || 0);
+  };
+
   // Dans les WebViews in-app : on masque (fallback CSS) pour garder la fluidité
   if (IN_APP) { nodes.forEach(function(c){ c.classList.add('gl-off'); }); return; }
 
-  var DPR_CAP = MOBILE ? 1.6 : 2;
+  nodes.forEach(makeDiamond);
 
-  nodes.forEach(function(canvas, idx){
+  function makeDiamond(canvas, idx){
     var renderer;
     try {
       renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:!MOBILE, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false });
@@ -75,5 +83,5 @@ import { RoomEnvironment } from './RoomEnvironment.js';
     }
     function tick(){ if (!raf && onScreen) raf = requestAnimationFrame(frame); }
     tick();
-  });
+  }
 })();
