@@ -94,6 +94,10 @@ body::before{
   box-shadow:0 0 26px rgba(90,120,255,.65),inset 0 2px 6px rgba(255,255,255,.5);
   animation:glGemFloat 4s ease-in-out infinite;}
 @keyframes glGemFloat{0%,100%{transform:rotate(45deg) translateY(0);}50%{transform:rotate(45deg) translateY(-6px);}}
+/* Diamant OR (section Zyra) — glow doré en WebGL, dégradé doré en repli CSS */
+.gl-diamond.gl-gold{filter:drop-shadow(0 6px 22px rgba(255,204,0,.5));}
+.gl-diamond.gl-off.gl-gold{background:radial-gradient(circle at 38% 32%,#fff7c8 0%,#ffd21e 42%,#a87e00 100%);
+  box-shadow:0 0 26px rgba(255,204,0,.65),inset 0 2px 6px rgba(255,255,255,.55);}
 .navbar{
   position:fixed;top:40px;left:0;right:0;margin:0 auto;z-index:100;
   width:min(1080px,calc(100% - 24px));box-sizing:border-box;
@@ -2207,6 +2211,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ PILIERS ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="piliers">
   <div class="sec-head rev">
+    <canvas class="gl-diamond" data-gl-diamond width="184" height="184" aria-hidden="true"></canvas>
     <h2 class="sec-t">Trois axes, <span class="y">zéro dispersion</span></h2>
     <p class="sec-sub">Tout ce qu'on construit ici sert un seul de ces trois piliers.</p>
   </div>
@@ -2229,6 +2234,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ MÉCANISME (psychologie) ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="mecanisme">
   <div class="sec-head rev">
+    <canvas class="gl-diamond" data-gl-diamond width="184" height="184" aria-hidden="true"></canvas>
     <h2 class="sec-t">Pourquoi ça marche,&nbsp;<span class="y">quand le reste a échoué</span></h2>
     <p class="sec-sub">Pas de magie — trois leviers psychologiques que les meilleurs utilisent, appliqués à toi.</p>
   </div>
@@ -2242,6 +2248,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ ÉCOSYSTÈME ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="ecosysteme">
   <div class="sec-head rev">
+    <canvas class="gl-diamond" data-gl-diamond width="184" height="184" aria-hidden="true"></canvas>
     <h2 class="sec-t">Trois portes, <span class="y">un seul cercle</span></h2>
     <p class="sec-sub">Le programme est le cœur. Le reste gravite autour.</p>
   </div>
@@ -2281,6 +2288,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ PROGRAMME ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="programme">
   <div class="sec-head rev">
+    <canvas class="gl-diamond" data-gl-diamond width="184" height="184" aria-hidden="true"></canvas>
     <h2 class="sec-t">Six modules, <span class="y">un seul accès</span></h2>
     <p class="sec-sub">Tout est débloqué dès l'inscription. Rien n'est verrouillé.</p>
   </div>
@@ -2302,6 +2310,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ PREUVE / RÉSULTATS ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="preuve">
   <div class="sec-head rev">
+    <canvas class="gl-diamond" data-gl-diamond width="184" height="184" aria-hidden="true"></canvas>
     <h2 class="sec-t">Des résultats, <span class="y">pas des promesses</span></h2>
     <p class="sec-sub">Ce que Renaissance met sur la table —<br>et ce qu'en disent les membres.</p>
   </div>
@@ -2320,6 +2329,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ DIAGNOSTIC ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="diagnostic">
+  <canvas class="gl-diamond" data-gl-diamond width="184" height="184" aria-hidden="true" style="margin-bottom:.4rem;"></canvas>
   <div class="kicker-wrap rev"><span class="kicker">Offert · 13 questions · 2 min<span class="drip"><i></i><i></i><i></i><i></i><i></i></span></span></div>
   <div class="sec-head rev" style="margin-top:1rem;">
     <h2 class="sec-t sec-t--1line">Quel levier <span class="y">te coûte le plus cher</span>&nbsp;?</h2>
@@ -2357,6 +2367,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <section class="section dossier" id="zyra-focus">
   <div class="zw-grid">
     <div class="zw-txt rv" data-rv>
+      <canvas class="gl-diamond gl-gold" data-gl-diamond data-gold width="184" height="184" aria-hidden="true"></canvas>
       <div class="zw-eyebrow"><span class="zw-slashes"><i></i><i></i><i></i></span>Bienvenue · bientôt disponible</div>
       <h2 class="sec-t"><span class="tl"><span>Ton suivi, <span class="zy">tous les jours.</span></span></span></h2>
       <p class="sec-sub">Zyra lit tes données d'entraînement, de sommeil et de nutrition — et réécrit ton programme du lendemain pendant que tu dors. Ton coach ne dort jamais.</p>
@@ -2411,7 +2422,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ TÉMOIGNAGES ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="retours">
-  <div class="sec-head rev"><h2 class="sec-t">Des membres, <span class="y">pas des spectateurs</span></h2></div>
+  <div class="sec-head rev"><canvas class="gl-diamond" data-gl-diamond width="184" height="184" aria-hidden="true"></canvas><h2 class="sec-t">Des membres, <span class="y">pas des spectateurs</span></h2></div>
   <div class="credits-box rev rev-d1">
     <div class="credits-names">
       <div class="credit"><b>MAXIME R.</b><i>Membre · 6 mois</i><q>Le module réseau a changé ma façon d'aborder les rencontres pro.</q></div>
@@ -5786,6 +5797,6 @@ else handleReturn();
 <script src="assets/cine-gsap.js?v=11" defer></script>
 <script type="module" src="assets/gi-webgl.js?v=23"></script>
 <script type="module" src="assets/hero-webgl.js?v=9"></script>
-<script type="module" src="assets/accent-webgl.js?v=6"></script>
+<script type="module" src="assets/accent-webgl.js?v=7"></script>
 </body>
 </html>

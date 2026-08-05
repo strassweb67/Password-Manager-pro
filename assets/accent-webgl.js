@@ -45,7 +45,23 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   // Mobile / in-app : fallback CSS (aucun contexte WebGL supplémentaire)
   if (NO_GL) { nodes.forEach(function(c){ c.classList.add('gl-off'); }); return; }
 
-  nodes.forEach(makeDiamond);
+  // Contexte WebGL créé à l'APPROCHE de l'écran et LIBÉRÉ quand le diamant
+  // s'éloigne → seuls les diamants visibles gardent un contexte (2-3 max).
+  // Indispensable : une dizaine de contextes simultanés satureraient le GPU
+  // (surtout sur mobile). Le contexte se recrée quand on revient dessus.
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        var c = e.target;
+        if (e.isIntersecting){
+          if (!c.__d && !c.classList.contains('gl-off')) c.__d = makeDiamond(c, 0);
+        } else if (c.__d){ c.__d.dispose(); c.__d = null; }
+      });
+    }, { rootMargin: '150px' });
+    nodes.forEach(function(c){ io.observe(c); });
+  } else {
+    nodes.forEach(function(c){ makeDiamond(c, 0); });
+  }
 
   function makeDiamond(canvas, idx){
     var renderer;
@@ -66,19 +82,21 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     var cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
     cam.position.set(0, 0, 5);
 
-    scene.add(new THREE.AmbientLight(0x24407e, 0.45));
-    var key = new THREE.DirectionalLight(0xdfeaff, 1.4); key.position.set(4, 6, 6); scene.add(key);
-    var rim = new THREE.PointLight(0x8fb4ff, 55, 40); rim.position.set(-5, -3, 5); scene.add(rim);
-    var rim2 = new THREE.PointLight(0x9a6bff, 40, 40); rim2.position.set(5, 4, -4); scene.add(rim2);
+    // Diamant OR (section Zyra) : verre teinté doré au lieu de bleu.
+    var gold = canvas.hasAttribute && canvas.hasAttribute('data-gold');
+    scene.add(new THREE.AmbientLight(gold?0x3a2e00:0x24407e, 0.45));
+    var key = new THREE.DirectionalLight(gold?0xfff0c8:0xdfeaff, 1.4); key.position.set(4, 6, 6); scene.add(key);
+    var rim = new THREE.PointLight(gold?0xffd21e:0x8fb4ff, 55, 40); rim.position.set(-5, -3, 5); scene.add(rim);
+    var rim2 = new THREE.PointLight(gold?0xffaa33:0x9a6bff, 40, 40); rim2.position.set(5, 4, -4); scene.add(rim2);
 
-    // Verre translucide RÉEL : clair, on voit à travers, teinte bleue par
-    // absorption (Beer-Lambert) — pas de blanc laiteux (iridescence retirée)
+    // Verre translucide RÉEL : clair, on voit à travers, teinte (bleue ou dorée)
+    // par absorption (Beer-Lambert) — pas de blanc laiteux (iridescence retirée)
     var mat = new THREE.MeshPhysicalMaterial({
       color: new THREE.Color(0xffffff), metalness: 0, roughness: 0.0,
       transmission: 1, thickness: 2.2, ior: 1.5,
       clearcoat: 1, clearcoatRoughness: 0.03,
       specularIntensity: 1, specularColor: new THREE.Color(0xffffff),
-      attenuationColor: new THREE.Color(0x2f5bff), attenuationDistance: 0.7,
+      attenuationColor: new THREE.Color(gold?0xffcc00:0x2f5bff), attenuationDistance: 0.7,
       envMapIntensity: 1.35, transparent: true
     });
     // Diamant : octaèdre facetté
@@ -87,25 +105,37 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     mesh.scale.y = 1.35;                 // un peu allongé → look diamant
     scene.add(mesh);
 
-    // Perte de contexte : on bascule sur le diamant CSS au lieu de figer +
-    // disjoncteur (l'appareil passera en mode léger partout au prochain chargement).
-    canvas.addEventListener('webglcontextlost', function(ev){ ev.preventDefault(); onScreen = false; canvas.classList.add('gl-off'); try{ localStorage.setItem('rn_gl_lite','1'); }catch(e){} }, false);
+    var onScreen = true, raf = 0, t = 0.6 * (idx || 0), disposed = false;
 
-    var onScreen = true, raf = 0, t = 0.6 * idx;
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function(es){ onScreen = es[0].isIntersecting; if (onScreen) tick(); }, { threshold: 0.01 }).observe(canvas);
-    }
-    addEventListener('resize', function(){ var s = csize(); renderer.setSize(s, s, false); }, { passive:true });
+    // Perte de contexte RÉELLE (≠ libération volontaire) → repli CSS + disjoncteur.
+    canvas.addEventListener('webglcontextlost', function(ev){ ev.preventDefault(); if (disposed) return; onScreen = false; canvas.classList.add('gl-off'); try{ localStorage.setItem('rn_gl_lite','1'); }catch(e){} }, false);
+
+    function onResize(){ if (disposed) return; var s = csize(); renderer.setSize(s, s, false); }
+    addEventListener('resize', onResize, { passive:true });
 
     function frame(){
-      raf = 0; if (!onScreen) return;
+      raf = 0; if (!onScreen || disposed) return;
       t += 0.016;
       mesh.rotation.y = t * 0.7;
       mesh.rotation.x = Math.sin(t * 0.5) * 0.35;
       renderer.render(scene, cam);
       tick();
     }
-    function tick(){ if (!raf && onScreen) raf = requestAnimationFrame(frame); }
+    function tick(){ if (!raf && onScreen && !disposed) raf = requestAnimationFrame(frame); }
     tick();
+
+    // Libère TOUT (contexte GPU compris) quand le diamant s'éloigne de l'écran.
+    return { dispose: function(){
+      if (disposed) return; disposed = true;
+      if (raf) cancelAnimationFrame(raf);
+      removeEventListener('resize', onResize);
+      try{
+        geo.dispose(); mat.dispose();
+        if (pmrem) pmrem.dispose();
+        if (scene.environment) scene.environment.dispose();
+        renderer.dispose();
+        if (renderer.forceContextLoss) renderer.forceContextLoss();
+      }catch(e){}
+    } };
   }
 })();
