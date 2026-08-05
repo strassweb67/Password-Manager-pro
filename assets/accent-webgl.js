@@ -28,12 +28,13 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   // Détection élargie : certains navigateurs (Android en « mode ordinateur »,
   //   WebViews) ne contiennent pas « Mobile » dans l'UA. On ajoute la mémoire,
   //   le nombre de cœurs et le type de pointeur pour les rattraper.
-  var LOWMEM = (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
-               (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
-  var COARSE = window.matchMedia && matchMedia('(pointer:coarse)').matches;
-  var SMALL  = Math.min(screen.width || 9999, screen.height || 9999) <= 900;
+  // Diamants de verre WebGL restaurés PARTOUT (sections + modal géoloc), sauf
+  // sur les navigateurs fragiles (Yandex, Firefox mobile), WebViews in-app, et
+  // appareils ayant déjà planté → repli CSS. Chrome/Safari/Samsung/desktop et
+  // téléphones capables retrouvent le vrai diamant transparent « comme avant ».
+  var WEAKBROWSER = MOBILE && /YaBrowser|Firefox|FxiOS|Opera Mini|OPR\//i.test(_ua);
   function glLite(){ try{ return localStorage.getItem('rn_gl_lite')==='1'; }catch(e){ return false; } }
-  var NO_GL = IN_APP || MOBILE || LOWMEM || (COARSE && SMALL) || glLite();
+  var NO_GL = IN_APP || WEAKBROWSER || glLite();
 
   // Exposé pour les canvases créés dynamiquement (ex. modal géoloc)
   window.__glDiamond = function(canvas, idx){
