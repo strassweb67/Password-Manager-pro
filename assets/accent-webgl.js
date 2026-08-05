@@ -29,7 +29,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, DPR_CAP));
     renderer.setSize(csize(), csize(), false);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.0;
 
     var scene = new THREE.Scene();
     var pmrem = new THREE.PMREMGenerator(renderer);
@@ -38,19 +38,20 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     var cam = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
     cam.position.set(0, 0, 5);
 
-    scene.add(new THREE.AmbientLight(0x2f4a90, 0.6));
-    var key = new THREE.DirectionalLight(0xbfd4ff, 2.3); key.position.set(4, 6, 6); scene.add(key);
-    var rim = new THREE.PointLight(0x6ea0ff, 60, 40); rim.position.set(-5, -3, 5); scene.add(rim);
-    var rim2 = new THREE.PointLight(0x9a6bff, 30, 40); rim2.position.set(5, 4, -4); scene.add(rim2);
+    scene.add(new THREE.AmbientLight(0x24407e, 0.45));
+    var key = new THREE.DirectionalLight(0xdfeaff, 1.4); key.position.set(4, 6, 6); scene.add(key);
+    var rim = new THREE.PointLight(0x8fb4ff, 55, 40); rim.position.set(-5, -3, 5); scene.add(rim);
+    var rim2 = new THREE.PointLight(0x9a6bff, 40, 40); rim2.position.set(5, 4, -4); scene.add(rim2);
 
-    // Verre bleu translucide brillant (style Revolut / verre gelé iOS)
+    // Verre translucide RÉEL : clair, on voit à travers, teinte bleue par
+    // absorption (Beer-Lambert) — pas de blanc laiteux (iridescence retirée)
     var mat = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color(0xa9c6ff), metalness: 0, roughness: 0.04,
-      transmission: 1, thickness: 1.4, ior: 1.5,
-      clearcoat: 1, clearcoatRoughness: 0.06,
-      iridescence: 1, iridescenceIOR: 1.3,
-      attenuationColor: new THREE.Color(0x4a6bff), attenuationDistance: 2.6,
-      envMapIntensity: 2.2, transparent: true
+      color: new THREE.Color(0xffffff), metalness: 0, roughness: 0.0,
+      transmission: 1, thickness: 2.2, ior: 1.5,
+      clearcoat: 1, clearcoatRoughness: 0.03,
+      specularIntensity: 1, specularColor: new THREE.Color(0xffffff),
+      attenuationColor: new THREE.Color(0x2f5bff), attenuationDistance: 0.7,
+      envMapIntensity: 1.35, transparent: true
     });
     // Diamant : octaèdre facetté
     var geo = new THREE.OctahedronGeometry(1.2, 0);
