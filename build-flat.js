@@ -64,6 +64,8 @@ html = html.replace('<script type="module" src="assets/gi-webgl.js?v=15"></scrip
   '<script type="module" src="gi-webgl.js"></script>');
 html = html.replace('<script type="module" src="assets/hero-webgl.js?v=4"></script>',
   '<script type="module" src="hero-webgl.js"></script>');
+html = html.replace('<script type="module" src="assets/accent-webgl.js?v=1"></script>',
+  '<script type="module" src="accent-webgl.js"></script>');
 
 fs.writeFileSync(path.join(OUT, 'index.html'), html);
 
@@ -82,6 +84,7 @@ const fixImports = s => s
   .replace("from 'three/addons/loaders/SVGLoader.js'", "from './SVGLoader.js'");
 fs.writeFileSync(path.join(OUT, 'gi-webgl.js'), fixImports(read('assets/gi-webgl.js')));
 fs.writeFileSync(path.join(OUT, 'hero-webgl.js'), fixImports(read('assets/hero-webgl.js')));
+fs.writeFileSync(path.join(OUT, 'accent-webgl.js'), fixImports(read('assets/accent-webgl.js')));
 
 // 5) three (à plat) + addons
 const copy = (src, dst) => fs.copyFileSync(path.join(R, src), path.join(OUT, dst));
