@@ -76,6 +76,13 @@ body::before{
 .tm-i{font-family:Archivo,var(--titre),system-ui,sans-serif;font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#fff;padding:0 12px;text-shadow:0 1px 3px rgba(2,5,18,.5);}
 .tm-dot{color:rgba(255,255,255,.65);font-size:12px;}
 @keyframes tmScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+/* ── Diamants de verre WebGL (accents) + fallback CSS in-app ── */
+.gl-diamond{display:block;width:92px;height:92px;margin:0 auto 2px;filter:drop-shadow(0 6px 22px rgba(80,110,255,.5));}
+.gl-diamond.gl-off{width:46px;height:46px;margin:0 auto 10px;border-radius:12px;transform:rotate(45deg);filter:none;
+  background:radial-gradient(circle at 38% 32%,#dbe7ff 0%,#7c9bff 42%,#2f46d6 100%);
+  box-shadow:0 0 26px rgba(90,120,255,.65),inset 0 2px 6px rgba(255,255,255,.5);
+  animation:glGemFloat 4s ease-in-out infinite;}
+@keyframes glGemFloat{0%,100%{transform:rotate(45deg) translateY(0);}50%{transform:rotate(45deg) translateY(-6px);}}
 .navbar{
   position:fixed;top:40px;left:0;right:0;margin:0 auto;z-index:100;
   width:min(1080px,calc(100% - 24px));box-sizing:border-box;
@@ -2389,6 +2396,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ PARCOURS (schéma animé) ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="parcours">
   <div class="sec-head rev">
+    <canvas class="gl-diamond" data-gl-diamond width="184" height="184" aria-hidden="true"></canvas>
     <h2 class="sec-t">Ton chemin, <span class="y">en trois temps</span></h2>
     <p class="sec-sub">Simple, cadré, sans te noyer — voilà exactement comment on avance.</p>
   </div>
@@ -2412,7 +2420,8 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ TARIF ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="tarif">
-  <div class="sec-head rev"><h2 class="sec-t">Un seul tarif, <span class="y">tout est dedans</span></h2>
+  <div class="sec-head rev"><canvas class="gl-diamond" data-gl-diamond width="184" height="184" aria-hidden="true"></canvas>
+    <h2 class="sec-t">Un seul tarif, <span class="y">tout est dedans</span></h2>
     <p class="sec-sub">Près de 5 000€ de contenu. Le prix d'un café par semaine.</p></div>
   <div class="tarif-box rev rev-d1">
     <div class="tarif-anchor"><span class="tarif-old">4 982€</span><span class="tarif-old-lbl">de valeur réelle</span></div>
@@ -5639,5 +5648,6 @@ else handleReturn();
 <script src="assets/cine-gsap.js?v=8" defer></script>
 <script type="module" src="assets/gi-webgl.js?v=15"></script>
 <script type="module" src="assets/hero-webgl.js?v=4"></script>
+<script type="module" src="assets/accent-webgl.js?v=1"></script>
 </body>
 </html>
