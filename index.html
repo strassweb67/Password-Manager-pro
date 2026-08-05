@@ -1064,7 +1064,7 @@ footer{background:rgba(0,0,0,.96);}
 
 /* ── Registre modules : simple liste, prix aligné ── */
 .liste-mod{display:flex;flex-direction:column;border-top:1px solid var(--border);}
-.mod-row{display:flex;align-items:center;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--border);}
+.mod-row{display:flex;align-items:center;gap:1rem;padding:1rem clamp(.9rem,4.5vw,1.5rem);border-bottom:1px solid var(--border);}
 .mod-row .m-i{width:34px;height:34px;border-radius:.6rem;background:var(--surface2);border:1px solid var(--border);
   display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-size:13px;color:var(--accent-2);flex-shrink:0;}
 .mod-row .m-c{flex:1;}
