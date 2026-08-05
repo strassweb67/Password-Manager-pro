@@ -60,7 +60,7 @@ html = html.replace('<script src="assets/vendor/lenis.min.js" defer></script>', 
 html = html.replace('<script src="assets/cine-gsap.js?v=11" defer></script>', '');
 
 // 2d) modules WebGL → fichiers séparés à plat
-html = html.replace('<script type="module" src="assets/gi-webgl.js?v=21"></script>',
+html = html.replace('<script type="module" src="assets/gi-webgl.js?v=22"></script>',
   '<script type="module" src="gi-webgl.js"></script>');
 html = html.replace('<script type="module" src="assets/hero-webgl.js?v=9"></script>',
   '<script type="module" src="hero-webgl.js"></script>');

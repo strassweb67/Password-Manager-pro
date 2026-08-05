@@ -39,13 +39,14 @@ if (canvas && overlay) {
   // moins de pixels internes (imperceptible avec le flou du verre), GPU soulagé.
   var DPR_CAP = LITE ? 1.0 : (LOWMEM ? 1.1 : (MOBILE ? 1.3 : 2));
   var LOW = IN_APP || MOBILE;
-  var SPH = LOW ? 24 : 32, TUB_T = LOW ? 280 : 320, TUB_R = LOW ? 20 : 24, NPART = LOW ? 1700 : 2600;
+  var SPH = LOW ? 24 : 32, TUB_T = LOW ? 280 : 320, TUB_R = LOW ? 20 : 24, NPART = LITE ? 500 : (LOW ? 1700 : 2600);
 
-  // ZÉRO WEBGL sur les navigateurs qui gèlent malgré tout (Yandex, Firefox
-  // mobile), les WebViews in-app, et tout appareil ayant déjà planté : on
-  // affiche un R statique (SVG bleu lumineux) au lieu du 3D. Sans contexte
-  // WebGL, l'écran NE PEUT PLUS geler. Le 3D reste sur Chrome/Safari/desktop.
-  var NO_INTRO_GL = IN_APP || WEAKBROWSER || glLite();
+  // On GARDE le vrai R 3D WebGL partout (c'est la signature). Ce qui alourdit
+  // et « fait tout bouger », ce sont les bulles flottantes + le fond du hero :
+  // sur navigateurs fragiles (Yandex/Firefox mobile) on les retire, mais on
+  // laisse le R. Le SVG statique ne sert QUE de filet de sécurité si l'appareil
+  // a DÉJÀ planté une fois (disjoncteur) — sinon on ne le voit jamais.
+  var NO_INTRO_GL = glLite();
 
   if (!NO_INTRO_GL) {
     try { renderer = new THREE.WebGLRenderer({ canvas, antialias:!LOW, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false }); }
@@ -152,7 +153,10 @@ if (canvas && overlay) {
     R.renderOrder = 0;
     const ballsGrp = new THREE.Group(); scene.add(ballsGrp);
     const balls = [], ballGeo = new THREE.SphereGeometry(1, SPH, SPH);
-    for (let i=0;i<(LOW?8:12);i++){
+    // Mode léger (Yandex/Firefox mobile, appareils faibles) : AUCUNE bulle
+    // flottante → c'est surtout ça qui « fait tout bouger » et charge le GPU.
+    // On garde le R, on enlève le mouvement autour.
+    for (let i=0;i<(LITE?0:(LOW?8:12));i++){
       const b = new THREE.Mesh(ballGeo, ballMat);
       b.scale.setScalar(0.5 + Math.random()*0.9);
       b.position.set((Math.random()-.5)*16,(Math.random()-.5)*18, 2 + Math.random()*4.5);
