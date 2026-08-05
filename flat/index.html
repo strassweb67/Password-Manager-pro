@@ -1137,6 +1137,23 @@ footer{background:rgba(0,0,0,.96);}
 .avis-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;background:linear-gradient(135deg,#5a78ff,#3a52d6);font-size:.85rem;box-shadow:0 0 10px rgba(90,120,255,.5);flex-shrink:0;}
 .avis-name{font-weight:700;color:#fff;font-size:.82rem;line-height:1.3;font-family:'Inter',sans-serif;}
 .avis-name span{display:block;font-weight:500;color:#a9b6d6;font-size:.72rem;}
+/* ── Mécanisme : nouveau style (grand numéro dégradé + bord néon animé) ── */
+.mkn{display:flex;flex-direction:column;gap:14px;max-width:34rem;margin:0 auto;}
+.mkn-card{position:relative;display:flex;align-items:center;gap:1.1rem;overflow:hidden;
+  padding:1.25rem 1.3rem 1.25rem 1.25rem;border-radius:1.1rem;
+  background:linear-gradient(180deg,rgba(20,28,58,.5),rgba(8,11,26,.44));
+  border:1px solid rgba(134,164,255,.22);
+  box-shadow:0 12px 34px rgba(0,0,0,.4),0 0 26px rgba(70,100,235,.08);
+  transition:transform .3s,border-color .3s,box-shadow .3s;}
+.mkn-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#8ea6ff,#3a52d6);
+  box-shadow:0 0 14px rgba(90,120,255,.85);animation:mknEdge 3s ease-in-out infinite;}
+@keyframes mknEdge{0%,100%{opacity:.55;}50%{opacity:1;}}
+@media(hover:hover){.mkn-card:hover{transform:translateX(3px);border-color:rgba(134,164,255,.5);box-shadow:0 16px 40px rgba(0,0,0,.5),0 0 36px rgba(70,100,235,.2);}}
+.mkn-num{flex-shrink:0;font-family:var(--disp),'Archivo',sans-serif;font-weight:900;font-size:2.7rem;line-height:1;letter-spacing:-.02em;min-width:2.1ch;text-align:center;
+  background:linear-gradient(140deg,#eaf1ff 0%,#8ea6ff 55%,#3a52d6 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  filter:drop-shadow(0 2px 10px rgba(90,120,255,.5));}
+.mkn-body h3{font-family:var(--titre);font-weight:800;font-size:1rem;color:#eff4ff;margin-bottom:.3rem;line-height:1.2;}
+.mkn-body p{color:#c6d2ea;font-size:.86rem;line-height:1.55;font-family:'Inter',sans-serif;}
 /* ── Schéma animé « parcours » : nœuds chromés + connecteurs qui coulent ── */
 .flow{max-width:30rem;margin:0 auto;display:flex;flex-direction:column;}
 .flow-step{display:flex;gap:1.1rem;align-items:flex-start;}
@@ -1157,7 +1174,7 @@ footer{background:rgba(0,0,0,.96);}
 .flow-link i{position:absolute;left:0;top:-45%;width:100%;height:45%;background:linear-gradient(180deg,transparent,#7c9bff,transparent);animation:flowDown 1.9s linear infinite;}
 .flow-link:nth-of-type(4) i{animation-delay:.95s;}
 @keyframes flowDown{0%{top:-45%;}100%{top:100%;}}
-.section{padding:clamp(48px,7vh,84px) 0;}
+.section{padding:clamp(36px,5vh,62px) 0;}
 .final{text-align:center;padding:clamp(56px,8vh,90px) 0 2.5rem;}
 .final-reassure{margin:1.1rem auto 0;font-size:.76rem;letter-spacing:.06em;color:#8ea3d6;font-family:'Inter',sans-serif;}
 
@@ -2426,6 +2443,20 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 </section>
 
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ DIAGNOSTIC ━━━━━━━━━━━━━━━━━━━━━━ -->
+<!-- ━━━━━━━━━━━━━━━━━━━━━━ MÉCANISME (psychologie) ━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="section dossier" id="mecanisme">
+  <div class="sec-head rev">
+    <h2 class="sec-t">Pourquoi ça marche <span class="y">quand le reste a échoué</span></h2>
+    <p class="sec-sub">Pas de magie — trois leviers psychologiques que les meilleurs utilisent, appliqués à toi.</p>
+  </div>
+  <div class="mkn rev rev-d1">
+    <div class="mkn-card"><span class="mkn-num">01</span><div class="mkn-body"><h3>Ton environnement bat ta motivation</h3><p>La discipline ne se force pas, elle s'attrape. Entoure-toi de gens qui construisent, et ta trajectoire change toute seule — c'est le cercle qui fait l'homme.</p></div></div>
+    <div class="mkn-card"><span class="mkn-num">02</span><div class="mkn-body"><h3>Le cerveau agit sur la preuve, pas la promesse</h3><p>Ton diagnostic te met face à tes vrais chiffres. On ne te motive pas avec des mots : on te confronte à ta réalité — c'est là que la décision se prend vraiment.</p></div></div>
+    <div class="mkn-card"><span class="mkn-num">03</span><div class="mkn-body"><h3>Deviens-le avant de l'avoir</h3><p>On ne te vend pas un programme, on te fait changer d'identité. Les résultats qui durent viennent de qui tu deviens — pas de ce que tu forces.</p></div></div>
+  </div>
+</section>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━ DIAGNOSTIC ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="diagnostic">
   <div class="kicker-wrap rev"><span class="kicker">Offert · 13 questions · 2 min<span class="drip"><i></i><i></i><i></i><i></i><i></i></span></span></div>
   <div class="sec-head rev" style="margin-top:1rem;">
@@ -2532,25 +2563,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
   <div class="credits-box rev rev-d1">
     <div class="credits-names">
       <div class="credit"><b>MAXIME R.</b><i>Membre · 6 mois</i><q>Le module réseau a changé ma façon d'aborder les rencontres pro.</q></div>
-      <div class="credits-sep"></div>
-      <div class="credit"><b>LUCAS D.</b><i>Liste d'attente Zyra</i><q>J'attendais Zyra pour tenir mes semaines de sport sans qu'on me pousse.</q></div>
-      <div class="credits-sep"></div>
-      <div class="credit"><b>THOMAS V.</b><i>Membre · 3 mois</i><q>Six modules pour 10$/mois, trop simple pour être vrai — et ça tient.</q></div>
     </div>
-  </div>
-</section>
-
-<div class="slash-band thin" aria-hidden="true"></div>
-<!-- ━━━━━━━━━━━━━━━━━━━━━━ MÉCANISME (psychologie) ━━━━━━━━━━━━━━━━━━━━━━ -->
-<section class="section dossier" id="mecanisme">
-  <div class="sec-head rev">
-    <h2 class="sec-t">Pourquoi ça marche <span class="y">quand le reste a échoué</span></h2>
-    <p class="sec-sub">Pas de magie — trois leviers psychologiques que les meilleurs utilisent, appliqués à toi.</p>
-  </div>
-  <div class="steps rev rev-d1">
-    <div class="step"><div class="step-ico">01</div><div><h3>Ton environnement bat ta motivation</h3><p>La discipline ne se force pas, elle s'attrape. Entoure-toi de gens qui construisent, et ta trajectoire change toute seule — c'est le cercle qui fait l'homme.</p></div></div>
-    <div class="step"><div class="step-ico">02</div><div><h3>Le cerveau agit sur la preuve, pas la promesse</h3><p>Ton diagnostic te met face à tes vrais chiffres. On ne te motive pas avec des mots : on te confronte à ta réalité — c'est là que la décision se prend vraiment.</p></div></div>
-    <div class="step"><div class="step-ico">03</div><div><h3>Deviens-le avant de l'avoir</h3><p>On ne te vend pas un programme, on te fait changer d'identité. Les résultats qui durent viennent de qui tu deviens — pas de ce que tu forces.</p></div></div>
   </div>
 </section>
 
