@@ -146,6 +146,10 @@
                   + '.targets-block, .credit, .sec-t, .hero-sub, .footer-brand, .dg-axis, .zw-feat';
     gsap.utils.toArray(revealSel).forEach(function(el){
       if (el.closest('#diagOverlay') || el.closest('.cine-hero') || el.dataset.cineIn != null) return;
+      // Les éléments .rev sont gérés par le système IntersectionObserver CSS
+      // (robuste, jamais remis à opacity:0 au refresh) → GSAP ne les touche pas,
+      // sinon son opacity:0 inline gagne et laisse un trou noir.
+      if (el.classList.contains('rev')) return;
       if (el.dataset.rvDone) return; el.dataset.rvDone = '1';
       gsap.from(el, {
         opacity: 0, y: 22, duration: 0.7, ease: 'power3.out',

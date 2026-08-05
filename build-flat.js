@@ -57,10 +57,10 @@ html = html.replace('<script src="assets/vendor/gsap.min.js" defer></script>',
   '<script src="anim.js" defer></script>');
 html = html.replace('<script src="assets/vendor/ScrollTrigger.min.js" defer></script>', '');
 html = html.replace('<script src="assets/vendor/lenis.min.js" defer></script>', '');
-html = html.replace('<script src="assets/cine-gsap.js?v=9" defer></script>', '');
+html = html.replace('<script src="assets/cine-gsap.js?v=10" defer></script>', '');
 
 // 2d) modules WebGL → fichiers séparés à plat
-html = html.replace('<script type="module" src="assets/gi-webgl.js?v=16"></script>',
+html = html.replace('<script type="module" src="assets/gi-webgl.js?v=17"></script>',
   '<script type="module" src="gi-webgl.js"></script>');
 html = html.replace('<script type="module" src="assets/hero-webgl.js?v=4"></script>',
   '<script type="module" src="hero-webgl.js"></script>');
