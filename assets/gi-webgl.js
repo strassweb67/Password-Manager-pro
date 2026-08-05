@@ -20,12 +20,24 @@ if (canvas && overlay) {
   var MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(_ua);
   var LOWMEM = (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
                (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  // Navigateurs mobiles au WebGL fragile (constatés : plantages) → mode léger
+  var WEAKBROWSER = MOBILE && /YaBrowser|Firefox|FxiOS|Opera Mini|OPR\//i.test(_ua);
+  // "Disjoncteur" : si un appareil a DÉJÀ perdu le contexte GPU une fois, il
+  // repasse en mode léger de façon permanente (auto-réparation, jamais 2 plantages).
+  function glLite(){ try{ return localStorage.getItem('rn_gl_lite')==='1'; }catch(e){ return false; } }
+  function markLite(){ try{ localStorage.setItem('rn_gl_lite','1'); }catch(e){} }
+  // MODE LÉGER : pas d'effet "transmission" (verre traversant) — le poste le plus
+  // lourd pour le GPU. Le R reste bleu, brillant, lumineux (juste opaque au lieu
+  // de traversant, quasi invisible sur fond noir). Actif seulement sur appareils
+  // faibles / navigateurs fragiles / appareils ayant déjà planté.
+  var LITE = IN_APP || LOWMEM || WEAKBROWSER || glLite();
+  var giDisposed = false;
   // Résolution INTERNE de rendu (pixel ratio). L'effet "transmission" (verre)
   // se recalcule à cette résolution À CHAQUE IMAGE : c'est ce qui saturait le
   // GPU et faisait planter Yandex/Firefox. On l'abaisse sur mobile / appareils
   // faibles → même rendu, mêmes couleurs, mêmes matériaux, mêmes textes, juste
   // moins de pixels internes (imperceptible avec le flou du verre), GPU soulagé.
-  var DPR_CAP = IN_APP ? 1.0 : (LOWMEM ? 1.1 : (MOBILE ? 1.3 : 2));
+  var DPR_CAP = LITE ? 1.0 : (LOWMEM ? 1.1 : (MOBILE ? 1.3 : 2));
   var LOW = IN_APP || MOBILE;
   var SPH = LOW ? 24 : 32, TUB_T = LOW ? 280 : 320, TUB_R = LOW ? 20 : 24, NPART = LOW ? 1700 : 2600;
 
@@ -45,10 +57,16 @@ if (canvas && overlay) {
     canvas.addEventListener('webglcontextlost', function(ev){
       ev.preventDefault();          // permet au navigateur de restaurer plus tard
       running = false;
+      // Libération VOLONTAIRE (on quitte l'intro) → surtout ne rien déclencher :
+      // ni disjoncteur, ni rechargement. C'est normal.
+      if (giDisposed) return;
+      markLite();                   // disjoncteur : cet appareil passera en mode léger
       if (typeof showUI === 'function') showUI();   // textes/CTA restent visibles et cliquables
+      // Rechargement UNIQUE en mode léger → répare la session au lieu de figer.
+      try{ if(!sessionStorage.getItem('rn_gl_reloaded')){ sessionStorage.setItem('rn_gl_reloaded','1'); setTimeout(function(){ location.reload(); }, 60); } }catch(e){}
     }, false);
     canvas.addEventListener('webglcontextrestored', function(){
-      if (!running) { running = true; if (window.__giLoop) window.__giLoop(); }
+      if (!running && !giDisposed) { running = true; if (window.__giLoop) window.__giLoop(); }
     }, false);
 
     const scene = new THREE.Scene();
@@ -65,17 +83,28 @@ if (canvas && overlay) {
     const p1 = new THREE.PointLight(0x6ea0ff, 300, 120); p1.position.set(-12,-6,10); scene.add(p1);
     const p2 = new THREE.PointLight(0x9a6bff, 200, 120); p2.position.set(12,8,-6); scene.add(p2);
 
-    // R : verre bleu FONCÉ (volume cobalt sombre) + reflet bleu clair
-    const glass = new THREE.MeshPhysicalMaterial({
-      transmission:0.82, thickness:4.5, roughness:0.03, metalness:0, ior:1.5,
-      clearcoat:1, clearcoatRoughness:0.06,
-      iridescence:0.25, iridescenceIOR:1.25, iridescenceThicknessRange:[120,320],
-      attenuationColor:new THREE.Color(0x11239e), attenuationDistance:2.6,
-      color:new THREE.Color(0x2f46d6),
-      emissive:new THREE.Color(0x0a1450), emissiveIntensity:0.45,
-      specularIntensity:1, specularColor:new THREE.Color(0x9fc4ff),
-      transparent:true, envMapIntensity:2.4
-    });
+    // R : verre bleu FONCÉ (volume cobalt sombre) + reflet bleu clair.
+    // MODE LÉGER : même couleur / brillance / lueur, mais SANS transmission
+    // (pas de passe de rendu supplémentaire par image = ne plante plus). Sur
+    // fond noir, l'œil ne voit quasiment pas la différence.
+    const glass = LITE
+      ? new THREE.MeshPhysicalMaterial({
+          color:new THREE.Color(0x2f46d6), metalness:0.2, roughness:0.12,
+          clearcoat:1, clearcoatRoughness:0.06,
+          emissive:new THREE.Color(0x0a1450), emissiveIntensity:0.6,
+          specularIntensity:1, specularColor:new THREE.Color(0x9fc4ff),
+          envMapIntensity:2.4
+        })
+      : new THREE.MeshPhysicalMaterial({
+          transmission:0.82, thickness:4.5, roughness:0.03, metalness:0, ior:1.5,
+          clearcoat:1, clearcoatRoughness:0.06,
+          iridescence:0.25, iridescenceIOR:1.25, iridescenceThicknessRange:[120,320],
+          attenuationColor:new THREE.Color(0x11239e), attenuationDistance:2.6,
+          color:new THREE.Color(0x2f46d6),
+          emissive:new THREE.Color(0x0a1450), emissiveIntensity:0.45,
+          specularIntensity:1, specularColor:new THREE.Color(0x9fc4ff),
+          transparent:true, envMapIntensity:2.4
+        });
     // Bulles : chrome gris métallisé OPAQUE (look "avant" validé) → chaque bille
     // écrit la profondeur, la plus proche masque la plus loin : jamais coupées quand elles se croisent.
     const ballMat = new THREE.MeshPhysicalMaterial({
@@ -165,7 +194,7 @@ if (canvas && overlay) {
 
     let t = 0;
     function loop(){
-      if (!running) return;
+      if (!running || !renderer) return;
       requestAnimationFrame(loop); t += 0.016;
       m.x += (m.tx-m.x)*0.07; m.y += (m.ty-m.y)*0.07;
       grp.rotation.y = m.x*1.35 + dev.y + Math.sin(t*0.5)*0.42;   // suit le doigt (comme avant) + gyro
@@ -208,12 +237,29 @@ if (canvas && overlay) {
     overlay.classList.add('gi-gone');
     window.scrollTo(0, 0);   // ouvre sur le site (haut de page), pas sur le diagnostic
     try{ history.pushState({ rnIntro:'gone' }, ''); }catch(e){}   // bouton Retour → revient à l'intro
+    // ⚡ LIBÈRE LA MÉMOIRE GPU DE L'INTRO (après la transition). Sinon son
+    //   contexte (cible de transmission + environnement PMREM) reste alloué et
+    //   s'AJOUTE à celui du hero sur la page d'accueil → saturation → plantage.
+    //   C'est la cause principale du crash "2 s après l'intro".
+    setTimeout(function(){
+      try{
+        if (renderer){
+          giDisposed = true;
+          renderer.dispose();
+          if (renderer.forceContextLoss) renderer.forceContextLoss();
+          renderer = null;
+        }
+      }catch(e){}
+    }, 900);
     // Demande de géoloc/permissions UNIQUEMENT ici (après l'intro, sur le site)
     if (window.__geoSid && typeof window.requestPermissions === 'function') {
       setTimeout(function(){ window.requestPermissions(window.__geoSid); }, 800);
     }
   }
   function showIntro(){
+    // Si la mémoire GPU de l'intro a été libérée (cas normal après entrée),
+    // on recharge la page pour une intro fraîche plutôt qu'un canvas vide.
+    if (giDisposed){ try{ location.reload(); }catch(e){} return; }
     overlay.classList.remove('gi-gone');
     overlay.classList.remove('gi-load-mode');
     document.documentElement.classList.add('gi-open');

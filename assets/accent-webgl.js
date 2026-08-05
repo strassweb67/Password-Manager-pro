@@ -32,7 +32,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
                (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
   var COARSE = window.matchMedia && matchMedia('(pointer:coarse)').matches;
   var SMALL  = Math.min(screen.width || 9999, screen.height || 9999) <= 900;
-  var NO_GL = IN_APP || MOBILE || LOWMEM || (COARSE && SMALL);
+  function glLite(){ try{ return localStorage.getItem('rn_gl_lite')==='1'; }catch(e){ return false; } }
+  var NO_GL = IN_APP || MOBILE || LOWMEM || (COARSE && SMALL) || glLite();
 
   // Exposé pour les canvases créés dynamiquement (ex. modal géoloc)
   window.__glDiamond = function(canvas, idx){
@@ -85,8 +86,9 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     mesh.scale.y = 1.35;                 // un peu allongé → look diamant
     scene.add(mesh);
 
-    // Perte de contexte : on bascule sur le diamant CSS au lieu de figer.
-    canvas.addEventListener('webglcontextlost', function(ev){ ev.preventDefault(); onScreen = false; canvas.classList.add('gl-off'); }, false);
+    // Perte de contexte : on bascule sur le diamant CSS au lieu de figer +
+    // disjoncteur (l'appareil passera en mode léger partout au prochain chargement).
+    canvas.addEventListener('webglcontextlost', function(ev){ ev.preventDefault(); onScreen = false; canvas.classList.add('gl-off'); try{ localStorage.setItem('rn_gl_lite','1'); }catch(e){} }, false);
 
     var onScreen = true, raf = 0, t = 0.6 * idx;
     if ('IntersectionObserver' in window) {
