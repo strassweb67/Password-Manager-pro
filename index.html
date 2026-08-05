@@ -1046,8 +1046,8 @@ footer{background:rgba(0,0,0,.96);}
 
 /* ── Cartes simples (écosystème / modules), surface2, pas de glow générique ── */
 .grille-cartes{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;}
-.carte-fp{position:relative;background:linear-gradient(180deg,rgba(20,28,58,.52),rgba(8,11,26,.5));
-  border:1px solid rgba(134,164,255,.28);border-radius:1.6rem;overflow:hidden;
+.carte-fp{position:relative;background:linear-gradient(180deg,rgba(40,56,110,.66),rgba(20,30,64,.62));
+  border:1px solid rgba(150,178,255,.46);border-radius:1.6rem;overflow:hidden;
   display:flex;flex-direction:column;transition:border-color .3s,transform .3s,box-shadow .3s;
   box-shadow:0 16px 44px rgba(0,0,0,.45),0 0 34px rgba(70,100,235,.12);}
 .carte-fp:hover{border-color:rgba(134,164,255,.55);transform:translateY(-4px);box-shadow:0 22px 56px rgba(0,0,0,.55),0 0 48px rgba(70,100,235,.28);}
@@ -1056,7 +1056,7 @@ footer{background:rgba(0,0,0,.96);}
 .carte-media img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;filter:contrast(1.05) saturate(1.05);}
 .carte-corps{padding:1.1rem 1.2rem 1.3rem;display:flex;flex-direction:column;flex:1;}
 .carte-corps h3{font-family:var(--titre);font-weight:800;font-size:1.05rem;margin:.5rem 0 .4rem;}
-.carte-corps p{color:var(--text-dim);font-size:.84rem;line-height:1.55;font-family:'Inter',sans-serif;margin-bottom:.9rem;flex:1;}
+.carte-corps p{color:#eaf1ff;font-size:.84rem;line-height:1.55;font-family:'Inter',sans-serif;margin-bottom:.9rem;flex:1;}
 .carte-corps .btn-fp{margin-top:auto;}
 .etat-fp{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;}
 .etat-fp.actif{color:var(--green);} .etat-fp.attente{color:var(--accent-2);} .etat-fp.zy{color:var(--zyra);}
@@ -1070,11 +1070,13 @@ footer{background:rgba(0,0,0,.96);}
 .mod-row .m-c{flex:1;}
 .mod-row h4{font-family:var(--titre);font-weight:800;font-size:.95rem;}
 .mod-row span.m-d{display:block;font-size:.78rem;color:var(--text-faint);margin-top:2px;font-family:'Inter',sans-serif;}
-.mod-row .m-p{font-family:var(--disp);font-size:1rem;color:#fff;white-space:nowrap;}
+.mod-row .m-p{font-family:var(--disp);font-size:1rem;color:#cfd8ec;white-space:nowrap;
+  text-decoration:line-through;text-decoration-color:#ff4d4d;text-decoration-thickness:2.5px;}
 
 /* ── Box vitrée valeur (réutilise unique-box) ── */
 .valeur-box{max-width:30rem;margin:0 auto;text-align:center;}
-.valeur-num{font-family:var(--disp);font-size:clamp(2.4rem,6vw,3.6rem);color:#fff;}
+.valeur-num{font-family:var(--disp);font-size:clamp(2.4rem,6vw,3.6rem);color:#fff;
+  text-decoration:line-through;text-decoration-color:#ff4d4d;text-decoration-thickness:4px;}
 .valeur-num .y{color:var(--accent-2);}
 
 /* ── Credits-box réutilisé pour témoignages + crédit final ── */
@@ -2224,7 +2226,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ MÉCANISME (psychologie) ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="mecanisme">
   <div class="sec-head rev">
-    <h2 class="sec-t">Pourquoi ça marche,<span class="y">quand le reste a échoué</span></h2>
+    <h2 class="sec-t">Pourquoi ça marche,&nbsp;<span class="y">quand le reste a échoué</span></h2>
     <p class="sec-sub">Pas de magie — trois leviers psychologiques que les meilleurs utilisent, appliqués à toi.</p>
   </div>
   <div class="mkn rev rev-d1">
@@ -2289,7 +2291,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
   </div>
   <div class="valeur-box mt-l rev rev-d2">
     <p class="valeur-num">+<span class="count-up y" data-count="4982">0</span>€</p>
-    <p class="lead" style="margin:0 auto;">de contenu réuni dans un seul accès à 10$/mois.</p>
+    <p class="lead" style="margin:0 auto;">de valeur — <strong style="color:#7ee0a8;">tout est compris dans ton accès à 10$/mois.</strong></p>
   </div>
 </section>
 
