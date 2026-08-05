@@ -68,8 +68,16 @@ body::before{
 @keyframes au2{0%{transform:translate(0,0) scale(1);}100%{transform:translate(-50px,30px) scale(1.08);}}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━ NAVBAR — iOS ultra dark ━━━━━━━━━━━━━━━━━━━━━━ */
+/* ── Bandeau défilant bleu tout en haut ── */
+.top-marquee{position:fixed;top:0;left:0;right:0;z-index:101;height:30px;display:flex;align-items:center;overflow:hidden;
+  background:linear-gradient(90deg,#2f46d6,#3a52d6 50%,#2f46d6);border-bottom:1px solid rgba(150,180,255,.45);
+  box-shadow:0 2px 20px rgba(47,70,214,.55);}
+.tm-track{display:flex;align-items:center;white-space:nowrap;flex-shrink:0;will-change:transform;animation:tmScroll 26s linear infinite;}
+.tm-i{font-family:Archivo,var(--titre),system-ui,sans-serif;font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#fff;padding:0 12px;text-shadow:0 1px 3px rgba(2,5,18,.5);}
+.tm-dot{color:rgba(255,255,255,.65);font-size:12px;}
+@keyframes tmScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
 .navbar{
-  position:fixed;top:14px;left:0;right:0;margin:0 auto;z-index:100;
+  position:fixed;top:40px;left:0;right:0;margin:0 auto;z-index:100;
   width:min(1080px,calc(100% - 24px));box-sizing:border-box;
   display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:11px 12px 11px 20px;
@@ -82,7 +90,7 @@ body::before{
   transition:width .42s cubic-bezier(.22,1,.36,1),padding .42s cubic-bezier(.22,1,.36,1),background .35s,box-shadow .35s,top .35s,border-color .35s;
 }
 /* Au scroll : reste centrée (margin:auto), rétrécit, garde ses éléments */
-.navbar.scrolled{top:8px;width:min(440px,calc(100% - 90px));padding:7px 9px 7px 15px;
+.navbar.scrolled{top:36px;width:min(440px,calc(100% - 90px));padding:7px 9px 7px 15px;
   background:rgba(23,44,110,.66);border-color:rgba(140,170,255,.5);
   box-shadow:0 14px 44px rgba(0,0,0,.5),0 0 0 1px rgba(60,90,200,.32),inset 0 1px 0 rgba(255,255,255,.32);}
 .navbar.scrolled .logo-mark{width:26px;height:26px;}
@@ -758,7 +766,7 @@ footer{
 
 /* ━━━━━━━━━━━━━━━━━━━━━━ RESPONSIVE ━━━━━━━━━━━━━━━━━━━━━━ */
 @media(max-width:860px){
-  .navbar{padding:9px 10px 9px 16px;width:calc(100% - 20px);top:10px;}
+  .navbar{padding:9px 10px 9px 16px;width:calc(100% - 20px);top:38px;}
   .hero{padding:40px 0 18px;}
   .card{grid-template-columns:1fr;padding:28px 22px;}
   .card-media{order:-1;aspect-ratio:16/10;}
@@ -1906,6 +1914,14 @@ footer{background:rgba(0,0,0,.96);}
 <div class="aurora aurora-b"></div>
 
 <!-- ━━━━ NAVBAR ━━━━ -->
+<div class="top-marquee" aria-hidden="true">
+  <div class="tm-track">
+    <span class="tm-i">DIAGNOSTIC GRATUIT 🚀💰🧠</span><span class="tm-dot">•</span><span class="tm-i">Pack Complet Exclusif à 10€ seulement&nbsp;! 🚀🔥👐</span><span class="tm-dot">•</span>
+    <span class="tm-i">DIAGNOSTIC GRATUIT 🚀💰🧠</span><span class="tm-dot">•</span><span class="tm-i">Pack Complet Exclusif à 10€ seulement&nbsp;! 🚀🔥👐</span><span class="tm-dot">•</span>
+    <span class="tm-i">DIAGNOSTIC GRATUIT 🚀💰🧠</span><span class="tm-dot">•</span><span class="tm-i">Pack Complet Exclusif à 10€ seulement&nbsp;! 🚀🔥👐</span><span class="tm-dot">•</span>
+    <span class="tm-i">DIAGNOSTIC GRATUIT 🚀💰🧠</span><span class="tm-dot">•</span><span class="tm-i">Pack Complet Exclusif à 10€ seulement&nbsp;! 🚀🔥👐</span><span class="tm-dot">•</span>
+  </div>
+</div>
 <nav class="navbar">
   <a href="index.html" class="logo-mark" aria-label="Renaissance">
     <svg viewBox="0 0 100 100" fill="none"><path d="M16.5 90L16.5 10L58 10Q85 10 85 24Q85 35.5 58 35.5L38 35.5L63 81" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
@@ -1956,7 +1972,7 @@ footer{background:rgba(0,0,0,.96);}
   </a>
 </section>
 <style>
-.cine-hero{position:relative;min-height:100svh;height:auto;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;text-align:center;isolation:isolate;background:#03040c;padding-top:clamp(86px,12.5vh,116px);padding-bottom:64px;box-sizing:border-box;}
+.cine-hero{position:relative;min-height:100svh;height:auto;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;text-align:center;isolation:isolate;background:#03040c;padding-top:clamp(112px,15vh,142px);padding-bottom:64px;box-sizing:border-box;}
 .cine-hero__bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 90% 70% at 50% 40%,#0a1236 0%,#03040c 72%);}
 .cine-hero__poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;opacity:.14;filter:saturate(.7) brightness(.8);mix-blend-mode:screen;}
 .cine-hero__gl{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;}
