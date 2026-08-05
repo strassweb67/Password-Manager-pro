@@ -148,10 +148,28 @@
       if (el.closest('#diagOverlay') || el.closest('.cine-hero') || el.dataset.cineIn != null) return;
       if (el.dataset.rvDone) return; el.dataset.rvDone = '1';
       gsap.from(el, {
-        opacity: 0, y: 40, duration: 0.8, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' }
+        opacity: 0, y: 22, duration: 0.7, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top bottom', toggleActions: 'play none none none' }
       });
     });
+
+    /* ── Filet de sécurité : rien ne reste invisible (si ScrollTrigger rate
+       un déclenchement après un changement de layout / scroll tactile) ── */
+    function revealSafety(){
+      gsap.utils.toArray(revealSel).forEach(function(el){
+        if (el.closest('#diagOverlay') || el.closest('.cine-hero')) return;
+        var r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight * 1.05 && r.bottom > -40 &&
+            parseFloat(getComputedStyle(el).opacity) < 0.12){
+          gsap.to(el, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out', overwrite: true });
+        }
+      });
+    }
+    var _sfTO;
+    function _sfPing(){ clearTimeout(_sfTO); _sfTO = setTimeout(revealSafety, 100); }
+    window.addEventListener('scroll', _sfPing, { passive: true });
+    if (lenis) lenis.on('scroll', _sfPing);
+    [500, 1200, 2200, 3500].forEach(function(ms){ setTimeout(revealSafety, ms); });
 
     /* ── 9) Bulles chromées "drip" qui s'envolent en montant au scroll ── */
     gsap.utils.toArray('.drip').forEach(function(d){
@@ -161,6 +179,6 @@
 
     /* ── Recalcule les positions après polices/images ── */
     window.addEventListener('load', function(){ ST.refresh(); });
-    setTimeout(function(){ ST.refresh(); }, 700);
+    [700, 1500, 3000].forEach(function(ms){ setTimeout(function(){ ST.refresh(); }, ms); });
   });
 })();
