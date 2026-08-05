@@ -42,7 +42,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 img{max-width:100%;height:auto;display:block;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;zoom:0.95;}   /* dézoom 95% par défaut : plus aéré, plus pro, et corrige le rendu du titre sur Chrome */
 body{
   background:var(--bg); color:var(--text);
   font-family:'Inter',sans-serif; overflow-x:hidden; position:relative;
@@ -1534,6 +1534,10 @@ footer{background:rgba(0,0,0,.96);}
 .sec-t .y,.hero .y{background:linear-gradient(115deg,var(--accent) 0%,var(--accent) 45%,#dfe2ff 50%,var(--accent) 55%,var(--accent) 100%);
   background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   animation:t-shine 5.5s ease-in-out 1.4s infinite;}
+/* Titres 2 couleurs → 2 lignes : partie blanche en haut, partie bleue en dessous
+   (toutes tailles, tous navigateurs). Plus pro, plus lisible.
+   On exclut .sec-t--1line (titre-question du diagnostic, texte après le span). */
+.sec-t:not(.sec-t--1line) .y,.sec-t:not(.sec-t--1line) .zy{display:block;}
 .sec-t .zy{background:linear-gradient(115deg,var(--zyra) 0%,var(--zyra) 45%,#fff9d6 50%,var(--zyra) 55%,var(--zyra) 100%);
   background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   animation:t-shine 5.5s ease-in-out 1.4s infinite;}
@@ -2081,7 +2085,11 @@ footer{background:rgba(0,0,0,.96);}
   -webkit-text-stroke:0!important;
   animation:titleShine 5s linear 1.6s infinite!important;}
 .cine-hero__title--glass{
-  filter:drop-shadow(0 0 24px rgba(190,212,255,.55)) drop-shadow(0 4px 16px rgba(0,0,0,.5))!important;
+  /* PAS de filter:drop-shadow sur un texte -webkit-background-clip:text : sur
+     Chrome ça rend le texte EN DOUBLE (fantôme) à 100%. Lueur via text-shadow
+     sur la couche transparente = pas de doublon. */
+  filter:none!important;
+  text-shadow:0 0 26px rgba(150,180,255,.45),0 4px 18px rgba(0,0,0,.5)!important;
   animation:chUp 1s cubic-bezier(.16,1,.3,1) .28s forwards,titleShine 5s linear 1.6s infinite!important;}
 .cine-hero__title--glass .w{display:inline-block;}
 @keyframes titleShine{0%{background-position:0% center;}100%{background-position:230% center;}}
@@ -2216,7 +2224,7 @@ window.HERO_VIDEO = window.HERO_VIDEO || "";
 <!-- ━━━━━━━━━━━━━━━━━━━━━━ MÉCANISME (psychologie) ━━━━━━━━━━━━━━━━━━━━━━ -->
 <section class="section dossier" id="mecanisme">
   <div class="sec-head rev">
-    <h2 class="sec-t">Pourquoi ça marche <span class="y">quand le reste a échoué</span></h2>
+    <h2 class="sec-t">Pourquoi ça marche,<span class="y">quand le reste a échoué</span></h2>
     <p class="sec-sub">Pas de magie — trois leviers psychologiques que les meilleurs utilisent, appliqués à toi.</p>
   </div>
   <div class="mkn rev rev-d1">
