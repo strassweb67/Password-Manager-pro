@@ -15,8 +15,12 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   var _ua = navigator.userAgent || '';
   var IN_APP = /Instagram|FBAN|FBAV|FB_IAB|Snapchat|WhatsApp|Line|Messenger|TikTok|Twitter|GSA/i.test(_ua);
   var MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(_ua);
+  var LOWMEM = (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+               (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
   var LOW = IN_APP || MOBILE;
-  var DPR_CAP = IN_APP ? 1.15 : (MOBILE ? 1.5 : 2);
+  // Résolution interne abaissée sur mobile / appareils faibles (invisible,
+  // soulage le GPU — cohérent avec l'intro).
+  var DPR_CAP = IN_APP ? 1.0 : (LOWMEM ? 1.1 : (MOBILE ? 1.3 : 2));
   var SPH = LOW ? 24 : 32;
 
   let renderer;
