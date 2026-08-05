@@ -34,7 +34,10 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   // téléphones capables retrouvent le vrai diamant transparent « comme avant ».
   var WEAKBROWSER = MOBILE && /YaBrowser|Firefox|FxiOS|Opera Mini|OPR\//i.test(_ua);
   function glLite(){ try{ return localStorage.getItem('rn_gl_lite')==='1'; }catch(e){ return false; } }
-  var NO_GL = IN_APP || WEAKBROWSER || glLite();
+  // Sur MOBILE : diamant en CSS (dégradé) — fiable et toujours visible. Le verre
+  // WebGL des diamants s'affichait blanc/glitché ou disparaissait sur certains
+  // GPU mobiles. Le vrai verre WebGL reste sur desktop.
+  var NO_GL = IN_APP || MOBILE || WEAKBROWSER || glLite();
 
   // Exposé pour les canvases créés dynamiquement (ex. modal géoloc)
   window.__glDiamond = function(canvas, idx){
