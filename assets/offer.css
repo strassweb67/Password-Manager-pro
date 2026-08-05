@@ -14,7 +14,7 @@
   --r:18px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-text-size-adjust:100%;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;zoom:0.95;}   /* dézoom 95% par défaut (cohérent avec l'accueil) */
 body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;line-height:1.5;
   background:radial-gradient(ellipse 90% 60% at 50% -10%,#0a1236 0%,#03040c 60%),#03040c;}
 a{color:inherit;text-decoration:none;} img{max-width:100%;display:block;}
@@ -68,7 +68,8 @@ section{position:relative;z-index:2;}
 h1.title{font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:clamp(42px,13vw,120px);line-height:1;letter-spacing:.02em;
   background:linear-gradient(105deg,#c7d4f6 0%,#fff 42%,#fff 58%,#c7d4f6 100%);background-size:230% auto;
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
-  filter:drop-shadow(0 0 26px rgba(190,212,255,.5));animation:shine 5s linear 1.2s infinite;}
+  /* lueur via text-shadow (pas de filter sur clip-text → pas de doublon Chrome) */
+  text-shadow:0 0 26px rgba(190,212,255,.4);animation:shine 5s linear 1.2s infinite;}
 @keyframes shine{0%{background-position:0% center}100%{background-position:230% center}}
 .tagline{margin-top:14px;font-size:12px;letter-spacing:5px;color:#fff;font-weight:800;text-transform:uppercase;}
 .tagline b{color:var(--blue-3);margin:0 6px;font-weight:800;}
@@ -97,7 +98,7 @@ h1.title{font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:clamp(42px
 .sec{padding:clamp(44px,7vh,80px) 0;}
 .kick{font-family:'Archivo',sans-serif;font-weight:800;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--blue-3);text-align:center;margin-bottom:12px;}
 .sec-h{font-family:'Archivo',sans-serif;font-weight:900;font-size:clamp(24px,5.5vw,40px);line-height:1.1;letter-spacing:-.02em;text-align:center;}
-.sec-h .y{color:var(--blue-2);}
+.sec-h .y{color:var(--blue-2);display:block;}   /* partie bleue sur sa propre ligne */
 .sec-p{max-width:600px;margin:14px auto 0;text-align:center;color:var(--dim);font-size:15px;line-height:1.7;}
 
 /* Glass cards */
