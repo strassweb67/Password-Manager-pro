@@ -98,7 +98,9 @@
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         var input = form.querySelector('.einput');
+        var telInput = form.querySelector('.einput-tel');
         var email = (input && input.value || '').trim();
+        var tel = (telInput && telInput.value || '').trim();
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
           if (input) { input.style.borderColor = '#ff6b7d'; input.focus(); }
           return;
@@ -108,10 +110,12 @@
         try {
           var K = 'rn_waitlist';
           var arr = JSON.parse(localStorage.getItem(K) || '[]');
-          arr.push({ email: email, source: source, at: new Date().toISOString() });
+          arr.push({ email: email, tel: tel, source: source, at: new Date().toISOString() });
           localStorage.setItem(K, JSON.stringify(arr));
         } catch (_) {}
-        /* 2) Supabase — best-effort, l'échec n'affecte pas l'UX */
+        /* 2) Supabase — best-effort, l'échec n'affecte pas l'UX.
+           Table diag_leads existante (colonnes email/tel/source/paid déjà là) :
+           aucune modification SQL. Visible dans l'admin (onglets Zyra / BGH). */
         try {
           fetch(SUPA_URL + '/rest/v1/diag_leads', {
             method: 'POST',
@@ -121,7 +125,7 @@
               'Authorization': 'Bearer ' + SUPA_ANON,
               'Prefer': 'return=minimal'
             },
-            body: JSON.stringify({ email: email, source: source })
+            body: JSON.stringify({ email: email, tel: tel, source: source, paid: false, ts: new Date().toISOString() })
           }).catch(function () {});
         } catch (_) {}
         /* 3) succès visuel */

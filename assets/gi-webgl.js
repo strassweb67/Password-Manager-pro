@@ -219,6 +219,9 @@ if (canvas && overlay) {
     if (!running) { running = true; if (window.__giLoop) window.__giLoop(); }
   }
   addEventListener('popstate', function(){
+    // Ne pas rouvrir l'intro quand on navigue en arrière DANS l'admin/CRM
+    // (sinon un « retour » dans le dashboard relancerait la page de chargement).
+    if (window.__noIntro || document.getElementById('crm-ov') || document.getElementById('dash-ov')) return;
     if (overlay.classList.contains('gi-gone') && !document.querySelector('#diagOverlay.open')) showIntro();
   });
   function fallback(){ const f = document.getElementById('gi-fallback'); if (f) f.classList.add('on'); }
