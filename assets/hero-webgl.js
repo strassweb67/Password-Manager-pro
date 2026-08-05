@@ -107,6 +107,23 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       .observe(introOverlay, { attributes:true, attributeFilter:['class'] });
   }
 
+  // Pause aussi le hero quand une modal plein écran est ouverte (géoloc) : elle
+  // le recouvre, et le laisser tourner sous un overlay = GPU gaspillé + risque
+  // de gel. On reprend dès que la modal est retirée du DOM.
+  function modalUp(){
+    if (document.getElementById('geo-consent-ov')) return true;         // modal géoloc
+    var dg = document.getElementById('diagOverlay');                    // tunnel diagnostic
+    if (dg && dg.classList.contains('open')) return true;
+    return false;
+  }
+  if (window.MutationObserver){
+    new MutationObserver(function(){ if(!modalUp()){ window.__heroPause = false; tick(); } })
+      .observe(document.body, { childList:true, subtree:false });
+    var _dg = document.getElementById('diagOverlay');
+    if (_dg) new MutationObserver(function(){ if(!modalUp()) tick(); })
+      .observe(_dg, { attributes:true, attributeFilter:['class'] });
+  }
+
   // Perte de contexte WebGL : on arrête proprement (le fond redevient
   // transparent, la page reste utilisable) au lieu de figer + disjoncteur :
   // l'appareil passe en mode léger pour les prochains chargements.
@@ -125,7 +142,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
   let t = 0, raf = 0;
   function frame(){
-    raf = 0; if (!onScreen || introUp()) return;
+    raf = 0; if (!onScreen || introUp() || window.__heroPause || modalUp()) return;
     t += 0.016;
     m.x += (m.tx-m.x)*0.05; m.y += (m.ty-m.y)*0.05;
     rise += (scrollProg - rise) * 0.08;                 // suit le scroll en douceur
