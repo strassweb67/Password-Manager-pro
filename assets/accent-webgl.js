@@ -1,10 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════════
    RENAISSANCE — Accents « diamants » au-dessus des titres.
    • Desktop (GPU large) : vrai verre WebGL (transmission / reflets), comme l'intro.
-   • Mobile / navigateurs fragiles / WebViews : diamant SVG taillé (brillant),
-     facettes vectorielles + dégradé verre + reflet qui balaie la pierre + léger
-     flottement. Vectoriel = net à toutes tailles, ultra-léger, animé par le
-     compositeur → AUCUN contexte WebGL, donc jamais de blanc/glitch/plantage.
+   • Mobile / navigateurs fragiles / WebViews : MÊME octaèdre, MÊME géométrie et
+     MÊME éclairage, mais rendu en Canvas 2D (vraies arêtes 3D projetées +
+     facettes à plat + rotation). ~8 triangles par image → featherweight, AUCUN
+     contexte WebGL, donc jamais de blanc/glitch/plantage. Rendu quasi identique
+     au WebGL (la transmission verre, à peine visible à cette taille, en moins).
    ═══════════════════════════════════════════════════════════════════ */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -18,93 +19,124 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   var MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(_ua);
   var DPR_CAP = MOBILE ? 1.6 : 2;
 
-  // ── STABILITÉ MOBILE ────────────────────────────────────────────────
-  // Le vrai verre WebGL (MeshPhysicalMaterial + transmission) est la fonction
-  // la plus lourde de three.js : plusieurs contextes saturent les GPU mobiles →
-  // le diamant devenait blanc/glitché puis disparaissait, ou l'onglet plantait.
-  // → Sur mobile / WebView / navigateurs fragiles, on affiche un diamant SVG
-  //   taillé (facettes + reflet animé) : magnifique, net, léger et SANS WebGL.
-  //   Le vrai verre WebGL reste sur desktop.
+  // Le vrai verre WebGL (transmission) sature les GPU mobiles (blanc/glitch/plantage).
+  // → mobile / fragile / in-app : octaèdre Canvas 2D (identique en forme, sans WebGL).
   var WEAKBROWSER = MOBILE && /YaBrowser|Firefox|FxiOS|Opera Mini|OPR\//i.test(_ua);
   function glLite(){ try{ return localStorage.getItem('rn_gl_lite')==='1'; }catch(e){ return false; } }
   var NO_GL = IN_APP || MOBILE || WEAKBROWSER || glLite();
 
-  /* ─────────────────────────────────────────────────────────────────
-     DIAMANT SVG TAILLÉ (mobile / fragile / in-app) — remplace le canvas
-     ───────────────────────────────────────────────────────────────── */
-  var _uid = 0;
-  function svgGem(el){
-    if (!el || el.tagName !== 'CANVAS') return;             // déjà remplacé
-    var gold = el.hasAttribute && el.hasAttribute('data-gold');
-    var u = 'gm' + (_uid++);
-    var c = gold
-      ? {tab1:'#fff6d0',tab2:'#ffe79c',cl:'#f0c85a',cr:'#e0b53f',pv1:'#e3b53a',pv2:'#8a6810',pc:'#ffde84',pr:'#8f6d0e',spec:'#fffbe8'}
-      : {tab1:'#eef3ff',tab2:'#b9caff',cl:'#7f9bef',cr:'#5f7ce0',pv1:'#6f8ce8',pv2:'#1f337f',pc:'#93aaff',pr:'#2b3f8f',spec:'#ffffff'};
-    var svg =
-      '<svg class="gl-svg '+ (el.className||'') +'" viewBox="0 0 100 100" aria-hidden="true">'
-      + '<defs>'
-      +   '<linearGradient id="pav'+u+'" x1="0" y1="0.34" x2="0" y2="1"><stop offset="0" stop-color="'+c.pv1+'"/><stop offset="1" stop-color="'+c.pv2+'"/></linearGradient>'
-      +   '<linearGradient id="tab'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c.tab1+'"/><stop offset="1" stop-color="'+c.tab2+'"/></linearGradient>'
-      +   '<linearGradient id="gl'+u+'" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.5" stop-color="#fff" stop-opacity="0.9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
-      +   '<clipPath id="cp'+u+'"><path d="M30,14 L70,14 L86,42 L50,95 L14,42 Z"/></clipPath>'
-      + '</defs>'
-      + '<g clip-path="url(#cp'+u+')">'
-      +   '<polygon points="30,14 70,14 62,42 38,42" fill="url(#tab'+u+')"/>'
-      +   '<polygon points="30,14 38,42 14,42" fill="'+c.cl+'"/>'
-      +   '<polygon points="70,14 86,42 62,42" fill="'+c.cr+'"/>'
-      +   '<polygon points="14,42 38,42 50,95" fill="url(#pav'+u+')"/>'
-      +   '<polygon points="38,42 62,42 50,95" fill="'+c.pc+'"/>'
-      +   '<polygon points="62,42 86,42 50,95" fill="'+c.pr+'"/>'
-      +   '<g transform="rotate(-18 50 50)"><rect x="-34" y="-16" width="24" height="150" fill="url(#gl'+u+')"><animateTransform attributeName="transform" type="translate" from="0 0" to="150 0" dur="3.4s" repeatCount="indefinite"/></rect></g>'
-      + '</g>'
-      + '<path d="M30,14 L70,14 L86,42 L50,95 L14,42 Z M30,14 L38,42 M70,14 L62,42 M14,42 L86,42 M38,42 L50,95 M62,42 L50,95" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1" stroke-linejoin="round"/>'
-      + '<ellipse cx="45" cy="24" rx="9" ry="3.6" fill="'+c.spec+'" opacity="0.7"/>'
-      + '</svg>';
-    var tmp = document.createElement('div');
-    tmp.innerHTML = svg;
-    var node = tmp.firstChild;
-    if (el.id) node.id = el.id;                              // conserve #gc-diamond (taille modal)
-    if (el.parentNode) el.parentNode.replaceChild(node, el);
-  }
+  var factory = NO_GL ? makeOcta : makeDiamond;
 
   // Exposé pour les canvases initialisés à la demande (ex. modal géoloc)
   window.__glDiamond = function(el, idx){
-    if (NO_GL) { svgGem(el); return; }
-    makeDiamond(el, idx || 0);
+    if (el && !el.__d) el.__d = factory(el, idx || 0);
   };
 
-  if (NO_GL) {
-    // CSS auto-injecté (marche sur toutes les pages + la modal, sans toucher aux feuilles)
-    var st = document.createElement('style');
-    st.textContent = '.gl-svg{display:block;overflow:visible;animation:glSvgFloat 4.2s ease-in-out infinite;}'
-      + '@keyframes glSvgFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}';
-    (document.head || document.documentElement).appendChild(st);
-    nodes.forEach(function(c){ svgGem(c); });
-    return;
-  }
-
-  /* ─────────────────────────────────────────────────────────────────
-     DESKTOP — vrai verre WebGL, contexte créé/libéré selon la visibilité.
-     ───────────────────────────────────────────────────────────────── */
+  // Créé à l'approche de l'écran, libéré quand il s'éloigne (WebGL : contexte ;
+  // Canvas 2D : simple pause). Guard __d = pas de double init.
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function(es){
       es.forEach(function(e){
         var c = e.target;
         if (e.isIntersecting){
-          if (!c.__d && !c.classList.contains('gl-off')) c.__d = makeDiamond(c, 0);
+          if (!c.__d && !c.classList.contains('gl-off')) c.__d = factory(c, 0);
         } else if (c.__d){ c.__d.dispose(); c.__d = null; }
       });
     }, { rootMargin: '150px' });
     nodes.forEach(function(c){ io.observe(c); });
   } else {
-    nodes.forEach(function(c){ makeDiamond(c, 0); });
+    nodes.forEach(function(c){ if(!c.__d) c.__d = factory(c, 0); });
   }
 
+  /* ─── petits utilitaires 3D (partagés) ─────────────────────────────── */
+  function sub(a,b){ return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]; }
+  function cross(a,b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+  function dot3(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+  function unit(a){ var m=Math.hypot(a[0],a[1],a[2])||1; return [a[0]/m,a[1]/m,a[2]/m]; }
+  function mix3(a,b,k){ return [a[0]+(b[0]-a[0])*k, a[1]+(b[1]-a[1])*k, a[2]+(b[2]-a[2])*k]; }
+  function rgb3(c){ return 'rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')'; }
+
+  var OV = [[0,1.35,0],[0,-1.35,0],[1,0,0],[-1,0,0],[0,0,1],[0,0,-1]];   // sommets octaèdre (y allongé)
+  var OF = [[0,2,4],[0,4,3],[0,3,5],[0,5,2],[1,4,2],[1,3,4],[1,5,3],[1,2,5]]; // 8 faces
+  var OL  = unit([0.40,0.72,0.78]);   // lumière clé (≈ WebGL key)
+  var OL2 = unit([-0.6,-0.35,0.6]);   // lumière d'appoint
+
+  /* ─────────────────────────────────────────────────────────────────
+     OCTAÈDRE Canvas 2D (mobile / fragile / in-app)
+     ───────────────────────────────────────────────────────────────── */
+  function makeOcta(canvas, idx){
+    var ctx;
+    try { ctx = canvas.getContext('2d'); } catch(e){}
+    if (!ctx){ canvas.classList.add('gl-off'); return null; }
+
+    var gold = canvas.hasAttribute && canvas.hasAttribute('data-gold');
+    var P = gold
+      ? { deep:[92,62,4],  lite:[255,206,74], white:[255,241,201] }
+      : { deep:[24,38,108], lite:[150,180,255], white:[212,226,255] };
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    var S = 84;
+    function sizeUp(){ S = canvas.clientWidth || 84; canvas.width = Math.round(S*dpr); canvas.height = Math.round(S*dpr); }
+    sizeUp();
+
+    var onScreen = true, raf = 0, disposed = false, t = 0.7 * (idx || 0);
+
+    function rot(v, ay, ax){
+      var cy=Math.cos(ay), sy=Math.sin(ay), x=v[0]*cy-v[2]*sy, z=v[0]*sy+v[2]*cy, y=v[1];
+      var cx=Math.cos(ax), sx=Math.sin(ax);
+      return [x, y*cx-z*sx, y*sx+z*cx];
+    }
+    function draw(){
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.clearRect(0,0,S,S);
+      var ay=t*0.7, ax=Math.sin(t*0.5)*0.35;
+      var cy = S*0.5 + Math.sin(t*0.6)*S*0.03;                 // léger flottement
+      var rv = OV.map(function(v){ return rot(v,ay,ax); });
+      var d=5.0, base=S*0.25;
+      var pv = rv.map(function(v){ var s=base*(d/(d-v[2])); return [S*0.5 + v[0]*s, cy - v[1]*s]; });
+      var faces=[];
+      for (var i=0;i<OF.length;i++){
+        var f=OF[i], a=rv[f[0]], b=rv[f[1]], c=rv[f[2]];
+        var n=unit(cross(sub(b,a),sub(c,a)));
+        var cen=[(a[0]+b[0]+c[0])/3,(a[1]+b[1]+c[1])/3,(a[2]+b[2]+c[2])/3];
+        if (dot3(n,cen)<0) n=[-n[0],-n[1],-n[2]];               // normale sortante
+        if (n[2]<=0) continue;                                  // faces cachées ignorées
+        var diff=Math.max(0,dot3(n,OL)), fill=Math.max(0,dot3(n,OL2));
+        var shade=Math.min(1, 0.30 + 0.85*diff + 0.15*fill);
+        var col=mix3(P.deep,P.lite,shade);
+        col=mix3(col, P.white, Math.pow(diff,10)*0.7);          // éclat spéculaire
+        faces.push({ z:cen[2], p:[pv[f[0]],pv[f[1]],pv[f[2]]], col:col });
+      }
+      faces.sort(function(A,B){ return A.z-B.z; });
+      for (var j=0;j<faces.length;j++){
+        var fc=faces[j];
+        ctx.beginPath();
+        ctx.moveTo(fc.p[0][0],fc.p[0][1]); ctx.lineTo(fc.p[1][0],fc.p[1][1]); ctx.lineTo(fc.p[2][0],fc.p[2][1]); ctx.closePath();
+        ctx.fillStyle=rgb3(fc.col); ctx.fill();
+        ctx.lineJoin='round'; ctx.strokeStyle='rgba(255,255,255,.28)'; ctx.lineWidth=1; ctx.stroke();
+      }
+    }
+    function frame(){ raf=0; if(!onScreen||disposed) return; t+=0.016; draw(); loop(); }
+    function loop(){ if(!raf && onScreen && !disposed) raf=requestAnimationFrame(frame); }
+    function onResize(){ if(disposed) return; sizeUp(); }
+    addEventListener('resize', onResize, { passive:true });
+    loop();
+
+    return { dispose:function(){
+      if (disposed) return; disposed=true;
+      if (raf) cancelAnimationFrame(raf);
+      removeEventListener('resize', onResize);
+    } };
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     DIAMANT DE VERRE — WebGL (desktop)
+     ───────────────────────────────────────────────────────────────── */
   function makeDiamond(canvas, idx){
     var renderer;
     try {
       renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:!MOBILE, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false });
-    } catch(e){ svgGem(canvas); return null; }
+    } catch(e){ makeOcta(canvas, idx); return null; }
 
     function csize(){ return canvas.clientWidth || 96; }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, DPR_CAP));
