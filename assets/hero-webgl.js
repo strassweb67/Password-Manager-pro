@@ -52,23 +52,40 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   const rim = new THREE.PointLight(0x6ea0ff, 260, 140); rim.position.set(-14,-6,12); scene.add(rim);
   const rim2 = new THREE.PointLight(0x9a6bff, 170, 140); rim2.position.set(14,8,-6); scene.add(rim2);
 
-  // Bulles : chrome gris métallisé OPAQUE (même look que l'intro), jamais coupées
+  // Chaînes en métal : MÊME matériau chrome sombre que les boules d'avant
+  // (couleur + reflets identiques). Maillons torus alternés à 90° → ils
+  // s'imbriquent en vraies chaînes. Elles flottent / dérivent comme les boules.
   const ballMat = new THREE.MeshPhysicalMaterial({
     color:new THREE.Color(0x14161d), metalness:1.0, roughness:0.2,
     clearcoat:1, clearcoatRoughness:0.1, envMapIntensity:2.1
   });
   const orbs = new THREE.Group(); scene.add(orbs);
-  const geo = new THREE.SphereGeometry(1, SPH, SPH);
-  const COUNT = LITE ? 5 : (LOW ? 8 : 14);
-  const balls = [];
+  const linkGeo = new THREE.TorusGeometry(0.5, 0.17, LOW?6:8, LOW?14:22);
+  const LINK_STEP = 0.5;                       // = rayon du maillon → imbrication
+  function makeChain(n){
+    const g = new THREE.Group();
+    for (let i=0;i<n;i++){
+      const l = new THREE.Mesh(linkGeo, ballMat);
+      l.position.y = i*LINK_STEP;
+      if (i%2) l.rotation.y = Math.PI/2;        // un maillon sur deux tourné à 90°
+      l.renderOrder = 2;
+      g.add(l);
+    }
+    const off=(n-1)*LINK_STEP/2; g.children.forEach(c=>c.position.y-=off);  // centré
+    return g;
+  }
+  const COUNT = LITE ? 3 : (LOW ? 5 : 10);
+  const chains = [];
   for (let i=0;i<COUNT;i++){
-    const b = new THREE.Mesh(geo, ballMat);
-    const r0 = 0.7 + Math.random()*1.5;
+    const n = LOW ? 4 : (4 + Math.floor(Math.random()*3));   // 4 à 6 maillons (lisible comme chaîne)
+    const b = makeChain(n);
+    const r0 = 1.0 + Math.random()*1.3;
     b.scale.setScalar(r0);
     b.position.set((Math.random()-.5)*30, (Math.random()-.5)*22, (Math.random()-.5)*12);
-    b.renderOrder = 2;
-    b.userData = { sp:0.25+Math.random()*0.7, ph:Math.random()*6.28, base:b.position.clone(), r0:r0 };
-    orbs.add(b); balls.push(b);
+    b.rotation.set(Math.random()*6.28, Math.random()*6.28, Math.random()*6.28);
+    b.userData = { sp:0.25+Math.random()*0.7, ph:Math.random()*6.28, base:b.position.clone(), r0:r0,
+      spin:new THREE.Vector3((Math.random()-.5)*0.5, (Math.random()-.5)*0.6, (Math.random()-.5)*0.4) };
+    orbs.add(b); chains.push(b);
   }
 
   // Poussière d'étoiles
@@ -154,9 +171,12 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     const lift = rise * rise * 34;                      // accélère vers le haut (ease-in)
     orbs.position.y = lift;                             // les bulles montent
     orbs.rotation.y = Math.sin(t*0.06)*0.06 + m.x*0.1;
-    balls.forEach((b,i) => {
+    chains.forEach((b,i) => {
       b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*2.2 + rise*(3 + (i%5))*0.9;
       b.position.x = b.userData.base.x + Math.cos(t*b.userData.sp*0.8+b.userData.ph)*1.6;
+      b.rotation.x += b.userData.spin.x*0.016;   // tournent doucement → reflets métal vivants
+      b.rotation.y += b.userData.spin.y*0.016;
+      b.rotation.z += b.userData.spin.z*0.016;
       b.scale.setScalar(b.userData.r0 * (1 - rise*0.45));  // se dispersent/rapetissent en montant
     });
     stars.position.y = rise * 10;
