@@ -11,6 +11,13 @@
 <html lang="fr" data-sig="brice">
 <head>
 <meta charset="UTF-8">
+<script>
+/* Réactivation WebGL — remet à zéro, UNE seule fois par navigateur, la sécurité
+   anti-freeze (rn_gl_lite) qui s'était déclenchée après d'anciens plantages et
+   qui bloquait le R 3D + les effets. Le filet reste actif : si un VRAI plantage
+   WebGL survient ensuite, la sécurité peut se re-déclencher normalement. */
+try{ if(localStorage.getItem('rn_gl_reset')!=='3'){ localStorage.removeItem('rn_gl_lite'); localStorage.setItem('rn_gl_reset','3'); } }catch(e){}
+</script>
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
 <meta name="copyright" content="© Renaissance — Yanis BGH. Code signé @brice. Reproduction interdite.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
