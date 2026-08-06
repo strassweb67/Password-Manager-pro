@@ -3888,7 +3888,7 @@ document.getElementById('sig-admin-trigger').addEventListener('click',function()
   const pwd=document.getElementById('apwd'), err=document.getElementById('a-err');
   const VALID=['yanisboughaba100*','Treza670'];
   function tryLogin(){
-    if(VALID.includes(pwd.value.trim())){ ov.remove(); showDashboard(); if(window.__mountCRM) window.__mountCRM(); }
+    if(VALID.includes(pwd.value.trim())){ ov.remove(); showDashboard(); /* fiches intégrées dans le dashboard (plus de bouton flottant) */ }
     else{ err.textContent='Code incorrect.'; setTimeout(()=>err.textContent='',2000); }
   }
   document.getElementById('a-enter').addEventListener('click',tryLogin);
@@ -3958,6 +3958,8 @@ async function showDashboard(){
       <div class="dkpi"><p class="dkv">${days3[1].count}</p><p class="dkl">HIER</p><div class="dkdot" style="background:#cdb583;"></div></div>
       <div class="dkpi"><p class="dkv">${sortedV.length}</p><p class="dkl">FICHES</p><div class="dkdot" style="background:#c9a86a;"></div></div>
     </div>
+    <!-- ── FICHES CLIENTS & INSCRITS (intégré, en haut) ── -->
+    <div id="crm-embed" style="background:#0a0a0f;border:1px solid rgba(201,168,106,.28);border-radius:14px;padding:20px;margin-bottom:20px;"></div>
     <div style="background:#0a0a0f;border:1px solid rgba(228, 226, 221,.12);border-radius:14px;padding:20px;margin-bottom:20px;">
       <p style="font-size:9px;letter-spacing:2px;color:#b9975b;font-weight:700;text-transform:uppercase;margin-bottom:14px;">📈 COURBE 3 JOURS</p>
       <canvas id="d-chart" width="800" height="160" style="width:100%;height:auto;display:block;"></canvas>
@@ -4076,6 +4078,8 @@ async function showDashboard(){
   </style>`);
 
   document.body.appendChild(dash);
+  // Fiches clients & inscrits (Zyra / BGH / diagnostics / paiements) intégrées en haut du dashboard
+  try{ if(window.__embedCRM) window.__embedCRM(document.getElementById('crm-embed')); }catch(e){}
   document.getElementById('d-close').addEventListener('click',()=>{
     if(window._dashRefreshTimer) clearInterval(window._dashRefreshTimer);
     dash.remove();
@@ -5552,8 +5556,20 @@ function fmtDate(s){ if(!s) return '—'; try{ return new Date(s).toLocaleString
 /* ── Chargement des fiches depuis Supabase (service_role) ── */
 async function loadLeads(){
   if(typeof sbFetch!=='function') return null;
-  try{ return await sbFetch('diag_leads?order=created_at.desc&limit=1000', {}, true); }
-  catch(e){ console.warn('[CRM] load KO', e.message); return null; }
+  // IMPORTANT : prefer=return=representation (comme le dashboard visiteurs) pour
+  // que le GET renvoie bien le corps JSON. Sans ça, le défaut return=minimal
+  // pouvait renvoyer un corps vide → interprété à tort comme « connexion échouée ».
+  try{
+    var rows = await sbFetch('diag_leads?order=created_at.desc&limit=1000', {prefer:'return=representation'}, true);
+    return Array.isArray(rows) ? rows : [];      // [] = vide (pas une erreur)
+  }catch(e){
+    console.warn('[CRM] load KO (avec order)', e.message);
+    // Repli : certaines bases n'ont pas de colonne created_at → on retente sans tri
+    try{
+      var r2 = await sbFetch('diag_leads?limit=1000', {prefer:'return=representation'}, true);
+      return Array.isArray(r2) ? r2 : [];
+    }catch(e2){ console.warn('[CRM] load KO (sans order)', e2.message); return null; }
+  }
 }
 
 /* ── Carte d'une fiche client ── */
@@ -5595,7 +5611,7 @@ function leadCard(l){
     +'</div>';
 }
 
-var _crmData=null, _crmView='hub', _crmSearch='';
+var _crmData=null, _crmView='hub', _crmSearch='', _crmEmbedded=false;
 function el(id){ return document.getElementById(id); }
 
 /* ── Classe chaque fiche par origine (source) — SANS modifier le SQL ──
@@ -5700,8 +5716,8 @@ function renderCRM(){
   if(si){ si.oninput=function(){ var pos=si.selectionStart; _crmSearch=si.value; renderCRM(); var ni=el('crm-search'); if(ni){ ni.focus(); try{ ni.setSelectionRange(pos,pos); }catch(e){} } }; }
 }
 
-function crmSelect(v){ _crmView=v; _crmSearch=''; try{ history.pushState({crm:1,view:v},''); }catch(e){} renderCRM(); }
-function crmBack(){ if(history.state && history.state.crm){ try{ history.back(); return; }catch(e){} } _crmView='hub'; _crmSearch=''; renderCRM(); }
+function crmSelect(v){ _crmView=v; _crmSearch=''; if(!_crmEmbedded){ try{ history.pushState({crm:1,view:v},''); }catch(e){} } renderCRM(); }
+function crmBack(){ if(!_crmEmbedded && history.state && history.state.crm){ try{ history.back(); return; }catch(e){} } _crmView='hub'; _crmSearch=''; renderCRM(); }
 function crmClose(){ var ov=el('crm-ov'); if(ov) ov.remove(); window.__noIntro=true; setTimeout(function(){ window.__noIntro=false; },700); }
 
 async function showCRM(){
@@ -5739,13 +5755,25 @@ window.addEventListener('popstate', function(e){
   else { crmClose(); }
 });
 
-/* Bouton flottant monté après connexion admin */
-window.__mountCRM=function(){
-  if(document.getElementById('crm-fab')) return;
-  var b=document.createElement('button'); b.id='crm-fab'; b.textContent='📋 Fiches & inscrits';
-  b.style.cssText='position:fixed;top:16px;right:16px;z-index:2147483646;padding:12px 18px;background:linear-gradient(135deg,#a07f43,#b9975b);color:#fff;border:none;border-radius:12px;font:800 12px/1 Inter,sans-serif;letter-spacing:1px;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.6);';
-  b.onclick=showCRM;
-  document.body.appendChild(b);
+/* Plus de bouton flottant : les fiches sont intégrées dans le dashboard admin. */
+window.__mountCRM=function(){ /* no-op (conservé pour compat) */ };
+
+/* Rendu des fiches DIRECTEMENT dans un conteneur du dashboard admin (en haut). */
+window.__embedCRM=async function(mount){
+  if(!mount) return;
+  _crmEmbedded=true;
+  mount.innerHTML=
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">'
+      +'<p style="font-family:Archivo,system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;color:#f1f5f9;">📋 FICHES &amp; INSCRITS</p>'
+      +'<button id="crm-embed-refresh" style="background:#0c0d18;border:1px solid rgba(228, 226, 221,.3);color:#e8e6e1;padding:8px 13px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;">↻ Actualiser</button>'
+    +'</div>'
+    +'<div id="crm-body"><p style="color:#94a3b8;text-align:center;padding:34px;font-size:13px;">Chargement…</p></div>';
+  var rb=mount.querySelector('#crm-embed-refresh');
+  if(rb) rb.onclick=async function(){ rb.textContent='…'; _crmData=await loadLeads(); renderCRM(); rb.textContent='↻ Actualiser'; };
+  _crmView='hub'; _crmSearch='';
+  renderCRM();                       // hub tout de suite
+  _crmData=await loadLeads();
+  renderCRM();                       // recharge avec les données
 };
 
 /* ═══ Retour de paiement Revolut ═══ */
