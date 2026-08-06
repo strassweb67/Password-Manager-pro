@@ -74,17 +74,20 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     const off=(n-1)*LINK_STEP/2; g.children.forEach(c=>c.position.y-=off);  // centré
     return g;
   }
-  const COUNT = LITE ? 3 : (LOW ? 5 : 10);
+  const COUNT = LITE ? 6 : (LOW ? 10 : 18);          // beaucoup plus de chaînes
   const chains = [];
   for (let i=0;i<COUNT;i++){
-    const n = LOW ? 4 : (4 + Math.floor(Math.random()*3));   // 4 à 6 maillons (lisible comme chaîne)
+    const n = LOW ? 5 : (6 + Math.floor(Math.random()*4));   // 6 à 9 maillons → chaînes plus longues
     const b = makeChain(n);
-    const r0 = 1.0 + Math.random()*1.3;
+    const r0 = 0.85 + Math.random()*0.9;
     b.scale.setScalar(r0);
-    b.position.set((Math.random()-.5)*30, (Math.random()-.5)*22, (Math.random()-.5)*12);
+    // resserrées en X pour rester visibles sur mobile (écran étroit), étalées
+    // en Y avec un fort biais vers le HAUT (demande : « plus partout en haut »)
+    b.position.set((Math.random()-.5)*18, -3 + Math.random()*24, (Math.random()-.5)*9);
     b.rotation.set(Math.random()*6.28, Math.random()*6.28, Math.random()*6.28);
-    b.userData = { sp:0.25+Math.random()*0.7, ph:Math.random()*6.28, base:b.position.clone(), r0:r0,
-      spin:new THREE.Vector3((Math.random()-.5)*0.5, (Math.random()-.5)*0.6, (Math.random()-.5)*0.4) };
+    b.userData = { sp:0.3+Math.random()*0.9, ph:Math.random()*6.28, base:b.position.clone(), r0:r0,
+      ax:1.8+Math.random()*2.4, ay:2.4+Math.random()*2.6, az:0.8+Math.random()*1.4,   // amplitudes de dérive
+      spin:new THREE.Vector3((Math.random()-.5)*1.0, (Math.random()-.5)*1.1, (Math.random()-.5)*0.8) };
     orbs.add(b); chains.push(b);
   }
 
@@ -172,12 +175,15 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     orbs.position.y = lift;                             // les bulles montent
     orbs.rotation.y = Math.sin(t*0.06)*0.06 + m.x*0.1;
     chains.forEach((b,i) => {
-      b.position.y = b.userData.base.y + Math.sin(t*b.userData.sp+b.userData.ph)*2.2 + rise*(3 + (i%5))*0.9;
-      b.position.x = b.userData.base.x + Math.cos(t*b.userData.sp*0.8+b.userData.ph)*1.6;
-      b.rotation.x += b.userData.spin.x*0.016;   // tournent doucement → reflets métal vivants
-      b.rotation.y += b.userData.spin.y*0.016;
-      b.rotation.z += b.userData.spin.z*0.016;
-      b.scale.setScalar(b.userData.r0 * (1 - rise*0.45));  // se dispersent/rapetissent en montant
+      const u = b.userData;
+      // dérive nette dans TOUTES les directions (bougent partout)
+      b.position.y = u.base.y + Math.sin(t*u.sp+u.ph)*u.ay + rise*(3 + (i%5))*0.9;
+      b.position.x = u.base.x + Math.cos(t*u.sp*0.85+u.ph)*u.ax;
+      b.position.z = u.base.z + Math.sin(t*u.sp*0.6+u.ph*1.3)*u.az;
+      b.rotation.x += u.spin.x*0.016;   // tournent franchement → reflets métal vivants
+      b.rotation.y += u.spin.y*0.016;
+      b.rotation.z += u.spin.z*0.016;
+      b.scale.setScalar(u.r0 * (1 - rise*0.45));  // se dispersent/rapetissent en montant
     });
     stars.position.y = rise * 10;
     stars.rotation.y = t*0.012 + m.x*0.1; stars.rotation.x = m.y*0.05;
