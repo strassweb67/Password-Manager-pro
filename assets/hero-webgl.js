@@ -74,16 +74,16 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     const off=(n-1)*LINK_STEP/2; g.children.forEach(c=>c.position.y-=off);  // centré
     return g;
   }
-  const COUNT = LITE ? 6 : (LOW ? 10 : 18);          // beaucoup plus de chaînes
+  const COUNT = LITE ? 8 : (LOW ? 13 : 22);          // beaucoup de chaînes, réparties partout
   const chains = [];
   for (let i=0;i<COUNT;i++){
     const n = LOW ? 5 : (6 + Math.floor(Math.random()*4));   // 6 à 9 maillons → chaînes plus longues
     const b = makeChain(n);
-    const r0 = 0.85 + Math.random()*0.9;
+    const r0 = 1.0 + Math.random()*0.85;
     b.scale.setScalar(r0);
-    // resserrées en X pour rester visibles sur mobile (écran étroit), étalées
-    // en Y avec un fort biais vers le HAUT (demande : « plus partout en haut »)
-    b.position.set((Math.random()-.5)*18, -3 + Math.random()*24, (Math.random()-.5)*9);
+    // réparties partout sur la hauteur du hero — étalées de bas en haut (demande :
+    // « plus partout et plus bas », pas seulement en haut)
+    b.position.set((Math.random()-.5)*22, -14 + Math.random()*26, (Math.random()-.5)*10);
     b.rotation.set(Math.random()*6.28, Math.random()*6.28, Math.random()*6.28);
     b.userData = { sp:0.3+Math.random()*0.9, ph:Math.random()*6.28, base:b.position.clone(), r0:r0,
       ax:1.8+Math.random()*2.4, ay:2.4+Math.random()*2.6, az:0.8+Math.random()*1.4,   // amplitudes de dérive
@@ -171,13 +171,13 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     t += 0.016;
     m.x += (m.tx-m.x)*0.05; m.y += (m.ty-m.y)*0.05;
     rise += (scrollProg - rise) * 0.08;                 // suit le scroll en douceur
-    const lift = rise * rise * 34;                      // accélère vers le haut (ease-in)
-    orbs.position.y = lift;                             // les bulles montent
+    const lift = rise * rise * 20;                      // montée plus douce → les chaînes restent visibles plus bas
+    orbs.position.y = lift;                             // les chaînes montent (léger)
     orbs.rotation.y = Math.sin(t*0.06)*0.06 + m.x*0.1;
     chains.forEach((b,i) => {
       const u = b.userData;
       // dérive nette dans TOUTES les directions (bougent partout)
-      b.position.y = u.base.y + Math.sin(t*u.sp+u.ph)*u.ay + rise*(3 + (i%5))*0.9;
+      b.position.y = u.base.y + Math.sin(t*u.sp+u.ph)*u.ay + rise*(2 + (i%4))*0.5;
       b.position.x = u.base.x + Math.cos(t*u.sp*0.85+u.ph)*u.ax;
       b.position.z = u.base.z + Math.sin(t*u.sp*0.6+u.ph*1.3)*u.az;
       b.rotation.x += u.spin.x*0.016;   // tournent franchement → reflets métal vivants

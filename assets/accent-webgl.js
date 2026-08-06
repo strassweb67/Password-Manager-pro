@@ -72,7 +72,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     var gold = canvas.hasAttribute && canvas.hasAttribute('data-gold');
     var P = gold
       ? { deep:[92,62,4],  lite:[255,206,74], white:[255,241,201] }
-      : { deep:[24,38,108], lite:[150,180,255], white:[212,226,255] };
+      : { deep:[6,13,52], lite:[58,104,240], white:[200,218,255] };   // bleu nuit + reflet brillant
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     var S = 84;
@@ -162,7 +162,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
       transmission: 1, thickness: 2.2, ior: 1.5,
       clearcoat: 1, clearcoatRoughness: 0.03,
       specularIntensity: 1, specularColor: new THREE.Color(0xffffff),
-      attenuationColor: new THREE.Color(gold?0xffcc00:0x2f5bff), attenuationDistance: 0.7,
+      attenuationColor: new THREE.Color(gold?0xffcc00:0x16277d), attenuationDistance: 0.6,
       envMapIntensity: 1.35, transparent: true
     });
     var geo = new THREE.OctahedronGeometry(1.2, 0);
