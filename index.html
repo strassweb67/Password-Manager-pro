@@ -5556,20 +5556,23 @@ function fmtDate(s){ if(!s) return '—'; try{ return new Date(s).toLocaleString
 /* ── Chargement des fiches depuis Supabase (service_role) ── */
 async function loadLeads(){
   if(typeof sbFetch!=='function') return null;
-  // IMPORTANT : prefer=return=representation (comme le dashboard visiteurs) pour
-  // que le GET renvoie bien le corps JSON. Sans ça, le défaut return=minimal
-  // pouvait renvoyer un corps vide → interprété à tort comme « connexion échouée ».
-  try{
-    var rows = await sbFetch('diag_leads?order=created_at.desc&limit=1000', {prefer:'return=representation'}, true);
-    return Array.isArray(rows) ? rows : [];      // [] = vide (pas une erreur)
-  }catch(e){
-    console.warn('[CRM] load KO (avec order)', e.message);
-    // Repli : certaines bases n'ont pas de colonne created_at → on retente sans tri
+  // Cause réelle de l'erreur « Connexion Supabase échouée » : le tri par
+  // created_at renvoyait 400 si cette colonne n'existe pas sur diag_leads
+  // (la table est alimentée avec la colonne "ts"). On trie donc sur ts, avec
+  // des replis (created_at, puis sans tri). prefer=return=representation pour
+  // récupérer le corps JSON. Un tableau vide [] = 0 fiche, PAS une erreur.
+  var queries=[
+    'diag_leads?order=ts.desc&limit=1000',
+    'diag_leads?order=created_at.desc&limit=1000',
+    'diag_leads?limit=1000'
+  ];
+  for(var i=0;i<queries.length;i++){
     try{
-      var r2 = await sbFetch('diag_leads?limit=1000', {prefer:'return=representation'}, true);
-      return Array.isArray(r2) ? r2 : [];
-    }catch(e2){ console.warn('[CRM] load KO (sans order)', e2.message); return null; }
+      var rows=await sbFetch(queries[i], {prefer:'return=representation'}, true);
+      if(Array.isArray(rows)) return rows;       // succès (même vide)
+    }catch(e){ console.warn('[CRM] load KO ['+i+']', e.message); }
   }
+  return null;                                   // toutes les tentatives ont échoué (vraie panne)
 }
 
 /* ── Carte d'une fiche client ── */
