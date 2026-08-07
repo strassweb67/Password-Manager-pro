@@ -3984,7 +3984,6 @@ async function showDashboard(){
       <div class="dkpi"><p class="dkv">${sortedV.length}</p><p class="dkl">FICHES</p><div class="dkdot" style="background:#c9a86a;"></div></div>
     </div>
     <!-- ── FICHES CLIENTS & INSCRITS (intégré, en haut) ── -->
-    <div id="crm-embed" style="background:#0a0a0f;border:1px solid rgba(201,168,106,.28);border-radius:14px;padding:20px;margin-bottom:20px;"></div>
     <div style="background:#0a0a0f;border:1px solid rgba(228, 226, 221,.12);border-radius:14px;padding:20px;margin-bottom:20px;">
       <p style="font-size:9px;letter-spacing:2px;color:#b9975b;font-weight:700;text-transform:uppercase;margin-bottom:14px;">📈 COURBE 3 JOURS</p>
       <canvas id="d-chart" width="800" height="160" style="width:100%;height:auto;display:block;"></canvas>
@@ -4060,8 +4059,21 @@ async function showDashboard(){
       </div>
     </div>
 
-    <!-- ── SYNC SUPABASE ── -->
-    <div style="border-top:1px solid rgba(228, 226, 221,.12);padding-top:20px;margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+    <!-- ── ACCÈS FICHES & RÉSERVATIONS (boutons → page dédiée avec retour + recherche) ── -->
+    <div style="border-top:1px solid rgba(228, 226, 221,.12);padding-top:20px;margin-top:8px;margin-bottom:20px;">
+      <p style="font-size:9px;letter-spacing:2px;color:#b9975b;font-weight:700;text-transform:uppercase;margin-bottom:14px;">📋 Fiches clients &amp; réservations</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <button id="adm-btn-fiches" style="padding:18px 14px;background:linear-gradient(135deg,#171326,#0c0d18);border:1px solid rgba(201,168,106,.35);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">📋 Fiches clients<span style="font-size:10px;font-weight:600;color:#94a3b8;">Diagnostics terminés · recherche</span></button>
+        <button id="adm-btn-zyra" style="padding:18px 14px;background:linear-gradient(135deg,#141a33,#0c0d18);border:1px solid rgba(111,136,255,.4);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">🚀 Résa Zyra (beta)<span style="font-size:10px;font-weight:600;color:#94a3b8;">Inscrits Zyra</span></button>
+        <button id="adm-btn-bgh" style="padding:18px 14px;background:linear-gradient(135deg,#1c1710,#0c0d18);border:1px solid rgba(201,168,106,.4);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">🎟️ Résa BGH Party<span style="font-size:10px;font-weight:600;color:#94a3b8;">Inscrits soirées</span></button>
+        <button id="adm-btn-diag2" style="padding:18px 14px;background:linear-gradient(135deg,#0f1a24,#0c0d18);border:1px solid rgba(56,189,248,.35);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">⏳ Diagnostics tentés<span style="font-size:10px;font-weight:600;color:#94a3b8;">Non terminés</span></button>
+      </div>
+    </div>
+
+    <!-- ── RÉGLAGES SITE & MAJ ── -->
+    <div style="border-top:1px solid rgba(228, 226, 221,.12);padding-top:20px;margin-top:8px;">
+      <p style="font-size:9px;letter-spacing:2px;color:#b9975b;font-weight:700;text-transform:uppercase;margin-bottom:14px;">⚙️ Réglages site &amp; mises à jour</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
       <button id="btn-sync-init" style="padding:13px 8px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:10px;color:#22c55e;font-size:10.5px;font-weight:800;letter-spacing:1.5px;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.9"/></svg>
         SYNC INITIALE
@@ -4074,6 +4086,7 @@ async function showDashboard(){
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
         TOUT SUPPRIMER
       </button>
+      </div>
     </div>
 
     <!-- Console Supabase -->
@@ -4104,7 +4117,13 @@ async function showDashboard(){
 
   document.body.appendChild(dash);
   // Fiches clients & inscrits (Zyra / BGH / diagnostics / paiements) intégrées en haut du dashboard
-  try{ if(window.__embedCRM) window.__embedCRM(document.getElementById('crm-embed')); }catch(e){}
+  // Accès fiches/résa via les boutons en bas du dashboard (plus d'embed en haut)
+  (function(){
+    var fb=document.getElementById('adm-btn-fiches'); if(fb) fb.onclick=function(){ if(window.showCRM) window.showCRM('fiches'); };
+    var zb=document.getElementById('adm-btn-zyra');   if(zb) zb.onclick=function(){ if(window.showCRM) window.showCRM('zyra'); };
+    var bb=document.getElementById('adm-btn-bgh');     if(bb) bb.onclick=function(){ if(window.showCRM) window.showCRM('bgh'); };
+    var db=document.getElementById('adm-btn-diag2');   if(db) db.onclick=function(){ if(window.showCRM) window.showCRM('attempts'); };
+  })();
   document.getElementById('d-close').addEventListener('click',()=>{
     if(window._dashRefreshTimer) clearInterval(window._dashRefreshTimer);
     dash.remove();
@@ -5758,8 +5777,8 @@ function crmSelect(v){ _crmView=v; _crmSearch=''; if(!_crmEmbedded){ try{ histor
 function crmBack(){ if(!_crmEmbedded && history.state && history.state.crm){ try{ history.back(); return; }catch(e){} } _crmView='hub'; _crmSearch=''; renderCRM(); }
 function crmClose(){ var ov=el('crm-ov'); if(ov) ov.remove(); window.__noIntro=true; setTimeout(function(){ window.__noIntro=false; },700); }
 
-async function showCRM(){
-  window.__noIntro=true;
+async function showCRM(startView){
+  window.__noIntro=true; _crmEmbedded=false;
   var ov=el('crm-ov');
   if(!ov){
     ov=document.createElement('div'); ov.id='crm-ov';
@@ -5776,9 +5795,9 @@ async function showCRM(){
     el('crm-close').onclick=function(){ crmClose(); };
     el('crm-refresh').onclick=async function(){ _crmData=await loadLeads(); renderCRM(); };
   }
-  _crmView='hub'; _crmSearch='';
-  try{ history.pushState({crm:1,view:'hub'},''); }catch(e){}
-  renderCRM();                       // affiche le hub tout de suite
+  _crmView=startView||'hub'; _crmSearch='';
+  try{ history.pushState({crm:1,view:_crmView},''); }catch(e){}
+  renderCRM();                       // affiche la vue demandée tout de suite
   _crmData=await loadLeads();
   renderCRM();                       // recharge avec les données
 }
