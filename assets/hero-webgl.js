@@ -22,11 +22,11 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   function markLite(){ try{ localStorage.setItem('rn_gl_lite','1'); }catch(e){} }
   var LITE = IN_APP || LOWMEM || WEAKBROWSER || glLite();
   var LOW = IN_APP || MOBILE;
-  // ZÉRO WEBGL sur navigateurs fragiles (Yandex/Firefox mobile), in-app, ou
-  // appareil ayant déjà planté : le fond du hero reste un simple dégradé sombre
-  // (le contenu s'affiche normalement). Aucun contexte WebGL = aucun gel.
-  // Cohérent avec l'intro statique. Le fond animé reste sur Chrome/Safari/desktop.
-  if (IN_APP || WEAKBROWSER || glLite()) return;
+  // Chaînes WebGL FORCÉES sur TOUS les navigateurs (demande). Seules les WebViews
+  // in-app gardent un fond simple (WebGL trop instable en webview → pas de gel du
+  // tunnel social). Si la création du contexte échoue, le try/catch plus bas
+  // (catch → return) laisse simplement le fond dégradé, sans casser la page.
+  if (IN_APP) return;
   // Résolution interne abaissée sur mobile / appareils faibles (invisible,
   // soulage le GPU — cohérent avec l'intro).
   var DPR_CAP = LITE ? 1.0 : (LOWMEM ? 1.1 : (MOBILE ? 1.3 : 2));
