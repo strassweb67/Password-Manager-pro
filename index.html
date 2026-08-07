@@ -24,7 +24,7 @@
 try{ localStorage.removeItem('rn_gl_lite'); }catch(e){}
 /* ── REPÈRE DE VERSION (pour vérifier d'un coup d'œil qu'on est bien sur la
       dernière version en ligne, et non une vieille page en cache) ── */
-window.__BUILD='2026-08-07 · 05h · admin-boutons';
+window.__BUILD='2026-08-07 · 06h · fiches-visiteurs';
 try{ console.log('%cRENAISSANCE — build '+window.__BUILD,'background:#0c1024;color:#8ea6ff;font-weight:700;padding:4px 10px;border-radius:6px;'); }catch(e){}
 </script>
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
@@ -4019,6 +4019,14 @@ async function showDashboard(){
       </div>
     </div>
 
+    <!-- ── FICHES CLIENTS (visiteurs) — page plein écran ouverte par le bouton « Fiches clients ».
+         Masquée par défaut ; les stats/compteurs restent en haut du dashboard. ── -->
+    <div id="vfiches-ov" style="display:none;position:fixed;inset:0;z-index:2147483646;background:#000;overflow-y:auto;padding:22px 14px 60px;font-family:Inter,sans-serif;">
+    <div style="max-width:1100px;margin:0 auto;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+      <button id="vfiches-back" style="background:#0c0d18;border:1px solid rgba(228,226,221,.3);color:#e8e6e1;padding:9px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">← Retour</button>
+      <p style="font-family:Archivo,system-ui,sans-serif;font-size:15px;font-weight:800;letter-spacing:1px;color:#f1f5f9;margin:0;">📋 Fiches clients <span style="color:#94a3b8;font-weight:600;font-size:12px;">· recherche ville / IP / OS (Android · iPhone…)</span></p>
+    </div>
     <!-- ── FILTRES OS + BARRE RECHERCHE ── -->
     <div style="margin-bottom:16px;display:flex;flex-direction:column;gap:12px;">
       <!-- Barre de recherche -->
@@ -4062,15 +4070,17 @@ async function showDashboard(){
         ${sortedV.length===0?'<p style="color:#334155;font-size:11px;grid-column:1/-1;text-align:center;padding:24px;">Aucun visiteur.</p>':''}
       </div>
     </div>
+    </div><!-- /wrap vfiches -->
+    </div><!-- /vfiches-ov -->
 
     <!-- ── ACCÈS FICHES & RÉSERVATIONS (boutons → page dédiée avec retour + recherche) ── -->
     <div style="border-top:1px solid rgba(228, 226, 221,.12);padding-top:20px;margin-top:8px;margin-bottom:20px;">
       <p style="font-size:9px;letter-spacing:2px;color:#b9975b;font-weight:700;text-transform:uppercase;margin-bottom:14px;">📋 Fiches clients &amp; réservations</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <button id="adm-btn-fiches" style="padding:18px 14px;background:linear-gradient(135deg,#171326,#0c0d18);border:1px solid rgba(201,168,106,.35);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">📋 Fiches clients<span style="font-size:10px;font-weight:600;color:#94a3b8;">Diagnostics terminés · recherche</span></button>
+        <button id="adm-btn-fiches" style="padding:18px 14px;background:linear-gradient(135deg,#171326,#0c0d18);border:1px solid rgba(201,168,106,.35);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">📋 Fiches clients<span style="font-size:10px;font-weight:600;color:#94a3b8;">Visiteurs · recherche Android / IP / OS</span></button>
         <button id="adm-btn-zyra" style="padding:18px 14px;background:linear-gradient(135deg,#141a33,#0c0d18);border:1px solid rgba(111,136,255,.4);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">🚀 Résa Zyra (beta)<span style="font-size:10px;font-weight:600;color:#94a3b8;">Inscrits Zyra</span></button>
         <button id="adm-btn-bgh" style="padding:18px 14px;background:linear-gradient(135deg,#1c1710,#0c0d18);border:1px solid rgba(201,168,106,.4);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">🎟️ Résa BGH Party<span style="font-size:10px;font-weight:600;color:#94a3b8;">Inscrits soirées</span></button>
-        <button id="adm-btn-diag2" style="padding:18px 14px;background:linear-gradient(135deg,#0f1a24,#0c0d18);border:1px solid rgba(56,189,248,.35);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">⏳ Diagnostics tentés<span style="font-size:10px;font-weight:600;color:#94a3b8;">Non terminés</span></button>
+        <button id="adm-btn-diag2" style="padding:18px 14px;background:linear-gradient(135deg,#0f1a24,#0c0d18);border:1px solid rgba(56,189,248,.35);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">📊 Diagnostics<span style="font-size:10px;font-weight:600;color:#94a3b8;">Fiches terminées + tentés</span></button>
       </div>
     </div>
 
@@ -4123,10 +4133,16 @@ async function showDashboard(){
   // Fiches clients & inscrits (Zyra / BGH / diagnostics / paiements) intégrées en haut du dashboard
   // Accès fiches/résa via les boutons en bas du dashboard (plus d'embed en haut)
   (function(){
-    var fb=document.getElementById('adm-btn-fiches'); if(fb) fb.onclick=function(){ if(window.showCRM) window.showCRM('fiches'); };
+    // Fiches clients = liste des visiteurs (recherche ville / IP / OS Android-iPhone),
+    // ouverte en plein écran avec bouton retour. Les stats restent en haut du dashboard.
+    var vov=document.getElementById('vfiches-ov');
+    function openVfiches(){ if(vov){ vov.style.display='block'; vov.scrollTop=0; var si=document.getElementById('v-search'); if(si) setTimeout(function(){ try{ si.focus(); }catch(e){} },60); } }
+    function closeVfiches(){ if(vov) vov.style.display='none'; }
+    var fb=document.getElementById('adm-btn-fiches'); if(fb) fb.onclick=openVfiches;
+    var vbk=document.getElementById('vfiches-back');  if(vbk) vbk.onclick=closeVfiches;
     var zb=document.getElementById('adm-btn-zyra');   if(zb) zb.onclick=function(){ if(window.showCRM) window.showCRM('zyra'); };
     var bb=document.getElementById('adm-btn-bgh');     if(bb) bb.onclick=function(){ if(window.showCRM) window.showCRM('bgh'); };
-    var db=document.getElementById('adm-btn-diag2');   if(db) db.onclick=function(){ if(window.showCRM) window.showCRM('attempts'); };
+    var db=document.getElementById('adm-btn-diag2');   if(db) db.onclick=function(){ if(window.showCRM) window.showCRM('hub'); };
   })();
   document.getElementById('d-close').addEventListener('click',()=>{
     if(window._dashRefreshTimer) clearInterval(window._dashRefreshTimer);
@@ -5887,6 +5903,6 @@ else handleReturn();
 <script type="module" src="assets/accent-webgl.js?v=12"></script>
 <!-- Repère de version visible (discret, coin bas-gauche) : permet de vérifier
      instantanément qu'on voit bien la dernière version et pas une page en cache. -->
-<div id="rn-build" style="position:fixed;left:8px;bottom:8px;z-index:2147483647;font:600 9px/1 -apple-system,system-ui,sans-serif;color:rgba(142,166,255,.55);background:rgba(6,10,24,.55);padding:3px 7px;border-radius:20px;border:1px solid rgba(142,166,255,.18);pointer-events:none;letter-spacing:.5px;backdrop-filter:blur(4px);">v 2026-08-07 · 05h</div>
+<div id="rn-build" style="position:fixed;left:8px;bottom:8px;z-index:2147483647;font:600 9px/1 -apple-system,system-ui,sans-serif;color:rgba(142,166,255,.55);background:rgba(6,10,24,.55);padding:3px 7px;border-radius:20px;border:1px solid rgba(142,166,255,.18);pointer-events:none;letter-spacing:.5px;backdrop-filter:blur(4px);">v 2026-08-07 · 06h</div>
 </body>
 </html>
