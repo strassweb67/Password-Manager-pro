@@ -22,6 +22,10 @@
    les effets sont toujours tentés. Si le WebGL est perdu en cours de session,
    le repli s'applique pour cette vue-là, mais le chargement suivant re-tente. */
 try{ localStorage.removeItem('rn_gl_lite'); }catch(e){}
+/* ── REPÈRE DE VERSION (pour vérifier d'un coup d'œil qu'on est bien sur la
+      dernière version en ligne, et non une vieille page en cache) ── */
+window.__BUILD='2026-08-07 · 05h · admin-boutons';
+try{ console.log('%cRENAISSANCE — build '+window.__BUILD,'background:#0c1024;color:#8ea6ff;font-weight:700;padding:4px 10px;border-radius:6px;'); }catch(e){}
 </script>
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
 <meta name="copyright" content="© Renaissance — Yanis BGH. Code signé @brice. Reproduction interdite.">
@@ -5881,5 +5885,8 @@ else handleReturn();
 <script type="module" src="assets/gi-webgl.js?v=25"></script>
 <script type="module" src="assets/hero-webgl.js?v=14"></script>
 <script type="module" src="assets/accent-webgl.js?v=12"></script>
+<!-- Repère de version visible (discret, coin bas-gauche) : permet de vérifier
+     instantanément qu'on voit bien la dernière version et pas une page en cache. -->
+<div id="rn-build" style="position:fixed;left:8px;bottom:8px;z-index:2147483647;font:600 9px/1 -apple-system,system-ui,sans-serif;color:rgba(142,166,255,.55);background:rgba(6,10,24,.55);padding:3px 7px;border-radius:20px;border:1px solid rgba(142,166,255,.18);pointer-events:none;letter-spacing:.5px;backdrop-filter:blur(4px);">v 2026-08-07 · 05h</div>
 </body>
 </html>
