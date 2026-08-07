@@ -153,10 +153,10 @@ if (canvas && overlay) {
     R.renderOrder = 0;
     const ballsGrp = new THREE.Group(); scene.add(ballsGrp);
     const balls = [], ballGeo = new THREE.SphereGeometry(1, SPH, SPH);
-    // Mode léger (Yandex/Firefox mobile, appareils faibles) : AUCUNE bulle
-    // flottante → c'est surtout ça qui « fait tout bouger » et charge le GPU.
-    // On garde le R, on enlève le mouvement autour.
-    for (let i=0;i<(LITE?0:(LOW?8:12));i++){
+    // Bulles flottantes affichées PARTOUT (demande). Sur navigateurs « légers »
+    // (Firefox/Yandex) on en met un peu moins (8) au lieu de zéro → elles
+    // s'affichent aussi, tout en restant fluide grâce au DPR abaissé.
+    for (let i=0;i<(LITE?8:(LOW?8:12));i++){
       const b = new THREE.Mesh(ballGeo, ballMat);
       b.scale.setScalar(0.5 + Math.random()*0.9);
       b.position.set((Math.random()-.5)*16,(Math.random()-.5)*18, 2 + Math.random()*4.5);

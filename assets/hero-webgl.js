@@ -74,7 +74,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
     const off=(n-1)*LINK_STEP/2; g.children.forEach(c=>c.position.y-=off);  // centré
     return g;
   }
-  const COUNT = LITE ? 8 : (LOW ? 13 : 22);          // beaucoup de chaînes, réparties partout
+  const COUNT = LITE ? 12 : (LOW ? 14 : 22);         // chaînes visibles PARTOUT (même Firefox/Yandex)
   const chains = [];
   for (let i=0;i<COUNT;i++){
     const n = LOW ? 5 : (6 + Math.floor(Math.random()*4));   // 6 à 9 maillons → chaînes plus longues
