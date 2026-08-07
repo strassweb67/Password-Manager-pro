@@ -24,7 +24,7 @@
 try{ localStorage.removeItem('rn_gl_lite'); }catch(e){}
 /* ── REPÈRE DE VERSION (pour vérifier d'un coup d'œil qu'on est bien sur la
       dernière version en ligne, et non une vieille page en cache) ── */
-window.__BUILD='2026-08-07 · scroll-diag-fix';
+window.__BUILD='2026-08-07 · scroll-cue';
 try{ console.log('%cRENAISSANCE — build '+window.__BUILD,'background:#0c1024;color:#8ea6ff;font-weight:700;padding:4px 10px;border-radius:6px;'); }catch(e){}
 </script>
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
@@ -1424,6 +1424,16 @@ footer{background:rgba(0,0,0,.96);}
 .dg-anz-line.on .ck{background:var(--accent);border-color:var(--accent);color:#fff;}
 
 /* ── Résultats ── */
+/* Indice « descends pour voir tes résultats » (incite au scroll, disparaît en défilant) */
+.dg-scrollcue{display:flex;flex-direction:column;align-items:center;gap:6px;margin:2px 0 20px;
+  transition:opacity .35s ease,transform .35s ease;}
+.dg-scrollcue.hide{opacity:0;transform:translateY(-6px);pointer-events:none;}
+.dg-scrollcue-txt{font-family:var(--mono);font-weight:800;font-size:.64rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent-2);text-align:center;
+  padding:8px 16px;border-radius:40px;background:rgba(90,120,255,.10);
+  border:1px solid rgba(134,164,255,.28);box-shadow:0 6px 18px rgba(47,70,214,.18);}
+.dg-scrollcue-arw{font-size:1.15rem;line-height:1;color:var(--accent-2);animation:dgCueBounce 1.5s ease-in-out infinite;}
+@keyframes dgCueBounce{0%,100%{transform:translateY(0);opacity:.65;}50%{transform:translateY(6px);opacity:1;}}
 .dg-res-head{text-align:center;margin-bottom:26px;}
 .dg-profile{
   font-family:var(--disp);text-transform:uppercase;letter-spacing:.02em;
@@ -5158,6 +5168,7 @@ function rRes(){
     +'<h2 class="dg-profile">Tu es <span class="y">'+r.profile.name+'</span></h2>'
     +'<p class="dg-tag">'+r.profile.tag+'</p>'
     +'</div>'
+    +'<div class="dg-scrollcue" id="dgScrollCue"><div class="dg-scrollcue-txt">Fais défiler pour voir toute ton analyse</div><div class="dg-scrollcue-arw" aria-hidden="true">↓</div></div>'
     +'<div class="dg-gauges">'
     +'<div class="dg-gauge hot"><div class="dg-gnum"><span class="dg-gn" data-t="'+r.potentiel+'">0</span>%</div><div class="dg-glab">Potentiel détecté</div></div>'
     +'<div class="dg-gauge"><div class="dg-gnum"><span class="dg-gn" data-t="'+r.exploite+'">0</span>%</div><div class="dg-glab">Potentiel exploité</div></div>'
@@ -5237,6 +5248,12 @@ function bindScreen(){
         if(eco) eco.scrollIntoView({behavior:"smooth"});
       }, 380);
     });
+    // L'indice « fais défiler » disparaît dès que l'utilisateur commence à descendre
+    var _cue=el("dgScrollCue"), _sc=document.getElementById("diagOverlay");
+    if(_cue && _sc){
+      var _hideCue=function(){ if(_sc.scrollTop>40){ _cue.classList.add("hide"); _sc.removeEventListener("scroll",_hideCue); } };
+      _sc.addEventListener("scroll", _hideCue, { passive:true });
+    }
   }
 }
 function dgCount(elm, target){
