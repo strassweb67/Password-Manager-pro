@@ -12,11 +12,11 @@
 <head>
 <meta charset="UTF-8">
 <script>
-/* Réactivation WebGL — remet à zéro, UNE seule fois par navigateur, la sécurité
-   anti-freeze (rn_gl_lite) qui s'était déclenchée après d'anciens plantages et
-   qui bloquait le R 3D + les effets. Le filet reste actif : si un VRAI plantage
-   WebGL survient ensuite, la sécurité peut se re-déclencher normalement. */
-try{ if(localStorage.getItem('rn_gl_reset')!=='3'){ localStorage.removeItem('rn_gl_lite'); localStorage.setItem('rn_gl_reset','3'); } }catch(e){}
+/* WebGL toujours ON (demande explicite : « ça freeze plus, rallume tout »).
+   On efface à CHAQUE chargement le drapeau anti-freeze rn_gl_lite → le R 3D et
+   les effets sont toujours tentés. Si le WebGL est perdu en cours de session,
+   le repli s'applique pour cette vue-là, mais le chargement suivant re-tente. */
+try{ localStorage.removeItem('rn_gl_lite'); }catch(e){}
 </script>
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
 <meta name="copyright" content="© Renaissance — Yanis BGH. Code signé @brice. Reproduction interdite.">
