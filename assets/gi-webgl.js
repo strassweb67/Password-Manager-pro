@@ -41,11 +41,12 @@ if (canvas && overlay) {
   var LOW = IN_APP || MOBILE;
   var SPH = LOW ? 24 : 32, TUB_T = LOW ? 280 : 320, TUB_R = LOW ? 20 : 24, NPART = LITE ? 500 : (LOW ? 1700 : 2600);
 
-  // Le R 3D WebGL complet (verre + bulles) est rendu PARTOUT, SAUF sur les
-  // navigateurs qui gèlent le GPU même avec un minimum de WebGL (Yandex,
-  // Firefox mobile), les WebViews in-app, et les appareils ayant déjà planté :
-  // ceux-là reçoivent le R statique (SVG), seul moyen de ne JAMAIS geler.
-  var NO_INTRO_GL = IN_APP || WEAKBROWSER || glLite();
+  // R 3D WebGL FORCÉ sur TOUS les navigateurs (Chrome, Firefox, Safari, Yandex,
+  // Edge, Samsung…) — demande explicite. Seules les WebViews in-app (Instagram/
+  // TikTok/Snapchat), au WebGL vraiment instable, gardent le R statique pour ne
+  // pas geler le tunnel social. Si un navigateur ne sait pas créer le contexte,
+  // le try/catch ci-dessous bascule automatiquement sur le R statique.
+  var NO_INTRO_GL = IN_APP;
 
   if (!NO_INTRO_GL) {
     try { renderer = new THREE.WebGLRenderer({ canvas, antialias:!LOW, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false }); }

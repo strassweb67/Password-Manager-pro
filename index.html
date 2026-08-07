@@ -11,6 +11,11 @@
 <html lang="fr" data-sig="brice">
 <head>
 <meta charset="UTF-8">
+<!-- TOUJOURS EN DIRECT : on interdit la mise en cache du HTML → le navigateur
+     recharge la vraie version à chaque visite (plus de vieille version figée). -->
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <script>
 /* WebGL toujours ON (demande explicite : « ça freeze plus, rallume tout »).
    On efface à CHAQUE chargement le drapeau anti-freeze rn_gl_lite → le R 3D et
@@ -5831,8 +5836,8 @@ else handleReturn();
 <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="assets/vendor/lenis.min.js" defer></script>
 <script src="assets/cine-gsap.js?v=11" defer></script>
-<script type="module" src="assets/gi-webgl.js?v=23"></script>
-<script type="module" src="assets/hero-webgl.js?v=12"></script>
+<script type="module" src="assets/gi-webgl.js?v=24"></script>
+<script type="module" src="assets/hero-webgl.js?v=13"></script>
 <script type="module" src="assets/accent-webgl.js?v=12"></script>
 </body>
 </html>
