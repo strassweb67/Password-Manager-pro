@@ -18,22 +18,31 @@
 
     /* ── 1) SMOOTH SCROLL (Lenis) ────────────────────────────────── */
     var lenis = null;
-    if (window.Lenis){
+    function rafCb(time){ if (lenis) lenis.raf(time * 1000); }
+    function buildLenis(){
+      if (!window.Lenis || lenis) return;
       lenis = new window.Lenis({
         duration: 1.15,
         smoothWheel: true,
-        // touch laissé natif → le tunnel diagnostic scrolle normalement au doigt
         easing: function(t){ return Math.min(1, 1.001 - Math.pow(2, -10 * t)); }
       });
       lenis.on('scroll', ST.update);
       window.__lenis = lenis;
-      gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
+    }
+    // IMPORTANT : quand une modale plein écran est ouverte, on DÉTRUIT Lenis
+    // (pas seulement lenis.stop()). Stoppé, Lenis continue d'appeler
+    // preventDefault() sur les touchmove → le scroll natif au doigt est bloqué
+    // dans l'overlay (bug « je ne peux pas descendre » sur le diagnostic mobile).
+    // destroy() retire ses écouteurs → le scroll tactile natif fonctionne.
+    function killLenis(){ if (!lenis) return; try{ lenis.destroy(); }catch(e){} lenis=null; window.__lenis=null; }
+    window.__lenisKill  = killLenis;   // exposé pour les autres overlays (admin, CRM…)
+    window.__lenisBuild = buildLenis;
+    if (window.Lenis){
+      gsap.ticker.add(rafCb);
       gsap.ticker.lagSmoothing(0);
+      buildLenis();
 
       // Liens d'ancrage (#…) → défilement fluide fiable.
-      // Lenis « tient » la position de scroll : un saut d'ancre natif est repris
-      // par Lenis → rien ne bouge. On stoppe Lenis, on anime le scroll natif,
-      // puis on resynchronise Lenis. Robuste sur tout appareil.
       document.addEventListener('click', function(e){
         var a = e.target.closest('a[href^="#"]');
         if (!a) return;
@@ -46,11 +55,11 @@
         else tgt.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
 
-      // Stoppe le smooth scroll quand l'overlay diagnostic est ouvert
+      // Tunnel diagnostic ouvert → Lenis détruit ; fermé → reconstruit.
       var ov = document.getElementById('diagOverlay');
       if (ov && window.MutationObserver){
         new MutationObserver(function(){
-          if (ov.classList.contains('open')) lenis.stop(); else lenis.start();
+          if (ov.classList.contains('open')) killLenis(); else buildLenis();
         }).observe(ov, { attributes:true, attributeFilter:['class'] });
       }
     }
