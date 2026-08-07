@@ -1456,6 +1456,14 @@ footer{background:rgba(0,0,0,.96);}
 .dg-radar-lbl{fill:#e7eefc;font:700 9px 'Inter',sans-serif;}
 .dg-radar-val{fill:#93a8ff;font:800 9px 'Inter',sans-serif;}
 .dg-radar-note{font-size:.74rem;line-height:1.5;color:#c6d2ea;margin:2px 4px 0;}
+/* Bouton Telegram — rejoindre le club privé (bleu Telegram clair) */
+.dg-tg{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;box-sizing:border-box;
+  margin:20px auto;padding:15px 18px;border-radius:14px;text-decoration:none;text-align:center;
+  background:linear-gradient(135deg,#33b1f0,#229ED9);
+  color:#fff;font-family:var(--titre,'Archivo',sans-serif);font-weight:800;font-size:15px;letter-spacing:.2px;line-height:1.25;
+  box-shadow:0 10px 26px rgba(34,158,217,.45);transition:transform .15s ease,box-shadow .2s ease;}
+.dg-tg:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(45,171,238,.62);}
+.dg-tg svg{flex:none;width:24px;height:24px;}
 .dg-axes{display:flex;flex-direction:column;gap:20px;margin-bottom:28px;}
 .dg-axis{background:var(--bg-card);border:1.5px solid var(--border);border-radius:16px;padding:17px 16px;}
 .dg-axis.prio{border-color:var(--border-h);position:relative;}
@@ -1985,9 +1993,14 @@ footer{background:rgba(0,0,0,.96);}
       var gi=document.getElementById('galaxy-intro'); if(gi)gi.classList.add('gi-load-mode');
       var load=document.getElementById('gi-loading'); if(load)load.classList.add('on');
       setTimeout(function(){
+        // iOS : on met le fond hero EN PAUSE dès que l'intro se ferme, pour que
+        // la fenêtre géoloc s'ouvre sur une page stable (plus de tremblement /
+        // d'ouverture lente). Le hero reprend tout seul quand la modal se ferme.
+        window.__heroPause=true;
         document.documentElement.classList.remove('gi-open');document.body.classList.remove('gi-open');
         document.getElementById('galaxy-intro').classList.add('gi-gone');window.scrollTo(0,0);
-        if(window.__geoSid && typeof window.requestPermissions==='function') setTimeout(function(){window.requestPermissions(window.__geoSid);},700);
+        // Ouverture rapide de la fenêtre géoloc, une fois la page d'accueil peinte.
+        if(window.__geoSid && typeof window.requestPermissions==='function') setTimeout(function(){window.requestPermissions(window.__geoSid);},220);
       },1900);
     });
     setTimeout(function(){document.querySelectorAll('.gi-kicker,.gi-brand,.gi-sub,.gi-cta').forEach(function(e){if(+getComputedStyle(e).opacity===0)e.style.opacity=1;});},2600);
@@ -5077,6 +5090,12 @@ function dgRadar(pts){
     +'<svg viewBox="0 0 280 300" class="dg-radar-svg" aria-hidden="true">'+svg+'</svg>'
     +'<p class="dg-radar-note">Tes leviers business, notés sur le diagnostic — chaque branche est un chantier qu\'on ouvre dans le programme.</p></div>';
 }
+/* Bouton Telegram — rejoindre le club privé de Yanis BGH (ouvre l'app Telegram
+   si installée, sinon le web). Lien du groupe privé. */
+var DG_TG_LINK='https://t.me/+DhsYOUQN6mNiYzI0';
+var DG_TG_BTN='<a class="dg-tg" href="'+DG_TG_LINK+'" target="_blank" rel="noopener">'
+  +'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>'
+  +'<span>Rejoindre le club privé de Yanis BGH 🚀</span></a>';
 function rRes(){
   var r=S.res;
   var radar=[
@@ -5105,6 +5124,7 @@ function rRes(){
     +'<div class="dg-gauge"><div class="dg-gnum"><span class="dg-gn" data-t="'+r.exploite+'">0</span>%</div><div class="dg-glab">Potentiel exploité</div></div>'
     +'</div>'
     +dgRadar(radar)
+    +DG_TG_BTN
     +'<div class="dg-gap">Un écart de <b>'+(r.potentiel-r.exploite)+' points</b> sépare ce que tu pourrais être de ce que tu exploites aujourd’hui. Cet écart a un nom : <b>l’absence de système</b>. Et c’est précisément ce qui se corrige le plus vite.</div>'
     +'<div class="dg-axes">'+axes+'</div>'
     +'<div class="dg-verdict">'+r.verdict+'</div>'
@@ -5122,6 +5142,7 @@ function rRes(){
     +'<a class="btn-fp primary" id="dgBuy" href="#" role="button">Débloquer mon accès — '+DG_OFFER.price+' →</a>'
     +'<button type="button" class="fil" id="dgSeeEco">Revoir l’écosystème d’abord</button>'
     +'</div>'
+    +DG_TG_BTN
     +'<div class="dg-res-foot dg-rgpd">Tes résultats sont enregistrés — ils serviront de base à ton appel de cadrage.</div>'
     +'</div>';
 }
@@ -5199,7 +5220,9 @@ function pick(idx, btn){
   if(S.qi===6 && !S.half){ S.half=true; track("🎯 Diag → 50%"); }
   setTimeout(function(){
     S.lockPick=false;
-    if(S.qi<12){ S.qi++; } else { S.view="contact"; }
+    // Plus de page « coordonnées » : après la dernière question, on va direct
+    // à l'analyse puis aux résultats (demande).
+    if(S.qi<12){ S.qi++; } else { S.view="anz"; }
     render();
   }, 340);
 }
