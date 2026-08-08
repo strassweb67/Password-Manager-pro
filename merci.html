@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Paiement confirmé — Renaissance</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--accent:#5a78ff;--accent2:#8ea6ff;--ok:#22c55e;}
+  html,body{height:100%;}
+  body{
+    font-family:Inter,system-ui,-apple-system,sans-serif;
+    background:radial-gradient(ellipse 90% 60% at 50% 0%,#0a1236 0%,#05060c 60%),#03040c;
+    color:#eef3ff;min-height:100%;display:flex;align-items:center;justify-content:center;
+    padding:24px;overflow-x:hidden;position:relative;
+  }
+  body::before{content:'';position:fixed;width:620px;height:620px;top:-240px;left:-180px;border-radius:50%;
+    background:radial-gradient(circle,rgba(47,70,214,.22),transparent 65%);pointer-events:none;}
+  body::after{content:'';position:fixed;width:540px;height:540px;bottom:-220px;right:-160px;border-radius:50%;
+    background:radial-gradient(circle,rgba(90,120,255,.16),transparent 65%);pointer-events:none;}
+  .card{
+    position:relative;z-index:1;max-width:480px;width:100%;text-align:center;
+    background:rgba(12,13,24,.86);border:1px solid rgba(122,152,255,.32);border-radius:22px;
+    padding:44px 30px 36px;box-shadow:0 30px 90px rgba(0,0,0,.75);backdrop-filter:blur(8px);
+  }
+  .check{
+    width:88px;height:88px;margin:0 auto 22px;border-radius:50%;
+    background:radial-gradient(circle at 50% 40%,rgba(34,197,94,.28),rgba(34,197,94,.08));
+    border:1.5px solid rgba(34,197,94,.6);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 6px rgba(34,197,94,.06),0 12px 30px rgba(16,120,60,.35);
+    animation:pop .5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .check svg{width:44px;height:44px;stroke:#22c55e;stroke-width:3.4;fill:none;
+    stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;
+    animation:draw .5s .35s ease forwards;}
+  @keyframes pop{0%{transform:scale(.5);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  .kick{font-family:'Archivo',system-ui,sans-serif;font-size:.68rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--ok);font-weight:800;margin-bottom:12px;}
+  h1{font-family:'Archivo',system-ui,sans-serif;font-size:clamp(1.7rem,7vw,2.3rem);
+    line-height:1.1;letter-spacing:.01em;color:#fff;margin-bottom:12px;}
+  h1 .y{color:var(--accent2);}
+  p{font-size:.95rem;line-height:1.7;color:#cbd6ee;margin-bottom:10px;}
+  .sub{font-size:.8rem;color:#7f8db0;margin-bottom:26px;}
+  .tg{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+    padding:15px 18px;border-radius:14px;text-decoration:none;font-weight:800;font-size:15px;
+    color:#fff;background:linear-gradient(135deg,#33b1f0,#229ED9);
+    box-shadow:0 10px 26px rgba(34,158,217,.45);margin-bottom:12px;transition:transform .15s,box-shadow .2s;}
+  .tg:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(45,171,238,.6);}
+  .tg svg{width:24px;height:24px;flex:none;}
+  .home{display:block;color:#7f8db0;font-size:.82rem;text-decoration:none;margin-top:6px;padding:8px;}
+  .home:hover{color:#cbd6ee;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="check" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>
+    </div>
+    <div class="kick">Paiement confirmé</div>
+    <h1>Bienvenue dans <span class="y">Renaissance</span></h1>
+    <p>Ton paiement a bien été reçu via Revolut. Ton accès est débloqué et ta fiche est transmise à l'équipe pour ton <b style="color:#eef3ff;">appel de cadrage</b>.</p>
+    <p class="sub">Prochaine étape : rejoins le club privé pour recevoir ton accès et ta feuille de route.</p>
+    <a class="tg" href="https://t.me/+DhsYOUQN6mNiYzI0" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+      <span>Rejoindre le club privé de Yanis BGH 🚀</span>
+    </a>
+    <a class="home" href="index.html">← Retour à l'accueil</a>
+  </div>
+</body>
+</html>

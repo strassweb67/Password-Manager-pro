@@ -24,7 +24,7 @@
 try{ localStorage.removeItem('rn_gl_lite'); }catch(e){}
 /* ── REPÈRE DE VERSION (pour vérifier d'un coup d'œil qu'on est bien sur la
       dernière version en ligne, et non une vieille page en cache) ── */
-window.__BUILD='2026-08-07 · scroll-cue';
+window.__BUILD='2026-08-08 · paiement-revolut';
 try{ console.log('%cRENAISSANCE — build '+window.__BUILD,'background:#0c1024;color:#8ea6ff;font-weight:700;padding:4px 10px;border-radius:6px;'); }catch(e){}
 </script>
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
@@ -2817,6 +2817,56 @@ async function sbRpc(fn, params={}, useSecret=false){
   }catch(e){ console.error('[SB RPC FAIL]',fn,e.message,params); return null; }
 }
 
+/* ═══ CONFIG SITE EN DIRECT (prix diagnostic + lien Revolut) ══════════════
+   Stockée dans UNE ligne « config » de la table diag_leads existante
+   (source='__site_config') : AUCUNE modif du schéma SQL, AUCUN localStorage.
+   Lue par tout le site au chargement, modifiable depuis l'admin → le prix
+   change en direct pour tous. Lecture/écriture via la clé service (déjà
+   utilisée publiquement pour upsert_visitor). La ligne config est filtrée
+   partout dans l'admin (catRows) pour ne jamais apparaître dans les fiches.
+   • potentiel        = prix en euros (entier)
+   • axe_prioritaire  = lien de paiement Revolut
+   ════════════════════════════════════════════════════════════════════════ */
+const RN_CFG_DEFAULT = { price: 29, link: 'https://checkout.revolut.com/payment-link/706c5a16-d1cf-4df5-9674-db846a75acd4' };
+window.__rnCfg = { price: RN_CFG_DEFAULT.price, link: RN_CFG_DEFAULT.link };
+async function rnGetConfig(){
+  try{
+    const rows = await sbFetch('diag_leads?source=eq.__site_config&select=potentiel,axe_prioritaire&order=ts.desc&limit=1', {prefer:'return=representation'}, true);
+    if(Array.isArray(rows) && rows.length){
+      const r = rows[0];
+      if(r.potentiel!=null){ const p=parseInt(r.potentiel,10); if(p>0) window.__rnCfg.price=p; }
+      if(r.axe_prioritaire && /^https?:\/\//i.test(r.axe_prioritaire)) window.__rnCfg.link=String(r.axe_prioritaire);
+    }
+  }catch(e){ console.warn('[CFG] lecture KO', e.message); }
+  window.__PAY && (window.__PAY.amount=String(window.__rnCfg.price));
+  return window.__rnCfg;
+}
+async function rnSetConfig(price, link){
+  const v = parseInt(price,10);
+  if(!(v>0)) return false;
+  const body = { potentiel:v };
+  if(link!=null && String(link).trim()) body.axe_prioritaire = String(link).trim();
+  try{
+    const exist = await sbFetch('diag_leads?source=eq.__site_config&select=id&limit=1', {prefer:'return=representation'}, true);
+    if(Array.isArray(exist) && exist.length){
+      await sbFetch('diag_leads?source=eq.__site_config', {method:'PATCH', body:JSON.stringify(body)}, true);
+    } else {
+      body.source='__site_config'; body.profil='__price';
+      body.email=''; body.tel=''; body.code_postal=''; body.paid=false;
+      body.exploite=0; body.scores={}; body.ts=new Date().toISOString();
+      await sbFetch('diag_leads', {method:'POST', body:JSON.stringify(body)}, true);
+    }
+    window.__rnCfg.price=v;
+    if(body.axe_prioritaire) window.__rnCfg.link=body.axe_prioritaire;
+    window.__PAY && (window.__PAY.amount=String(v));
+    return true;
+  }catch(e){ console.warn('[CFG] écriture KO', e.message); return false; }
+}
+window.__rnGetConfig = rnGetConfig;
+window.__rnSetConfig = rnSetConfig;
+// Charge la config dès le démarrage → prix/lien à jour pour tous les visiteurs
+try{ rnGetConfig(); }catch(e){}
+
 /* ─── Détection source trafic (referrer + UTM + UA in-app) ─── */
 function detectTrafficSource(){
   const ua    = navigator.userAgent || '';
@@ -4097,6 +4147,27 @@ async function showDashboard(){
     <!-- ── RÉGLAGES SITE & MAJ ── -->
     <div style="border-top:1px solid rgba(228, 226, 221,.12);padding-top:20px;margin-top:8px;">
       <p style="font-size:9px;letter-spacing:2px;color:#b9975b;font-weight:700;text-transform:uppercase;margin-bottom:14px;">⚙️ Réglages site &amp; mises à jour</p>
+
+      <!-- ── PRIX DU DIAGNOSTIC (en direct pour tous, via Supabase) ── -->
+      <div style="background:#0a0a0f;border:1px solid rgba(122,152,255,.3);border-radius:12px;padding:16px;margin-bottom:16px;">
+        <p style="font-size:11px;font-weight:800;color:#e8e6e1;letter-spacing:.5px;margin-bottom:4px;">💶 Prix du diagnostic &amp; lien Revolut</p>
+        <p style="font-size:9.5px;color:#475569;line-height:1.6;margin-bottom:12px;">Modifié ici → change <b style="color:#8ea6ff;">en direct pour tous</b> sur le site (stocké dans Supabase, sans localStorage). Si tu changes le prix, mets aussi le lien Revolut correspondant à ce montant.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+          <div style="flex:0 0 110px;">
+            <label style="font-size:9px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px;">Prix (€)</label>
+            <input id="cfg-price" type="number" min="1" step="1" inputmode="numeric" style="width:100%;padding:11px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(228,226,221,.25);border-radius:9px;color:#f1f5f9;font-size:15px;font-weight:800;outline:none;box-sizing:border-box;">
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <label style="font-size:9px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px;">Lien de paiement Revolut</label>
+            <input id="cfg-link" type="text" placeholder="https://checkout.revolut.com/payment-link/…" style="width:100%;padding:11px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(228,226,221,.25);border-radius:9px;color:#f1f5f9;font-size:11px;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+          <button id="cfg-save" style="padding:11px 20px;background:linear-gradient(135deg,#5a78ff,#3a52d6);border:none;border-radius:9px;color:#fff;font-size:11px;font-weight:800;letter-spacing:1px;cursor:pointer;">ENREGISTRER LE PRIX</button>
+          <span id="cfg-status" style="font-size:11px;color:#64748b;"></span>
+        </div>
+      </div>
+
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
       <button id="btn-sync-init" style="padding:13px 8px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:10px;color:#22c55e;font-size:10.5px;font-weight:800;letter-spacing:1.5px;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.9"/></svg>
@@ -4153,6 +4224,24 @@ async function showDashboard(){
     var zb=document.getElementById('adm-btn-zyra');   if(zb) zb.onclick=function(){ if(window.showCRM) window.showCRM('zyra'); };
     var bb=document.getElementById('adm-btn-bgh');     if(bb) bb.onclick=function(){ if(window.showCRM) window.showCRM('bgh'); };
     var db=document.getElementById('adm-btn-diag2');   if(db) db.onclick=function(){ if(window.showCRM) window.showCRM('hub'); };
+
+    // ── Prix du diagnostic + lien Revolut (en direct pour tous via Supabase) ──
+    var cfgP=document.getElementById('cfg-price'), cfgL=document.getElementById('cfg-link'),
+        cfgB=document.getElementById('cfg-save'),  cfgS=document.getElementById('cfg-status');
+    if(cfgP && cfgB){
+      // Pré-remplit avec la config actuelle (relit Supabase pour être à jour)
+      if(window.__rnCfg){ cfgP.value=window.__rnCfg.price; cfgL.value=window.__rnCfg.link||''; }
+      if(window.__rnGetConfig){ window.__rnGetConfig().then(function(c){ if(c){ cfgP.value=c.price; cfgL.value=c.link||''; } }); }
+      cfgB.onclick=async function(){
+        var v=parseInt(cfgP.value,10);
+        if(!(v>0)){ cfgS.textContent='Prix invalide.'; cfgS.style.color='#ef4444'; return; }
+        cfgS.textContent='Enregistrement…'; cfgS.style.color='#64748b'; cfgB.disabled=true;
+        var ok = window.__rnSetConfig ? await window.__rnSetConfig(v, (cfgL.value||'').trim()) : false;
+        cfgB.disabled=false;
+        if(ok){ cfgS.textContent='✅ Prix mis à jour en direct ('+v+'€) — visible par tous.'; cfgS.style.color='#22c55e'; }
+        else { cfgS.textContent='❌ Échec de l’enregistrement (voir console).'; cfgS.style.color='#ef4444'; }
+      };
+    }
   })();
   document.getElementById('d-close').addEventListener('click',()=>{
     if(window._dashRefreshTimer) clearInterval(window._dashRefreshTimer);
@@ -4953,7 +5042,10 @@ var LS_KEY = "rn_diag_leads";
    disponible » sur le site (aucune redirection externe). */
 var PAY = {
   provider:     "revolut",
-  REVOLUT_LINK: "",          // ← colle ici ton lien de paiement Revolut
+  // Lien de paiement Revolut par défaut (surchargé en direct par la config admin
+  // → window.__rnCfg.link). Redirige vers la page merci.html après paiement réussi
+  // (à configurer côté Revolut : « Redirect after payment » = .../merci.html).
+  REVOLUT_LINK: "https://checkout.revolut.com/payment-link/706c5a16-d1cf-4df5-9674-db846a75acd4",
   amount:       "29",
   currency:     "EUR",
   returnParam:  "rvlt",      // ?rvlt=success au retour de Revolut
@@ -5147,6 +5239,8 @@ var DG_TG_BTN='<a class="dg-tg" href="'+DG_TG_LINK+'" target="_blank" rel="noope
   +'<span>Rejoindre le club privé de Yanis BGH 🚀</span></a>';
 function rRes(){
   var r=S.res;
+  // Prix affiché = prix EN DIRECT (config admin via Supabase), repli DG_OFFER.price
+  var priceStr = (window.__rnCfg && window.__rnCfg.price ? window.__rnCfg.price+'€' : DG_OFFER.price);
   var radar=[
     {label:"Physique",v:r.axes[0].score},
     {label:"Business",v:r.axes[1].score},
@@ -5187,9 +5281,10 @@ function rRes(){
     +'<div><span class="ok">✓</span><span><b>Suivi quotidien 24/7</b> — tu n’avances plus jamais seul</span></div>'
     +'<div><span class="ok">✓</span><span><b>Appel de cadrage offert</b> — ta feuille de route personnalisée, construite sur CE diagnostic</span></div>'
     +'</div>'
-    +'<div class="dg-price-row"><span class="dg-price">'+DG_OFFER.price+'</span></div>'
+    +'<div class="dg-price-row"><span class="dg-price">'+priceStr+'</span></div>'
     +'<div class="dg-price-note">'+DG_OFFER.note+'</div>'
-    +'<a class="btn-fp primary" id="dgBuy" href="#" role="button">Débloquer mon accès — '+DG_OFFER.price+' →</a>'
+    +'<a class="btn-fp primary dg-pay" id="dgBuy" href="#" role="button"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;vertical-align:-3px;margin-right:8px;"><path fill="currentColor" d="M4 4h6.5c3.9 0 6.5 2.2 6.5 5.7 0 3.6-2.7 5.8-6.8 5.8H8v4.5H4V4zm4 3v5.3h2.3c1.8 0 2.9-1 2.9-2.7C13.2 8 12.1 7 10.3 7H8z"/></svg>Souscrire — Payer '+priceStr+' avec Revolut →</a>'
+    +'<div class="dg-price-note" style="margin-top:8px;">🔒 Paiement sécurisé via Revolut · Sans engagement</div>'
     +'<button type="button" class="fil" id="dgSeeEco">Revoir l’écosystème d’abord</button>'
     +'</div>'
     +DG_TG_BTN
@@ -5240,7 +5335,7 @@ function bindScreen(){
       card.querySelectorAll(".dg-ax-fill").forEach(function(f){ f.style.width=f.getAttribute("data-w")+"%"; });
       card.querySelectorAll(".dg-gn,.dg-ax-n").forEach(function(n){ dgCount(n, parseInt(n.getAttribute("data-t"),10)); });
     }); });
-    el("dgBuy").addEventListener("click", function(ev){ ev.preventDefault(); track("💰 Diag → Paiement "+DG_OFFER.price); goToPayment(); });
+    el("dgBuy").addEventListener("click", function(ev){ ev.preventDefault(); track("💰 Diag → Paiement Revolut "+((window.__rnCfg&&window.__rnCfg.price)||DG_OFFER.price)); goToPayment(); });
     el("dgSeeEco").addEventListener("click", function(){
       dgAttemptClose();
       setTimeout(function(){
@@ -5409,12 +5504,14 @@ function saveLead(r){
 
 /* ── Redirection vers le paiement Revolut ── */
 function goToPayment(){
-  var link=(PAY.REVOLUT_LINK||"").trim();
+  // Lien Revolut EN DIRECT (config admin) → repli sur PAY.REVOLUT_LINK
+  var link=(((window.__rnCfg&&window.__rnCfg.link)||PAY.REVOLUT_LINK)||"").trim();
+  var amount=String((window.__rnCfg&&window.__rnCfg.price)||PAY.amount);
   try{
     localStorage.setItem("rn_pay_ctx", JSON.stringify({
       email:S.email, tel:S.tel, cp:S.cp,
       lead_id:(window.__lastLeadId||localStorage.getItem("rn_last_lead_id")||null),
-      amount:PAY.amount, currency:PAY.currency, ts:Date.now()
+      amount:amount, currency:PAY.currency, ts:Date.now()
     }));
   }catch(e){}
   if(link){ window.location.href=link; return; }
@@ -5715,6 +5812,8 @@ function catRows(rows){
   var zyra=[], bgh=[], completed=[], attempts=[], paid=[], doneMail={};
   rows.forEach(function(l){
     var s=(l.source||'').toLowerCase();
+    if(s==='__site_config') return;                 // ligne de config (prix/lien) — jamais une fiche
+
     if(s==='zyra'){ zyra.push(l); return; }
     if(s==='bgh-party'||s==='bgh'){ bgh.push(l); return; }
     if((l.profil && s!=='diag-start') || l.paid){
