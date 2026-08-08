@@ -6,7 +6,6 @@
    ═══════════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  window.__cine = true;   /* marqueur : redesign-v2.js n'anime pas les reveals déjà gérés ici */
   var reduce = false;   /* animations forcées sur tous les appareils (demande explicite) */
   function ready(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
 
