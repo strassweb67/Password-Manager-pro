@@ -212,3 +212,70 @@
     setTimeout(function(){ ST.refresh(); }, 1200);
   });
 })();
+
+/* ═══════════════════════════════════════════════════════════════════
+   POLISH PRO — additions cosmétiques isolées (commit séparé, réversible)
+   · sortie de hero cinématique (scrub)
+   · sheen lumineux + magnétique sur les CTA hero (.ch-btn)
+   · vignette de profondeur
+   Toujours défensif : ne s'exécute que si GSAP est présent et hors
+   reduced-motion. N'ajoute rien dans les overlays.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var coarse = window.matchMedia('(pointer: coarse)').matches;
+  function ready(fn){ if (document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+
+  ready(function(){
+    var gsap = window.gsap;
+    if (!gsap || !window.ScrollTrigger || reduce) return;
+    var SKIP = '#diagOverlay,#galaxy-intro,#geo-consent-card,#vfiches-ov,[role="dialog"]';
+    function inSkip(el){ return !!(el && el.closest && el.closest(SKIP)); }
+
+    /* ── Vignette de profondeur ─────────────────────────────────────── */
+    if (!document.getElementById('rv2-atmos')){
+      var atmos = document.createElement('div'); atmos.id = 'rv2-atmos';
+      document.body.appendChild(atmos);
+    }
+
+    /* ── Sortie de hero cinématique (scrub) ─────────────────────────── */
+    var heroSec = document.querySelector('.cine-hero');
+    var heroContent = document.querySelector('.cine-hero__content');
+    if (heroSec && heroContent){
+      var out = { yPercent:-10, autoAlpha:.12, ease:'none' };
+      if (!coarse) out.filter = 'blur(6px)';
+      gsap.to(heroContent, Object.assign(out, {
+        scrollTrigger:{ trigger:heroSec, start:'top top', end:'bottom top', scrub:1 }
+      }));
+    }
+
+    /* ── Magnétique sur les vrais CTA hero (.ch-btn) ────────────────── */
+    if (!coarse){
+      gsap.utils.toArray('.ch-btn').forEach(function(el){
+        if (inSkip(el)) return;
+        var xTo = gsap.quickTo(el,'x',{ duration:.45, ease:'power3.out' });
+        var yTo = gsap.quickTo(el,'y',{ duration:.45, ease:'power3.out' });
+        el.addEventListener('pointermove', function(ev){
+          var r = el.getBoundingClientRect();
+          xTo((ev.clientX - r.left - r.width/2) * .25);
+          yTo((ev.clientY - r.top - r.height/2) * .25);
+        });
+        el.addEventListener('pointerleave', function(){ xTo(0); yTo(0); });
+      });
+    }
+
+    /* ── Sheen lumineux au survol des boutons ───────────────────────── */
+    gsap.utils.toArray('.ch-btn,.btn-fp.primary,.nav-diag,.gi-cta,.offer-cta').forEach(function(b){
+      if (inSkip(b) && !b.closest('#galaxy-intro')) return;
+      if (b.querySelector('.rv2-sheen')) return;
+      if (getComputedStyle(b).position === 'static') b.style.position = 'relative';
+      b.style.overflow = 'hidden';
+      var s = document.createElement('span'); s.className = 'rv2-sheen'; s.setAttribute('aria-hidden','true');
+      b.appendChild(s);
+      b.addEventListener('pointerenter', function(){
+        gsap.fromTo(s, { xPercent:-160 }, { xPercent:260, duration:.85, ease:'power2.out' });
+      });
+    });
+  });
+})();

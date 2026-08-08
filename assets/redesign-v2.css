@@ -157,3 +157,39 @@ html.rv2-ready [data-rv2]{opacity:0;}
   html.rv2-ready [data-rv2]{opacity:1 !important;}
   .carte-fp,.fp-card{transition:none !important;}
 }
+
+/* ═══════════════ POLISH PRO (commit séparé) ═══════════════════════
+   Additions purement cosmétiques, isolées & réversibles.            */
+
+/* ── Vignette de profondeur (cadrage filmique, n'obscurcit que les bords) */
+#rv2-atmos{
+  position:fixed;inset:0;z-index:40;pointer-events:none;
+  background:radial-gradient(125% 95% at 50% 38%,transparent 58%,rgba(0,0,0,.30) 100%);
+  mix-blend-mode:multiply;
+}
+
+/* ── CTA hero : même traitement magnétique/glass que les autres boutons ── */
+.ch-btn{
+  position:relative;overflow:hidden;
+  transition:box-shadow .4s,background .4s,border-color .4s !important;
+  will-change:transform;
+}
+.ch-btn--gold{ box-shadow:0 12px 34px -12px rgba(205,181,131,.6),inset 0 1px 0 rgba(255,255,255,.28) !important; }
+.ch-btn:hover{ box-shadow:0 18px 48px -14px rgba(111,136,255,.55),inset 0 1px 0 rgba(255,255,255,.35) !important; }
+
+/* ── Sheen lumineux balayant (injecté par JS) ── */
+.rv2-sheen{
+  position:absolute;top:0;bottom:0;left:0;width:42%;
+  pointer-events:none;transform:translateX(-160%) skewX(-18deg);
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.38),transparent);
+}
+
+/* ── Focus accessible & premium (finition pro) ── */
+:focus-visible{
+  outline:2px solid var(--v2-accent-2);
+  outline-offset:3px;border-radius:6px;
+}
+
+@media (prefers-reduced-motion:reduce){
+  #rv2-atmos{display:none;}
+}
