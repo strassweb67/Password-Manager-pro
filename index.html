@@ -24,7 +24,7 @@
 try{ localStorage.removeItem('rn_gl_lite'); }catch(e){}
 /* ── REPÈRE DE VERSION (pour vérifier d'un coup d'œil qu'on est bien sur la
       dernière version en ligne, et non une vieille page en cache) ── */
-window.__BUILD='2026-08-08 · paiement-revolut';
+window.__BUILD='2026-08-08 · pay-redirect-merci';
 try{ console.log('%cRENAISSANCE — build '+window.__BUILD,'background:#0c1024;color:#8ea6ff;font-weight:700;padding:4px 10px;border-radius:6px;'); }catch(e){}
 </script>
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
@@ -5514,10 +5514,47 @@ function goToPayment(){
       amount:amount, currency:PAY.currency, ts:Date.now()
     }));
   }catch(e){}
-  if(link){ window.location.href=link; return; }
+  if(link){ showPayPending(link); return; }
   /* Aucune plateforme externe : si le lien Revolut n'est pas encore posé,
      on reste sur le site et on affiche un message clair. */
   showPayComingSoon();
+}
+
+/* ── Paiement Revolut + redirection vers merci.html ──────────────────────
+   Les liens de paiement Revolut (nom/photo modifiables uniquement) ne
+   permettent PAS de configurer une URL de redirection. On gère donc le retour
+   côté site : le paiement s'ouvre dans un nouvel onglet, et dès que cet onglet
+   se ferme, on redirige la page vers merci.html. Bouton « J'ai payé » de
+   secours (popup bloquée, retour manuel). ─────────────────────────────── */
+function showPayPending(link){
+  var payWin=null;
+  try{ payWin=window.open(link,'_blank'); }catch(e){}
+  var blocked=!payWin;
+  var ov=document.createElement('div');
+  ov.id='rn-pay-pending';
+  ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(ellipse at 50% 30%,rgba(64,96,235,.18),#030307 60%);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;';
+  ov.innerHTML='<div style="max-width:460px;width:100%;text-align:center;background:#0c0d18;border:1px solid rgba(122,152,255,.35);border-radius:22px;padding:40px 30px;box-shadow:0 30px 80px rgba(0,0,0,.8);">'
+    +'<div style="width:74px;height:74px;margin:0 auto 20px;border-radius:50%;background:rgba(90,120,255,.16);border:1px solid rgba(122,152,255,.5);display:flex;align-items:center;justify-content:center;font-size:34px;">💳</div>'
+    +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:22px;letter-spacing:.5px;color:#f1f5f9;margin-bottom:10px;">Finalise ton paiement</h2>'
+    +'<p style="font-size:14px;color:#94a3b8;line-height:1.7;margin-bottom:22px;">'
+      +(blocked?'Ouvre le paiement Revolut ci-dessous, puis reviens ici.':'Le paiement s\'est ouvert dans un nouvel onglet Revolut.')
+      +' Dès que le paiement est terminé, tu es redirigé vers ta confirmation.</p>'
+    +(blocked?'<a href="'+esc(link)+'" target="_blank" rel="noopener" style="display:block;padding:15px;background:linear-gradient(135deg,#33b1f0,#229ED9);color:#fff;border-radius:12px;font-weight:800;letter-spacing:.5px;font-size:14px;text-decoration:none;margin-bottom:12px;">Ouvrir le paiement Revolut →</a>':'')
+    +'<a href="merci.html" id="pp-done" style="display:block;padding:15px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border-radius:12px;font-weight:800;letter-spacing:.5px;font-size:14px;text-decoration:none;margin-bottom:12px;">✅ J\'ai payé — voir ma confirmation</a>'
+    +'<button type="button" id="pp-cancel" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;padding:6px;">Annuler</button>'
+    +'</div>';
+  document.body.appendChild(ov);
+  var pollTimer=null;
+  function stop(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
+  ov.querySelector('#pp-cancel').onclick=function(){ stop(); ov.remove(); };
+  ov.querySelector('#pp-done').onclick=function(){ stop(); };
+  // Redirection automatique dès que l'onglet Revolut est fermé
+  if(payWin){
+    pollTimer=setInterval(function(){
+      var closed=false; try{ closed=payWin.closed; }catch(e){ closed=true; }
+      if(closed){ stop(); window.location.href='merci.html'; }
+    },1000);
+  }
 }
 /* Écran on-site quand le paiement Revolut n'est pas encore configuré */
 function showPayComingSoon(){
