@@ -24,7 +24,7 @@
 try{ localStorage.removeItem('rn_gl_lite'); }catch(e){}
 /* ── REPÈRE DE VERSION (pour vérifier d'un coup d'œil qu'on est bien sur la
       dernière version en ligne, et non une vieille page en cache) ── */
-window.__BUILD='2026-08-08 · pay-redirect-merci';
+window.__BUILD='2026-08-08 · suivi-diagnostics';
 try{ console.log('%cRENAISSANCE — build '+window.__BUILD,'background:#0c1024;color:#8ea6ff;font-weight:700;padding:4px 10px;border-radius:6px;'); }catch(e){}
 </script>
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
@@ -4140,7 +4140,7 @@ async function showDashboard(){
         <button id="adm-btn-fiches" style="padding:18px 14px;background:linear-gradient(135deg,#171326,#0c0d18);border:1px solid rgba(201,168,106,.35);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">📋 Fiches clients<span style="font-size:10px;font-weight:600;color:#94a3b8;">Visiteurs · recherche Android / IP / OS</span></button>
         <button id="adm-btn-zyra" style="padding:18px 14px;background:linear-gradient(135deg,#141a33,#0c0d18);border:1px solid rgba(111,136,255,.4);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">🚀 Résa Zyra (beta)<span style="font-size:10px;font-weight:600;color:#94a3b8;">Inscrits Zyra</span></button>
         <button id="adm-btn-bgh" style="padding:18px 14px;background:linear-gradient(135deg,#1c1710,#0c0d18);border:1px solid rgba(201,168,106,.4);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">🎟️ Résa BGH Party<span style="font-size:10px;font-weight:600;color:#94a3b8;">Inscrits soirées</span></button>
-        <button id="adm-btn-diag2" style="padding:18px 14px;background:linear-gradient(135deg,#0f1a24,#0c0d18);border:1px solid rgba(56,189,248,.35);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">📊 Diagnostics<span style="font-size:10px;font-weight:600;color:#94a3b8;">Fiches terminées + tentés</span></button>
+        <button id="adm-btn-diag2" style="padding:18px 14px;background:linear-gradient(135deg,#0f1a24,#0c0d18);border:1px solid rgba(56,189,248,.35);border-radius:14px;color:#f1f5f9;font-size:13px;font-weight:800;letter-spacing:.5px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;">🧪 Diagnostics<span style="font-size:10px;font-weight:600;color:#94a3b8;">Tous les tests · réponses + paiement</span></button>
       </div>
     </div>
 
@@ -4223,7 +4223,7 @@ async function showDashboard(){
     var vbk=document.getElementById('vfiches-back');  if(vbk) vbk.onclick=closeVfiches;
     var zb=document.getElementById('adm-btn-zyra');   if(zb) zb.onclick=function(){ if(window.showCRM) window.showCRM('zyra'); };
     var bb=document.getElementById('adm-btn-bgh');     if(bb) bb.onclick=function(){ if(window.showCRM) window.showCRM('bgh'); };
-    var db=document.getElementById('adm-btn-diag2');   if(db) db.onclick=function(){ if(window.showCRM) window.showCRM('hub'); };
+    var db=document.getElementById('adm-btn-diag2');   if(db) db.onclick=function(){ if(window.showCRM) window.showCRM('sessions'); };
 
     // ── Prix du diagnostic + lien Revolut (en direct pour tous via Supabase) ──
     var cfgP=document.getElementById('cfg-price'), cfgL=document.getElementById('cfg-link'),
@@ -5131,6 +5131,11 @@ function dgOpen(){
   document.body.style.overflow="hidden";
   try{ history.pushState({dg:1},""); pushed=true; }catch(e){}
   if(!S.started){ S.started=true; track("🎯 Diag → Démarré"); }
+  // Nouvelle session de diagnostic → nouvelle fiche (créée à la 1re réponse)
+  window.__diagRowId=null; window.__dgCompleted=false;
+  window.__dgStartedAt=new Date().toISOString();
+  window.__dgDevice=dgDeviceInfo();
+  window.__dgPay={ clicked:false, completed:false, paid:false };
   stickyCheck();
   render();
 }
@@ -5335,7 +5340,10 @@ function bindScreen(){
       card.querySelectorAll(".dg-ax-fill").forEach(function(f){ f.style.width=f.getAttribute("data-w")+"%"; });
       card.querySelectorAll(".dg-gn,.dg-ax-n").forEach(function(n){ dgCount(n, parseInt(n.getAttribute("data-t"),10)); });
     }); });
-    el("dgBuy").addEventListener("click", function(ev){ ev.preventDefault(); track("💰 Diag → Paiement Revolut "+((window.__rnCfg&&window.__rnCfg.price)||DG_OFFER.price)); goToPayment(); });
+    el("dgBuy").addEventListener("click", function(ev){ ev.preventDefault();
+      window.__dgPay=window.__dgPay||{}; window.__dgPay.clicked=true; window.__dgPay.clicked_at=new Date().toISOString();
+      try{ dgSaveSession(); }catch(e){}       // « a cliqué sur payer »
+      track("💰 Diag → Paiement Revolut "+((window.__rnCfg&&window.__rnCfg.price)||DG_OFFER.price)); goToPayment(); });
     el("dgSeeEco").addEventListener("click", function(){
       dgAttemptClose();
       setTimeout(function(){
@@ -5366,6 +5374,7 @@ function pick(idx, btn){
   if(S.lockPick) return;
   S.lockPick=true;
   S.answers[S.qi]=idx;
+  try{ dgSaveSession(); }catch(e){}          // fiche créée/à jour à chaque réponse
   card.querySelectorAll(".dg-opt").forEach(function(b){ b.classList.remove("picked"); });
   btn.classList.add("picked");
   if(S.qi===6 && !S.half){ S.half=true; track("🎯 Diag → 50%"); }
@@ -5461,45 +5470,86 @@ function compute(){
 }
 
 /* ── Sauvegarde lead ── */
-function saveLead(r){
-  // Réponses lisibles (question → réponse choisie) pour l'admin
-  var qa = QS.map(function(q,i){ return { q:q.t, r:(q.o[S.answers[i]]||"") }; });
-  var lead={
-    ts:new Date().toISOString(),
-    email:S.email, tel:S.tel, code_postal:S.cp,
-    age:(QS[0].o[S.answers[0]]||""),
-    profil:r.profile.name,
-    potentiel:r.potentiel, exploite:r.exploite,
-    axe_prioritaire:r.prio.label,
-    scores:{physique:r.axes[0].score, revenus:r.axes[1].score, environnement:r.axes[2].score, discipline:r.axes[3].score},
-    reponses:S.answers.slice(),
-    reponses_texte:qa,
-    source:'diag',              // diagnostic TERMINÉ (catégorisé "Fiches clients" dans l'admin)
-    paid:false
-  };
-  // ── Secours localStorage ──
+/* ═══ SUIVI COMPLET DES DIAGNOSTICS — une fiche par test ══════════════════
+   Fiche créée dès la 1re réponse et mise à jour à CHAQUE réponse (même si le
+   diagnostic est abandonné) + à chaque étape de paiement. Stockée dans la
+   table diag_leads existante (aucune modif du schéma) :
+   • reponses       = indices des réponses
+   • reponses_texte = { qa:[{q,r}…], meta:{device, answered/total, completed, pay} }
+   • profil/scores… = remplis à la fin ; paid = payé.
+   ════════════════════════════════════════════════════════════════════════ */
+function dgDeviceInfo(){
   try{
-    var arr=JSON.parse(localStorage.getItem(LS_KEY)||"[]");
-    arr.push(lead);
-    if(arr.length>200) arr=arr.slice(-200);
-    localStorage.setItem(LS_KEY, JSON.stringify(arr));
-  }catch(e){}
-  window.__lastDiagLead=lead;
-  console.log("[DIAG LEAD]", lead);
-  track("⭐ LEAD DIAG — "+S.email+" · "+S.tel);
-  // ── FICHE CLIENT → Supabase (table diag_leads) ──
-  if(typeof sbFetch==="function"){
-    sbFetch("diag_leads",{
-      method:"POST",
-      prefer:"return=representation",
-      body:JSON.stringify(lead)
-    }).then(function(rows){
-      var id = rows && rows[0] && rows[0].id;
-      window.__lastLeadId = id || null;
-      if(id){ try{ localStorage.setItem("rn_last_lead_id", String(id)); }catch(e){} }
-      console.log("[DIAG→SB] fiche enregistrée", id);
-    }).catch(function(e){ console.warn("[DIAG→SB] insert KO", e.message); });
+    var ua=navigator.userAgent||'';
+    var os=/iPhone|iPad|iPod/.test(ua)?'iOS':/Android/.test(ua)?'Android':/Windows/.test(ua)?'Windows':/Macintosh|Mac OS/.test(ua)?'macOS':'Autre';
+    var br=/Edg/i.test(ua)?'Edge':/OPR|Opera/i.test(ua)?'Opera':/YaBrowser/i.test(ua)?'Yandex':/Firefox|FxiOS/i.test(ua)?'Firefox':/CriOS|Chrome/i.test(ua)?'Chrome':/Safari/i.test(ua)?'Safari':'Autre';
+    return { os:os, browser:br };
+  }catch(e){ return { os:'?', browser:'?' }; }
+}
+function dgSessionBody(){
+  var qa=[]; for(var i=0;i<QS.length;i++){ if(S.answers[i]!=null) qa.push({ q:QS[i].t, r:(QS[i].o[S.answers[i]]||'') }); }
+  var completed = !!window.__dgCompleted || S.view==='res';
+  var pay = window.__dgPay || { clicked:false, completed:false };
+  var meta={
+    device: window.__dgDevice||dgDeviceInfo(),
+    started_at: window.__dgStartedAt||new Date().toISOString(),
+    last_at: new Date().toISOString(),
+    answered: qa.length, total: QS.length,
+    reached_q: (S.qi!=null? S.qi+1 : 0),
+    completed: completed,
+    pay: pay
+  };
+  var body={
+    source:'diag',
+    reponses:S.answers.slice(),
+    reponses_texte:{ qa:qa, meta:meta },
+    profil: (completed && S.res) ? S.res.profile.name : ('(en cours '+qa.length+'/'+QS.length+')'),
+    paid: !!pay.paid
+  };
+  if(!window.__diagRowId || window.__diagRowId==='pending') body.ts = window.__dgStartedAt||new Date().toISOString();
+  if(completed && S.res){
+    body.potentiel=S.res.potentiel; body.exploite=S.res.exploite;
+    body.axe_prioritaire=S.res.prio.label;
+    body.scores={ physique:S.res.axes[0].score, revenus:S.res.axes[1].score, environnement:S.res.axes[2].score, discipline:S.res.axes[3].score };
+    body.age=(QS[0].o[S.answers[0]]||'');
+    body.email=S.email||''; body.tel=S.tel||''; body.code_postal=S.cp||'';
   }
+  return body;
+}
+async function dgSaveSession(){
+  if(typeof sbFetch!=='function') return;
+  if(window.__diagRowId==='pending') return;              // insertion déjà en cours
+  try{
+    if(!window.__diagRowId){
+      window.__diagRowId='pending';
+      var rows=await sbFetch('diag_leads',{ method:'POST', prefer:'return=representation', body:JSON.stringify(dgSessionBody()) }, true);
+      var id=rows && rows[0] && rows[0].id;
+      window.__diagRowId = id || null;
+      if(id){
+        window.__lastLeadId=id; try{ localStorage.setItem('rn_last_lead_id',String(id)); }catch(e){}
+        // rattrapage : réponses arrivées pendant l'insertion
+        try{ await sbFetch('diag_leads?id=eq.'+encodeURIComponent(id),{ method:'PATCH', body:JSON.stringify(dgSessionBody()) }, true); }catch(e){}
+      }
+    } else {
+      await sbFetch('diag_leads?id=eq.'+encodeURIComponent(window.__diagRowId),{ method:'PATCH', body:JSON.stringify(dgSessionBody()) }, true);
+    }
+  }catch(e){ if(window.__diagRowId==='pending') window.__diagRowId=null; console.warn('[DIAG session] KO', e.message); }
+}
+window.__dgSaveSession=dgSaveSession;
+
+function saveLead(r){
+  window.__dgCompleted=true;                       // marque le diagnostic terminé
+  // Secours localStorage (inchangé)
+  var qa = QS.map(function(q,i){ return { q:q.t, r:(q.o[S.answers[i]]||"") }; });
+  var lead={ ts:new Date().toISOString(), email:S.email, tel:S.tel, code_postal:S.cp,
+    age:(QS[0].o[S.answers[0]]||""), profil:r.profile.name, potentiel:r.potentiel, exploite:r.exploite,
+    axe_prioritaire:r.prio.label, scores:{physique:r.axes[0].score, revenus:r.axes[1].score, environnement:r.axes[2].score, discipline:r.axes[3].score},
+    reponses:S.answers.slice(), reponses_texte:qa, source:'diag', paid:false };
+  try{ var arr=JSON.parse(localStorage.getItem(LS_KEY)||"[]"); arr.push(lead); if(arr.length>200) arr=arr.slice(-200); localStorage.setItem(LS_KEY, JSON.stringify(arr)); }catch(e){}
+  window.__lastDiagLead=lead;
+  track("⭐ LEAD DIAG — "+S.email+" · "+S.tel);
+  // Met à jour la FICHE de session (PATCH), ou l'insère si elle n'existe pas encore
+  dgSaveSession();
 }
 
 /* ── Redirection vers le paiement Revolut ── */
@@ -5544,15 +5594,22 @@ function showPayPending(link){
     +'<button type="button" id="pp-cancel" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;padding:6px;">Annuler</button>'
     +'</div>';
   document.body.appendChild(ov);
-  var pollTimer=null;
+  var pollTimer=null, going=false;
   function stop(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
+  // Marque « allé au bout du paiement » sur la fiche, puis va sur merci.html
+  function markDoneAndGo(){
+    if(going) return; going=true; stop();
+    try{ window.__dgPay=window.__dgPay||{}; window.__dgPay.completed=true; window.__dgPay.completed_at=new Date().toISOString(); }catch(e){}
+    var go=function(){ window.location.href='merci.html'; };
+    try{ var p=dgSaveSession(); if(p&&p.then){ p.then(go,go); setTimeout(go,1200); } else { go(); } }catch(e){ go(); }
+  }
   ov.querySelector('#pp-cancel').onclick=function(){ stop(); ov.remove(); };
-  ov.querySelector('#pp-done').onclick=function(){ stop(); };
+  ov.querySelector('#pp-done').onclick=function(e){ if(e) e.preventDefault(); markDoneAndGo(); };
   // Redirection automatique dès que l'onglet Revolut est fermé
   if(payWin){
     pollTimer=setInterval(function(){
       var closed=false; try{ closed=payWin.closed; }catch(e){ closed=true; }
-      if(closed){ stop(); window.location.href='merci.html'; }
+      if(closed){ markDoneAndGo(); }
     },1000);
   }
 }
@@ -5801,9 +5858,15 @@ async function loadLeads(){
 }
 
 /* ── Carte d'une fiche client ── */
+function dgQA(l){                                   // réponses lisibles (ancien tableau OU nouveau {qa})
+  var rt=l&&l.reponses_texte;
+  if(Array.isArray(rt)) return rt;
+  if(rt && Array.isArray(rt.qa)) return rt.qa;
+  return [];
+}
 function leadCard(l){
   var sc=l.scores||{};
-  var qa=Array.isArray(l.reponses_texte)?l.reponses_texte:[];
+  var qa=dgQA(l);
   var qaHtml=qa.map(function(x,i){
     return '<div style="padding:7px 0;border-bottom:1px solid rgba(148,163,184,.08);">'
       +'<div style="font-size:11px;color:#94a3b8;">'+(i+1)+'. '+esc(x.q)+'</div>'
@@ -5845,14 +5908,43 @@ function el(id){ return document.getElementById(id); }
 /* ── Classe chaque fiche par origine (source) — SANS modifier le SQL ──
    'zyra'/'bgh-party' = inscrits ; profil rempli = diagnostic terminé ;
    'diag-start' = tentative (contact saisi mais non terminé). */
+/* Métadonnées d'une session diagnostic (reponses_texte = { qa, meta }) */
+function dgMeta(l){
+  var rt=l&&l.reponses_texte;
+  if(rt && typeof rt==='object' && !Array.isArray(rt) && rt.meta) return rt.meta;
+  return {};
+}
+/* Diagnostic terminé ? (nouveau format meta.completed, ou ancien format profil rempli) */
+function dgIsDone(l){
+  var m=dgMeta(l);
+  if(m && m.completed===true) return true;
+  var s=(l.source||'').toLowerCase();
+  // Un profil réel (≠ « en cours ») = diagnostic terminé (ancien et nouveau format)
+  return !!(l.profil && String(l.profil).indexOf('en cours')<0 && s!=='diag-start');
+}
 function catRows(rows){
-  var zyra=[], bgh=[], completed=[], attempts=[], paid=[], doneMail={};
+  var zyra=[], bgh=[], completed=[], attempts=[], paid=[], sessions=[], doneMail={};
   rows.forEach(function(l){
     var s=(l.source||'').toLowerCase();
     if(s==='__site_config') return;                 // ligne de config (prix/lien) — jamais une fiche
 
     if(s==='zyra'){ zyra.push(l); return; }
     if(s==='bgh-party'||s==='bgh'){ bgh.push(l); return; }
+
+    // Toute session de diagnostic (complète OU partielle) → vue « Tous les diagnostics »
+    if(s==='diag' || s==='diag-start'){
+      sessions.push(l);
+      if(dgIsDone(l)){
+        completed.push(l);
+        if(l.email) doneMail[String(l.email).toLowerCase()]=1;
+        if(l.paid) paid.push(l);
+      } else {
+        attempts.push(l);
+      }
+      return;
+    }
+
+    // Autres sources éventuelles (compat)
     if((l.profil && s!=='diag-start') || l.paid){
       completed.push(l);
       if(l.email) doneMail[String(l.email).toLowerCase()]=1;
@@ -5861,9 +5953,9 @@ function catRows(rows){
     }
     attempts.push(l);
   });
-  // Tentatives = contact saisi mais PAS de fiche terminée pour ce mail
   attempts=attempts.filter(function(l){ return !(l.email && doneMail[String(l.email).toLowerCase()]); });
-  return { zyra:zyra, bgh:bgh, completed:completed, attempts:attempts, paid:paid };
+  sessions.sort(function(a,b){ return (new Date(b.ts||b.created_at||0)) - (new Date(a.ts||a.created_at||0)); });
+  return { zyra:zyra, bgh:bgh, completed:completed, attempts:attempts, paid:paid, sessions:sessions };
 }
 function matchQ(l,q){
   if(!q) return true; q=q.toLowerCase();
@@ -5897,7 +5989,46 @@ function attemptCard(l){
     +'</div></div>';
 }
 
+/* ── Carte « session diagnostic » (analyse complète : progression + réponses + paiement) ── */
+function diagSessionCard(l){
+  var m=dgMeta(l); var qa=dgQA(l); var dev=m.device||{}; var pay=m.pay||{};
+  var done=dgIsDone(l);
+  var ans=(m.answered!=null? m.answered : qa.length), tot=(m.total||13);
+  function b(bg,bd,c,txt){ return '<span style="background:'+bg+';border:1px solid '+bd+';color:'+c+';padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:800;letter-spacing:.5px;white-space:nowrap;">'+txt+'</span>'; }
+  var statusB = done ? b('rgba(34,197,94,.14)','rgba(34,197,94,.4)','#22c55e','✓ TERMINÉ')
+                     : b('rgba(56,189,248,.14)','rgba(56,189,248,.4)','#38bdf8','⏳ '+ans+'/'+tot+' — abandonné');
+  var payB = (l.paid ? b('rgba(34,197,94,.14)','rgba(34,197,94,.4)','#22c55e','💰 PAYÉ')
+             : (pay.completed ? b('rgba(34,197,94,.10)','rgba(34,197,94,.3)','#4ade80','✅ Allé au bout du paiement')
+             : (pay.clicked ? b('rgba(245,158,11,.12)','rgba(245,158,11,.4)','#f59e0b','💳 A cliqué payer')
+             : b('rgba(100,116,139,.10)','rgba(100,116,139,.3)','#64748b','Pas de paiement'))));
+  var devB = b('rgba(148,163,184,.08)','rgba(148,163,184,.25)','#94a3b8','📱 '+esc(dev.os||'?')+' · '+esc(dev.browser||'?'));
+  var contact = (l.email||l.tel||l.code_postal) ?
+      '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;">'
+      +(l.email?'<a href="mailto:'+esc(l.email)+'" style="background:rgba(228,226,221,.1);color:#e8e6e1;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;">✉ '+esc(l.email)+'</a>':'')
+      +(l.tel?'<a href="tel:'+esc(l.tel)+'" style="background:rgba(228,226,221,.1);color:#e8e6e1;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;">☎ '+esc(l.tel)+'</a>':'')
+      +(l.code_postal?'<span style="background:rgba(148,163,184,.08);color:#94a3b8;padding:6px 12px;border-radius:8px;font-size:12px;">📍 '+esc(l.code_postal)+'</span>':'')
+      +'</div>' : '';
+  var profilLine = done ?
+      '<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:#cbd5e1;margin:8px 0;">'
+      +'<span>👤 <b style="color:#cdb583;">'+esc(l.profil||'—')+'</b></span>'
+      +'<span>⚡ Potentiel <b style="color:#cdb583;">'+esc(l.potentiel)+'%</b></span>'
+      +'<span>Exploité <b style="color:#cdb583;">'+esc(l.exploite)+'%</b></span></div>' : '';
+  var qaHtml=qa.map(function(x,i){
+    return '<div style="padding:7px 0;border-bottom:1px solid rgba(148,163,184,.08);">'
+      +'<div style="font-size:11px;color:#94a3b8;">'+(i+1)+'. '+esc(x.q)+'</div>'
+      +'<div style="font-size:12px;color:#e2e8f0;font-weight:600;margin-top:2px;">→ '+esc(x.r)+'</div></div>';
+  }).join('');
+  return '<div class="crm-card" style="background:#0c0d18;border:1px solid rgba(228,226,221,.16);border-radius:14px;padding:16px 18px;margin-bottom:14px;">'
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;">'+statusB+payB+devB
+      +'<span style="margin-left:auto;font-size:11px;color:#475569;">'+fmtDate(l.ts||l.created_at)+'</span></div>'
+    +profilLine+contact
+    +(qaHtml?('<details style="margin-top:6px;"><summary style="cursor:pointer;font-size:11px;color:#38bdf8;font-weight:700;letter-spacing:1px;">VOIR LES RÉPONSES ('+qa.length+'/'+tot+')</summary><div style="margin-top:8px;">'+qaHtml+'</div></details>')
+      :'<p style="font-size:11px;color:#475569;margin-top:6px;">Aucune réponse enregistrée.</p>')
+    +'</div>';
+}
+
 var _CRM_VIEWS = {
+  sessions: { icon:'🧪', title:'Tous les diagnostics', col:'#38bdf8', key:'sessions', card:diagSessionCard },
   fiches:   { icon:'📋', title:'Fiches clients',     col:'#b9975b', key:'completed', card:function(l){return leadCard(l);} },
   attempts: { icon:'⏳', title:'Diagnostics tentés',  col:'#38bdf8', key:'attempts', card:attemptCard },
   zyra:     { icon:'🚀', title:'Inscrits Zyra',       col:'#8ea6ff', key:'zyra',     card:function(l){return signupCard(l,'zyra');} },
@@ -5912,6 +6043,7 @@ function renderCRM(){
 
   if(_crmView==='hub'){
     var items=[
+      {v:'sessions',c:c.sessions.length},
       {v:'fiches',c:c.completed.length},{v:'attempts',c:c.attempts.length},
       {v:'zyra',c:c.zyra.length},{v:'bgh',c:c.bgh.length},{v:'paid',c:c.paid.length}
     ];
