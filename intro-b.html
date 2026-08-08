@@ -50,6 +50,7 @@
     background:radial-gradient(circle at 50% 46%,#fff 0%,var(--cyan) 12%,var(--blue) 34%,#03040c 70%);}
   .hint{position:fixed;bottom:18px;left:0;right:0;text-align:center;z-index:3;font-size:11px;letter-spacing:2px;color:#4a5384;}
 </style>
+<link rel="stylesheet" href="assets/redesign-v2.css?v=1">
 </head>
 <body>
 <canvas id="galaxy"></canvas>
@@ -147,5 +148,8 @@ document.getElementById('cta').addEventListener('click',()=>{
     .to(['.brand','.sub','#cta','.hint'],{opacity:1,duration:.5},'-=.4');
 });
 </script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/lenis.min.js" defer></script>
+<script src="assets/redesign-v2.js?v=1" defer></script>
 </body>
 </html>
