@@ -13,6 +13,41 @@
        CRM, galaxy-intro, geo-consent).
      · Respecte prefers-reduced-motion.
    ═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   FILET DE SÉCURITÉ INTRO (indépendant de GSAP, s'exécute toujours)
+   Empêche le site d'être bloqué sur l'écran d'entrée « galaxy-intro »
+   (ex : WebGL lent/mort → warp figé). Ne ferme jamais l'intro tant que
+   l'utilisateur n'a pas lancé l'entrée, sauf garde-fou absolu très tardif.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  function boot(){
+    var gi = document.getElementById('galaxy-intro');
+    if (!gi) return;
+    function kill(){
+      if (gi.classList.contains('gi-gone')) return;
+      try{
+        document.documentElement.classList.remove('gi-open');
+        document.body.classList.remove('gi-open');
+        gi.classList.add('gi-gone');
+        window.scrollTo(0,0);
+      }catch(e){}
+    }
+    function entered(){ return !!(window.__giCta || window.__giAnim); }
+    // 1) Tap sur l'intro une fois l'entrée lancée → sortie immédiate (anti-warp figé)
+    gi.addEventListener('pointerup', function(){ if (entered()) setTimeout(kill, 50); }, true);
+    // 2) Si l'entrée est lancée mais reste bloquée > 4 s → on force la sortie
+    var iv = setInterval(function(){
+      if (gi.classList.contains('gi-gone')){ clearInterval(iv); return; }
+      if (entered()){ clearInterval(iv); setTimeout(kill, 4000); }
+    }, 300);
+    // 3) Garde-fou absolu : intro toujours visible 16 s après chargement → skip
+    setTimeout(function(){ if (!gi.classList.contains('gi-gone')) kill(); }, 16000);
+  }
+  if (document.readyState !== 'loading') boot();
+  else document.addEventListener('DOMContentLoaded', boot);
+})();
+
 (function(){
   'use strict';
 

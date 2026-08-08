@@ -144,14 +144,10 @@ html.rv2-ready [data-rv2]{opacity:0;}
 *::-webkit-scrollbar{width:10px;height:10px;}
 *::-webkit-scrollbar-thumb{background:linear-gradient(var(--v2-accent-3),var(--v2-accent));border-radius:10px;border:2px solid transparent;background-clip:padding-box;}
 
-/* ── Sécurité : jamais masquer les overlays critiques ── */
-#diagOverlay,#diagOverlay *,
-#galaxy-intro,#galaxy-intro *,
-#geo-consent-card,#geo-consent-card *,
-#vfiches-ov,#vfiches-ov *,
-[id^="a-"],[id^="d-"],[id^="cfg-"],[id^="adm-"]{
-  opacity:revert !important;
-}
+/* NOTE : aucune règle globale d'opacity sur les overlays.
+   Le reveal ne masque QUE les éléments explicitement marqués [data-rv2]
+   par le JS (jamais dans les overlays), donc aucune sécurité n'est requise —
+   et une telle règle cassait .gi-warp (opacity:0 → 1) qui recouvrait l'intro. */
 
 @media (prefers-reduced-motion:reduce){
   html.rv2-ready [data-rv2]{opacity:1 !important;}
