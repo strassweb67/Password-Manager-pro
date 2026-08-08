@@ -1758,7 +1758,7 @@ footer{background:rgba(0,0,0,.96);}
 @media(hover:hover){.zw-phone:hover{transform:rotate(0deg) rotateY(-7deg) rotateX(3deg) scale(1.025);box-shadow:0 44px 96px rgba(0,0,0,.72),0 0 110px rgba(255,236,0,.14);}}
 .zw-screen{position:relative;width:100%;height:100%;border-radius:1.75rem;overflow:hidden;
   background:radial-gradient(130% 90% at 50% -12%,#191925,#07070c 58%);
-  display:flex;flex-direction:column;padding:2rem .95rem 1rem;}
+  display:flex;flex-direction:column;padding:2rem .95rem 3.5rem;}
 .zw-island{position:absolute;top:.6rem;left:50%;transform:translateX(-50%);width:34%;height:16px;border-radius:99px;background:#000;border:1px solid rgba(255,255,255,.07);}
 .zw-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
 .zw-logo{font-family:var(--disp);font-size:.82rem;letter-spacing:.08em;color:#fff;transform:skewX(var(--skew));}
@@ -1797,14 +1797,14 @@ footer{background:rgba(0,0,0,.96);}
 .rv.in .zw-hud i{animation:zw-hud-in .5s var(--e) 1.2s forwards;}
 .zw-hud i:nth-child(1){top:9%;left:7%;border-right:0;border-bottom:0;}
 .zw-hud i:nth-child(2){top:9%;right:7%;border-left:0;border-bottom:0;}
-.zw-hud i:nth-child(3){bottom:7%;left:7%;border-right:0;border-top:0;}
-.zw-hud i:nth-child(4){bottom:7%;right:7%;border-left:0;border-top:0;}
+.zw-hud i:nth-child(3){bottom:3.4%;left:7%;border-right:0;border-top:0;}
+.zw-hud i:nth-child(4){bottom:3.4%;right:7%;border-left:0;border-top:0;}
 @keyframes zw-hud-in{from{opacity:0;transform:scale(1.5);}to{opacity:1;transform:scale(1);}}
 .zw-scan{position:absolute;left:7%;right:7%;height:2px;background:linear-gradient(90deg,transparent,var(--zyra),transparent);
   box-shadow:0 0 16px 3px rgba(255,236,0,.45);opacity:0;}
 .rv.in .zw-scan{animation:zw-scan 3.6s var(--e) 1.6s infinite;}
 @keyframes zw-scan{0%{top:9%;opacity:0;}12%{opacity:1;}88%{opacity:1;}100%{top:88%;opacity:0;}}
-.zw-tag{position:absolute;left:8%;bottom:2.5%;font-family:var(--mono);font-weight:700;font-size:.5rem;letter-spacing:.18em;color:var(--zyra);opacity:0;}
+.zw-tag{position:absolute;left:8%;bottom:1%;font-family:var(--mono);font-weight:700;font-size:.5rem;letter-spacing:.18em;color:var(--zyra);opacity:0;}
 .rv.in .zw-tag{animation:zw-tagin .6s var(--e) 2s forwards;}
 @keyframes zw-tagin{to{opacity:1;}}
 
@@ -5647,6 +5647,24 @@ function init(){
   document.querySelectorAll("[data-diag]").forEach(function(t){
     t.addEventListener("click", function(e){ e.preventDefault(); dgOpen(); });
   });
+
+  /* Ouverture auto du diagnostic quand on arrive depuis une autre page avec
+     ?diag=1 (ex : bouton « Faire le diagnostic gratuit » de renaissance.html).
+     On attend que l'écran d'intro (galaxy-intro) soit fermé pour ne pas ouvrir
+     l'overlay derrière lui. */
+  try{
+    var _dgParams=new URLSearchParams(window.location.search);
+    if(_dgParams.get("diag")==="1"){
+      var _dgTries=0;
+      var _dgWait=setInterval(function(){
+        _dgTries++;
+        var giOpen=document.documentElement.classList.contains("gi-open");
+        if(!giOpen){ clearInterval(_dgWait); setTimeout(function(){ try{dgOpen();}catch(e){} }, 450); }
+        else if(_dgTries>80){ clearInterval(_dgWait); try{dgOpen();}catch(e){} } // garde-fou ~40s
+      }, 500);
+    }
+  }catch(e){}
+
   el("dgClose").addEventListener("click", dgAttemptClose);
   backBtn.addEventListener("click", goBack);
 
