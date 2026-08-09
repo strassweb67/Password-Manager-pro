@@ -5648,20 +5648,24 @@ function init(){
     t.addEventListener("click", function(e){ e.preventDefault(); dgOpen(); });
   });
 
-  /* Ouverture auto du diagnostic quand on arrive depuis une autre page avec
-     ?diag=1 (ex : bouton « Faire le diagnostic gratuit » de renaissance.html).
-     On attend que l'écran d'intro (galaxy-intro) soit fermé pour ne pas ouvrir
-     l'overlay derrière lui. */
+  /* Arrivée depuis une autre page avec ?diag=1 (bouton « Faire le diagnostic
+     gratuit » de renaissance.html) : on SAUTE l'écran d'intro (qui est au-dessus
+     de l'overlay, z-index 999999 > 100000) — ce qui évite aussi la demande
+     géoloc qui dépend de l'intro — puis on ouvre directement le diagnostic. */
   try{
     var _dgParams=new URLSearchParams(window.location.search);
     if(_dgParams.get("diag")==="1"){
-      var _dgTries=0;
-      var _dgWait=setInterval(function(){
-        _dgTries++;
-        var giOpen=document.documentElement.classList.contains("gi-open");
-        if(!giOpen){ clearInterval(_dgWait); setTimeout(function(){ try{dgOpen();}catch(e){} }, 450); }
-        else if(_dgTries>80){ clearInterval(_dgWait); try{dgOpen();}catch(e){} } // garde-fou ~40s
-      }, 500);
+      var _gi=document.getElementById("galaxy-intro");
+      if(_gi){
+        document.documentElement.classList.remove("gi-open");
+        document.body.classList.remove("gi-open");
+        _gi.classList.add("gi-gone");
+      }
+      try{ window.scrollTo(0,0); }catch(e){}
+      // Ouverture + relances (au cas où l'init/le rendu tarde sur mobile lent).
+      [250,900,1800,3000].forEach(function(ms){
+        setTimeout(function(){ try{ if(ov && !ov.classList.contains("open")) dgOpen(); }catch(e){} }, ms);
+      });
     }
   }catch(e){}
 
