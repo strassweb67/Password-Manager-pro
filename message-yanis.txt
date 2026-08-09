@@ -24,20 +24,51 @@ qui n'ont pas payé, soit il faut valider chaque vente à la main.
 Comme c'est ton compte Revolut qui encaisse, c'est toi qui reçois la
 notification « Vous avez reçu 10 € de [nom du client] ».
 
-Je te propose de créer UNE règle de transfert filtrée dans ta boîte mail
-(2 minutes, une seule fois) :
+Il faut créer UNE règle de transfert dans ta boîte mail. 2 minutes, une
+seule fois, et tu n'y touches plus jamais.
 
-   → Transférer vers yanisbghdata@gmail.com
-     UNIQUEMENT les mails de Revolut contenant « 10,00 € » reçus.
+Adresse de destination : yanisbghdata@gmail.com
+(boîte créée uniquement pour ça, elle ne sert qu'aux paiements du site)
 
-C'est une boîte créée uniquement pour ça, qui ne sert qu'aux paiements
-du site. Rien d'autre n'y arrive.
 
-Une fois la règle faite, tu n'as plus jamais rien à toucher.
+LA MANIP, ÉTAPE PAR ÉTAPE
+─────────────────────────
 
-Petit détail technique : Gmail va t'envoyer un code de confirmation pour
-valider l'adresse de transfert. Je te le transmets dès qu'il arrive, tu
-le colles, et c'est bon.
+PARTIE 1 — autoriser l'adresse (obligatoire, Gmail le demande)
+
+  1. Gmail → roue dentée ⚙ en haut à droite → « Voir tous les paramètres »
+  2. Onglet « Transfert et POP/IMAP »
+  3. Bouton « Ajouter une adresse de transfert »
+  4. Coller : yanisbghdata@gmail.com  → Suivant → Continuer
+  5. Google envoie un code de confirmation à cette adresse.
+     Je le reçois, je te l'envoie, tu le colles → Valider
+
+  ⚠️ Ne coche PAS « Transférer une copie des messages reçus ».
+     Ça transférerait TOUS tes mails. On ne veut pas ça.
+
+PARTIE 2 — le filtre (c'est lui qui ne laisse passer que les ventes)
+
+  6. Toujours dans les paramètres → onglet « Filtres et adresses bloquées »
+  7. « Créer un filtre »
+  8. Remplir seulement 2 champs :
+        De :                revolut.com
+        Contient les mots : 10,00
+  9. « Créer un filtre » (en bas à droite)
+  10. Cocher « Transférer à » → choisir yanisbghdata@gmail.com
+  11. « Créer un filtre »
+
+C'est fini.
+
+
+POURQUOI LE FILTRE « 10,00 »
+────────────────────────────
+Sans lui, je recevrais TOUTES tes notifications Revolut — y compris des
+virements qui n'ont rien à voir avec le site. Le filtre fait que seuls
+les paiements de 10 € des clients arrivent chez moi. C'est autant pour te
+protéger que pour moi.
+
+Si un jour tu veux vérifier ce qui part : Gmail → Filtres → tu vois la
+règle en clair, et tu peux la supprimer en un clic.
 
 
 ── CE QUE JE VOIS / CE QUE JE NE VOIS PAS ───────────────────────────
