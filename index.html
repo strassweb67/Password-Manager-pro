@@ -2827,7 +2827,7 @@ async function sbRpc(fn, params={}, useSecret=false){
    • potentiel        = prix en euros (entier)
    • axe_prioritaire  = lien de paiement Revolut
    ════════════════════════════════════════════════════════════════════════ */
-const RN_CFG_DEFAULT = { price: 29, link: 'https://checkout.revolut.com/payment-link/706c5a16-d1cf-4df5-9674-db846a75acd4' };
+const RN_CFG_DEFAULT = { price: 10, link: 'https://checkout.revolut.com/payment-link/706c5a16-d1cf-4df5-9674-db846a75acd4' };
 window.__rnCfg = { price: RN_CFG_DEFAULT.price, link: RN_CFG_DEFAULT.link };
 async function rnGetConfig(){
   try{
@@ -5023,7 +5023,7 @@ function showVisitorDetail(v){
 /* ── CONFIG OFFRE — un seul endroit à modifier ── */
 var DG_OFFER = {
   url:   "",   /* espace membre après paiement (laisse vide → retour accueil) */
-  price: "29€",
+  price: "10€",
   value: "+4 982€ de valeur",
   note:  "Accès immédiat · Sans engagement · Résiliable à tout moment"
 };
@@ -5032,7 +5032,7 @@ var LS_KEY = "rn_diag_leads";
 /* ═══ PAIEMENT REVOLUT ═══════════════════════════════════════════════
    Pour activer le paiement :
    1) Revolut Business → « Accepter des paiements » → « Payment links ».
-      Crée un lien au montant de ta formation (ex. 29€).
+      Crée un lien au montant de ta formation (ici 10€).
    2) Colle l'URL du lien dans REVOLUT_LINK ci-dessous.
    3) Dans les réglages du lien Revolut, mets l'URL de redirection APRÈS
       paiement sur :  https://TON-DOMAINE/renaissance.html?rvlt=success
@@ -5046,9 +5046,9 @@ var PAY = {
   // → window.__rnCfg.link). Redirige vers la page merci.html après paiement réussi
   // (à configurer côté Revolut : « Redirect after payment » = .../merci.html).
   REVOLUT_LINK: "https://checkout.revolut.com/payment-link/706c5a16-d1cf-4df5-9674-db846a75acd4",
-  amount:       "29",
+  amount:       "10",
   currency:     "EUR",
-  returnParam:  "rvlt",      // ?rvlt=success au retour de Revolut
+  returnParam:  "rvlt",      // conservé pour compat — n'accorde PLUS aucun accès
   fallbackUrl:  ""           // plus aucune plateforme externe (paiement 100% sur le site)
 };
 window.__PAY = PAY;
@@ -5486,6 +5486,24 @@ function dgDeviceInfo(){
     return { os:os, browser:br };
   }catch(e){ return { os:'?', browser:'?' }; }
 }
+/* ── Jeton d'accès privé du client ────────────────────────────────────────
+   Identifie SA fiche et rien d'autre. Sert uniquement à demander « est-ce que
+   mon paiement est arrivé ? » sans exposer d'e-mail ni d'identifiant de base.
+   Gardé en localStorage : le client peut fermer l'onglet et revenir. */
+function dgToken(){
+  if(window.__dgToken) return window.__dgToken;
+  var t=null;
+  try{ t=localStorage.getItem('rn_access_token'); }catch(e){}
+  if(!t){
+    try{ t=(crypto&&crypto.randomUUID)?crypto.randomUUID():null; }catch(e){}
+    if(!t) t='rn-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,14);
+    try{ localStorage.setItem('rn_access_token',t); }catch(e){}
+  }
+  window.__dgToken=t;
+  return t;
+}
+window.__dgToken2=dgToken;
+
 function dgSessionBody(){
   var qa=[]; for(var i=0;i<QS.length;i++){ if(S.answers[i]!=null) qa.push({ q:QS[i].t, r:(QS[i].o[S.answers[i]]||'') }); }
   var completed = !!window.__dgCompleted || S.view==='res';
@@ -5501,10 +5519,13 @@ function dgSessionBody(){
   };
   var body={
     source:'diag',
+    access_token: dgToken(),
     reponses:S.answers.slice(),
     reponses_texte:{ qa:qa, meta:meta },
-    profil: (completed && S.res) ? S.res.profile.name : ('(en cours '+qa.length+'/'+QS.length+')'),
-    paid: !!pay.paid
+    profil: (completed && S.res) ? S.res.profile.name : ('(en cours '+qa.length+'/'+QS.length+')')
+    /* `paid` volontairement ABSENT : seul le mail « argent reçu » (via
+       rn_confirm_payment) peut faire passer une fiche en payé. Si la page
+       le renvoyait, une sauvegarde tardive écraserait un paiement validé. */
   };
   if(!window.__diagRowId || window.__diagRowId==='pending') body.ts = window.__dgStartedAt||new Date().toISOString();
   if(completed && S.res){
@@ -5564,18 +5585,180 @@ function goToPayment(){
       amount:amount, currency:PAY.currency, ts:Date.now()
     }));
   }catch(e){}
-  if(link){ showPayPending(link); return; }
+  if(link){ showPayIntro(link, amount); return; }
   /* Aucune plateforme externe : si le lien Revolut n'est pas encore posé,
      on reste sur le site et on affiche un message clair. */
   showPayComingSoon();
 }
 
-/* ── Paiement Revolut + redirection vers merci.html ──────────────────────
-   Les liens de paiement Revolut (nom/photo modifiables uniquement) ne
-   permettent PAS de configurer une URL de redirection. On gère donc le retour
-   côté site : le paiement s'ouvre dans un nouvel onglet, et dès que cet onglet
-   se ferme, on redirige la page vers merci.html. Bouton « J'ai payé » de
-   secours (popup bloquée, retour manuel). ─────────────────────────────── */
+/* ═══ PAIEMENT REVOLUT — déblocage automatique ══════════════════════════════
+   Le compte qui encaisse est un compte Revolut classique : il ne peut ni
+   rediriger le client vers le site, ni le notifier. La confirmation arrive
+   donc par un autre chemin :
+
+     client clique « payer »        → rn_start_payment() horodate la commande
+     Revolut s'ouvre en NOUVEL onglet → la page du site reste vivante derrière
+     le client paie                 → Revolut envoie « vous avez reçu 10 € »
+     script Google lit ce mail      → rn_confirm_payment() passe la fiche en payé
+     la page interroge rn_check_paid() toutes les 3 s → elle se débloque seule
+
+   Conséquence directe : un client qui annule, revient en arrière, ferme
+   l'onglet ou dont la carte est refusée ne déclenche AUCUN mail, donc n'est
+   JAMAIS débloqué. Le déblocage ne peut venir que d'un encaissement réel.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Étape 1 — écran d'avertissement + compte à rebours avant l'ouverture */
+function showPayIntro(link, amount){
+  var SECONDES=10, restant=SECONDES, tick=null, parti=false;
+  var montant=(amount||PAY.amount||'10');
+
+  var ov=document.createElement('div');
+  ov.id='rn-pay-intro';
+  ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(ellipse at 50% 30%,rgba(64,96,235,.18),#030307 60%);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;';
+  ov.innerHTML='<div style="max-width:470px;width:100%;text-align:center;background:#0c0d18;border:1px solid rgba(122,152,255,.35);border-radius:22px;padding:38px 28px;box-shadow:0 30px 80px rgba(0,0,0,.8);">'
+    +'<div style="width:74px;height:74px;margin:0 auto 18px;border-radius:50%;background:rgba(90,120,255,.16);border:1px solid rgba(122,152,255,.5);display:flex;align-items:center;justify-content:center;font-size:34px;">💳</div>'
+    +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:21px;letter-spacing:.5px;color:#f1f5f9;margin-bottom:8px;">Merci d\'effectuer votre paiement</h2>'
+    +'<p style="font-size:26px;font-weight:800;color:#8ea6ff;letter-spacing:1px;margin-bottom:16px;">'+esc(montant)+' €</p>'
+    +'<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);border-radius:12px;padding:14px 16px;margin-bottom:20px;text-align:left;">'
+      +'<p style="font-size:12.5px;color:#fcd34d;line-height:1.6;font-weight:700;margin:0 0 6px;">⚠️ À lire avant de payer</p>'
+      +'<p style="font-size:12.5px;color:#cbd6ee;line-height:1.65;margin:0;">La page de paiement s\'ouvre dans un <b>nouvel onglet</b>. Une fois payé, <b style="color:#fcd34d;">revenez sur CET onglet</b> : votre accès se débloque tout seul, vous n\'avez rien d\'autre à faire.</p>'
+    +'</div>'
+    +'<p style="font-size:13px;color:#94a3b8;margin-bottom:6px;">Ouverture automatique dans</p>'
+    +'<p id="pi-count" style="font-family:Archivo,system-ui,sans-serif;font-size:44px;font-weight:800;color:#f1f5f9;line-height:1;margin-bottom:20px;">'+SECONDES+'</p>'
+    +'<button type="button" id="pi-now" style="display:block;width:100%;padding:15px;background:linear-gradient(135deg,#3b5bdb,#5a78ff);color:#fff;border:none;border-radius:12px;font-weight:800;letter-spacing:.5px;font-size:14px;cursor:pointer;margin-bottom:10px;font-family:inherit;">Ouvrir le paiement maintenant →</button>'
+    +'<button type="button" id="pi-cancel" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;padding:6px;font-family:inherit;">Annuler</button>'
+    +'</div>';
+  document.body.appendChild(ov);
+
+  var lancer=function(){
+    if(parti) return; parti=true;
+    if(tick) clearInterval(tick);
+    ov.remove();
+    payOpenAndWait(link, montant);
+  };
+
+  var el=ov.querySelector('#pi-count');
+  tick=setInterval(function(){
+    restant--;
+    if(el) el.textContent=String(Math.max(restant,0));
+    if(restant<=0) lancer();
+  },1000);
+
+  ov.querySelector('#pi-now').onclick=lancer;
+  ov.querySelector('#pi-cancel').onclick=function(){
+    parti=true; if(tick) clearInterval(tick); ov.remove();
+  };
+}
+
+/* Étape 2 — ouvre Revolut, garantit que la fiche existe, puis horodate.
+   ORDRE IMPORTANT :
+   1. window.open en premier (au plus près du geste utilisateur)
+   2. on ATTEND que la fiche soit bien insérée en base avec son jeton
+   3. seulement ensuite rn_start_payment() — sinon l'horodatage tomberait
+      dans le vide et le mail « argent reçu » ne pourrait jamais être
+      rapproché de cette commande. */
+function payOpenAndWait(link, montant){
+  var token=(typeof dgToken==='function') ? dgToken() : null;
+
+  var onglet=null;
+  try{ onglet=window.open(link,'_blank'); }catch(e){}
+
+  try{ window.__dgPay=window.__dgPay||{}; window.__dgPay.clicked=true; window.__dgPay.clicked_at=new Date().toISOString(); }catch(e){}
+
+  var horodater=function(){
+    if(!token || typeof sbRpc!=='function') return;
+    try{ sbRpc('rn_start_payment', { p_token: token }); }catch(e){}
+  };
+
+  try{
+    var p=dgSaveSession();
+    if(p && p.then){ p.then(horodater, horodater); setTimeout(horodater, 2500); }
+    else { horodater(); }
+  }catch(e){ horodater(); }
+
+  showPayWaiting(link, montant, !onglet);
+}
+
+/* Étape 3 — page d'attente : interroge le serveur jusqu'à réception du paiement */
+function showPayWaiting(link, montant, popupBloquee){
+  var token=(typeof dgToken==='function') ? dgToken() : null;
+  var timer=null, fini=false, essais=0;
+
+  var ov=document.createElement('div');
+  ov.id='rn-pay-waiting';
+  ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(ellipse at 50% 30%,rgba(64,96,235,.18),#030307 60%);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;';
+  ov.innerHTML='<div style="max-width:470px;width:100%;text-align:center;background:#0c0d18;border:1px solid rgba(122,152,255,.35);border-radius:22px;padding:38px 28px;box-shadow:0 30px 80px rgba(0,0,0,.8);">'
+    +'<style>@keyframes rnspin{to{transform:rotate(360deg)}}@keyframes rnpulse{0%,100%{opacity:.35}50%{opacity:1}}</style>'
+    +(popupBloquee
+      ? '<div style="width:74px;height:74px;margin:0 auto 18px;border-radius:50%;background:rgba(251,191,36,.14);border:1px solid rgba(251,191,36,.5);display:flex;align-items:center;justify-content:center;font-size:34px;">⚠️</div>'
+        +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:20px;color:#f1f5f9;margin-bottom:10px;">Ouverture bloquée par le navigateur</h2>'
+        +'<p style="font-size:13.5px;color:#94a3b8;line-height:1.65;margin-bottom:18px;">Clique sur le bouton ci-dessous pour ouvrir le paiement.</p>'
+      : '<div style="width:74px;height:74px;margin:0 auto 18px;border-radius:50%;border:3px solid rgba(122,152,255,.2);border-top-color:#8ea6ff;animation:rnspin 1s linear infinite;"></div>'
+        +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:20px;letter-spacing:.5px;color:#f1f5f9;margin-bottom:10px;">En attente de votre paiement…</h2>'
+        +'<p style="font-size:13.5px;color:#94a3b8;line-height:1.65;margin-bottom:6px;">Terminez le paiement de <b style="color:#cbd6ee;">'+esc(montant)+' €</b> dans l\'onglet Revolut.</p>'
+        +'<p style="font-size:13.5px;color:#8ea6ff;line-height:1.65;margin-bottom:18px;font-weight:700;">Cette page se débloquera toute seule. Ne la fermez pas.</p>')
+    +'<a href="'+esc(link)+'" target="_blank" rel="noopener" id="pw-open" style="display:block;padding:14px;background:'+(popupBloquee?'linear-gradient(135deg,#3b5bdb,#5a78ff)':'rgba(255,255,255,.04)')+';border:1px solid rgba(122,152,255,.35);color:'+(popupBloquee?'#fff':'#8ea6ff')+';border-radius:12px;font-weight:'+(popupBloquee?'800':'600')+';font-size:13px;text-decoration:none;margin-bottom:16px;">'+(popupBloquee?'Ouvrir le paiement Revolut →':'🔄 Rouvrir l\'onglet de paiement')+'</a>'
+    +'<div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:16px;">'
+      +'<span style="width:7px;height:7px;border-radius:50%;background:#8ea6ff;animation:rnpulse 1.6s ease-in-out infinite;"></span>'
+      +'<span id="pw-status" style="font-size:11px;color:#475569;letter-spacing:.4px;">Vérification automatique en cours…</span>'
+    +'</div>'
+    +'<div id="pw-help" style="display:none;background:rgba(255,255,255,.03);border:1px solid rgba(228,226,221,.14);border-radius:12px;padding:14px;margin-bottom:12px;text-align:left;">'
+      +'<p style="font-size:12px;color:#cbd6ee;line-height:1.6;margin:0 0 8px;font-weight:700;">Vous avez payé et rien ne se passe ?</p>'
+      +'<p style="font-size:12px;color:#94a3b8;line-height:1.6;margin:0;">La confirmation peut prendre 1 à 2 minutes. Laissez cette page ouverte. Si au bout de 5 minutes rien ne bouge, votre paiement sera validé manuellement — vous ne perdez rien.</p>'
+    +'</div>'
+    +'<button type="button" id="pw-cancel" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;padding:6px;font-family:inherit;">Fermer cette fenêtre</button>'
+    +'</div>';
+  document.body.appendChild(ov);
+
+  var stop=function(){ if(timer){ clearInterval(timer); timer=null; } };
+
+  var reussir=function(){
+    if(fini) return; fini=true; stop();
+    try{ window.__dgPay=window.__dgPay||{}; window.__dgPay.completed=true; window.__dgPay.completed_at=new Date().toISOString(); }catch(e){}
+    try{ ov.remove(); }catch(e){}
+    var go=function(){ window.location.href='merci.html'; };
+    try{ var p=dgSaveSession(); if(p&&p.then){ p.then(go,go); setTimeout(go,1200); } else { go(); } }catch(e){ go(); }
+  };
+
+  var verifier=function(){
+    if(fini || !token || typeof sbRpc!=='function') return;
+    essais++;
+    // Message d'aide après ~30 s d'attente
+    if(essais===10){ var h=ov.querySelector('#pw-help'); if(h) h.style.display='block'; }
+    // Après 20 min, on espace les vérifications (client parti faire autre chose)
+    if(essais===400){ stop(); timer=setInterval(verifier,15000); }
+
+    Promise.resolve(sbRpc('rn_check_paid', { p_token: token })).then(function(rows){
+      if(fini || !rows) return;
+      var r = Array.isArray(rows) ? rows[0] : rows;
+      if(!r) return;
+      if(r.paid===true){ reussir(); return; }
+      if(r.needs_review===true){
+        var s=ov.querySelector('#pw-status');
+        if(s) s.textContent='Paiement reçu — vérification manuelle en cours…';
+        var h2=ov.querySelector('#pw-help'); if(h2) h2.style.display='block';
+      }
+    }).catch(function(){});
+  };
+
+  timer=setInterval(verifier,3000);
+  verifier();
+
+  // Le client revient sur l'onglet → on vérifie tout de suite, sans attendre le tick
+  var onVisible=function(){ if(!document.hidden) verifier(); };
+  document.addEventListener('visibilitychange', onVisible);
+  window.addEventListener('focus', verifier);
+
+  ov.querySelector('#pw-cancel').onclick=function(){
+    fini=true; stop();
+    document.removeEventListener('visibilitychange', onVisible);
+    window.removeEventListener('focus', verifier);
+    ov.remove();
+  };
+}
+
+/* Ancien écran « J'ai payé / ça n'a pas marché » — conservé mais plus appelé.
+   Il accordait l'accès sur simple déclaration du client, sans preuve. */
 function showPayPending(link){
   // IMPORTANT : Revolut (lien nom/photo uniquement) ne peut ni rediriger ni
   // notifier le site → on ne PEUT PAS savoir automatiquement si le paiement a
@@ -6177,26 +6360,32 @@ function showPaidScreen(ctx){
   document.body.appendChild(ov);
 }
 
+/* ═══ Retour sur le site avec ?rvlt=… ═══════════════════════════════════════
+   ⚠️ CE PARAMÈTRE N'ACCORDE PLUS AUCUN ACCÈS.
+   Avant, arriver sur « …?rvlt=success » suffisait à marquer la fiche payée :
+   n'importe qui pouvant taper cette URL obtenait l'accès sans payer.
+   Désormais on ne fait que DEMANDER l'état réel au serveur, lequel ne peut
+   avoir été mis à payé que par un vrai mail « argent reçu » de Revolut.
+   ═══════════════════════════════════════════════════════════════════════ */
 async function handleReturn(){
   var p=new URLSearchParams(location.search);
   var st=p.get(PARAM);
   if(!st) return;
   try{ history.replaceState({}, '', location.pathname); }catch(e){}
-  if(!/^(success|ok|paid|1|true)$/i.test(st)) return;
+
   var ctx={}; try{ ctx=JSON.parse(localStorage.getItem('rn_pay_ctx')||'{}'); }catch(e){}
-  var leadId = ctx.lead_id || localStorage.getItem('rn_last_lead_id');
-  var patch={ paid:true, paid_at:new Date().toISOString(),
-    amount:(ctx.amount||(window.__PAY&&window.__PAY.amount)||''),
-    currency:(ctx.currency||(window.__PAY&&window.__PAY.currency)||'EUR'),
-    payment_ref:('revolut-'+Date.now()) };
-  if(typeof sbFetch==='function'){
-    try{
-      if(leadId){ await sbFetch('diag_leads?id=eq.'+encodeURIComponent(leadId), {method:'PATCH', body:JSON.stringify(patch)}, true); }
-      else if(ctx.email){ await sbFetch('diag_leads?email=eq.'+encodeURIComponent(ctx.email)+'&paid=eq.false', {method:'PATCH', body:JSON.stringify(patch)}, true); }
-    }catch(e){ console.warn('[PAY] patch KO', e.message); }
-  }
-  try{ localStorage.removeItem('rn_pay_ctx'); }catch(e){}
-  showPaidScreen(ctx);
+  var token=null; try{ token=localStorage.getItem('rn_access_token'); }catch(e){}
+  if(!token || typeof sbRpc!=='function') return;
+
+  // Seule source de vérité : l'état en base. Aucune écriture depuis la page.
+  try{
+    var rows=await sbRpc('rn_check_paid', { p_token: token });
+    var r=Array.isArray(rows)?rows[0]:rows;
+    if(r && r.paid===true){
+      try{ localStorage.removeItem('rn_pay_ctx'); }catch(e){}
+      showPaidScreen(ctx);
+    }
+  }catch(e){ console.warn('[PAY] vérification KO', e.message); }
 }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', handleReturn);
 else handleReturn();

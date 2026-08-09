@@ -1,0 +1,96 @@
+Salut Yanis,
+
+Je te fais un point clair sur le système de paiement qu'on met en place, et
+j'ai besoin de ton accord sur un point précis avant de le brancher.
+
+
+── CE QUE FAIT LE SITE ──────────────────────────────────────────────
+
+1. Le client arrive sur la page et remplit ses infos (nom + prénom).
+2. Un écran lui dit : « Merci d'effectuer votre paiement de 10 € »,
+   avec un compte à rebours de 10 secondes.
+3. Ton lien de paiement Revolut s'ouvre dans un nouvel onglet.
+   Il paie ses 10 €.
+4. Il revient sur l'onglet du site → sa page se débloque toute seule
+   et il accède à ce qu'il a acheté.
+
+Tout se joue à l'étape 4 : pour débloquer automatiquement, le site doit
+SAVOIR que les 10 € sont bien arrivés. Sinon, soit on débloque des gens
+qui n'ont pas payé, soit il faut valider chaque vente à la main.
+
+
+── CE QUE ÇA DEMANDE DE TOI ─────────────────────────────────────────
+
+Comme c'est ton compte Revolut qui encaisse, c'est toi qui reçois la
+notification « Vous avez reçu 10 € de [nom du client] ».
+
+Je te propose de créer UNE règle de transfert filtrée dans ta boîte mail
+(2 minutes, une seule fois) :
+
+   → Transférer vers yanisbghdata@gmail.com
+     UNIQUEMENT les mails de Revolut contenant « 10,00 € » reçus.
+
+C'est une boîte créée uniquement pour ça, qui ne sert qu'aux paiements
+du site. Rien d'autre n'y arrive.
+
+Une fois la règle faite, tu n'as plus jamais rien à toucher.
+
+Petit détail technique : Gmail va t'envoyer un code de confirmation pour
+valider l'adresse de transfert. Je te le transmets dès qu'il arrive, tu
+le colles, et c'est bon.
+
+
+── CE QUE JE VOIS / CE QUE JE NE VOIS PAS ───────────────────────────
+
+JE VOIS :
+  • Uniquement les notifications de paiements de 10 € liés aux ventes
+    du site (le montant et le nom du payeur).
+
+JE NE VOIS PAS :
+  • Ton solde
+  • Tes autres virements, quels que soient les montants
+  • Tes relevés, ton historique
+  • Et je n'ai AUCUN accès à ton compte Revolut : pas de mot de passe,
+    pas de connexion, rien. Je reçois juste des mails de notification.
+
+
+── À SAVOIR, EN TOUTE TRANSPARENCE ──────────────────────────────────
+
+• Le filtre doit être bien réglé. S'il est trop large, tu m'enverrais
+  plus de mails que prévu. Je peux te guider pour le configurer, ou tu
+  le fais toi-même et on vérifie ensemble sur un premier test.
+
+• Tu peux couper à tout moment, sans me prévenir : tu supprimes la
+  règle et ça s'arrête immédiatement.
+
+• Ces mails servent uniquement à débloquer les accès clients. Ils ne
+  sont ni revendus, ni utilisés ailleurs, ni conservés au-delà du
+  nécessaire.
+
+
+── SI TU PRÉFÈRES NE RIEN TRANSFÉRER ────────────────────────────────
+
+C'est totalement OK, et il y a une alternative sans aucun transfert
+de mail :
+
+OPTION B — Tu valides toi-même.
+  Tu as une petite page privée avec la liste des commandes en attente
+  (« Jean Dupont — 10 € »). Tu jettes un œil à ton Revolut, tu tapes ✅,
+  le client est débloqué dans la seconde. Tu ne me transmets
+  strictement rien.
+
+  Seule différence avec l'option A : il faut que tu passes valider,
+  sinon le client attend.
+
+
+── CE QUE JE TE DEMANDE ─────────────────────────────────────────────
+
+Dis-moi juste laquelle tu choisis :
+
+   A → Transfert filtré (automatique, plus rien à faire ensuite)
+   B → Tu valides toi-même sur une page privée
+
+Si tu as le moindre doute ou une question sur la sécurité, dis-le-moi,
+on en parle avant que je mette quoi que ce soit en place.
+
+Merci 🙏
