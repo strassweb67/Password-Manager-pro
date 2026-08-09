@@ -119,6 +119,43 @@ create table if not exists public.visitor_events (
 );
 create index if not exists visitor_events_session_idx on public.visitor_events (session_id);
 
+-- ── Réparation des tables déjà existantes ─────────────────────────────────
+-- `create table if not exists` ne touche PAS une table qui existe déjà : si
+-- elle a été créée autrefois sans certaines colonnes, elles manquent toujours.
+-- On les ajoute donc explicitement, une par une, sans rien écraser.
+alter table public.page_visits    add column if not exists visit_date date;
+alter table public.page_visits    add column if not exists count      int not null default 0;
+
+alter table public.traffic_stats  add column if not exists source     text;
+alter table public.traffic_stats  add column if not exists icon       text;
+alter table public.traffic_stats  add column if not exists count      int not null default 0;
+alter table public.traffic_stats  add column if not exists updated_at timestamptz not null default now();
+
+alter table public.visitor_events add column if not exists created_at timestamptz not null default now();
+alter table public.visitor_events add column if not exists session_id text;
+alter table public.visitor_events add column if not exists label      text;
+alter table public.visitor_events add column if not exists event_time text;
+
+-- Les compteurs s'incrémentent avec `on conflict` : cela exige une contrainte
+-- d'unicité sur la colonne concernée. Si la table existante n'en a pas, les
+-- index ci-dessous la fournissent (sans toucher à la clé primaire actuelle).
+-- Si la table contient déjà des doublons, l'index ne peut pas être créé. On
+-- ne fait alors PAS échouer tout le script : un avertissement suffit, le
+-- reste (fiches, inscrits, paiements) doit passer dans tous les cas.
+do $$
+begin
+  begin
+    create unique index if not exists page_visits_date_uidx on public.page_visits (visit_date);
+  exception when others then
+    raise warning 'page_visits : index unique impossible (doublons sur visit_date ?) — %', sqlerrm;
+  end;
+  begin
+    create unique index if not exists traffic_stats_source_uidx on public.traffic_stats (source);
+  exception when others then
+    raise warning 'traffic_stats : index unique impossible (doublons sur source ?) — %', sqlerrm;
+  end;
+end $$;
+
 -- ⚠️ CORRECTIF parcours visiteur : sbSaveEvent() écrit avec la clé anon.
 -- Sans policy d'insertion, les étapes du parcours n'étaient jamais
 -- enregistrées et la fiche visiteur restait vide dans l'admin.
@@ -142,8 +179,22 @@ create policy page_visits_select_anon
 -- ╔═════════════════════════════════════════════════════════════════════════╗
 -- ║  3. COMPTEURS — créés seulement s'ils n'existent pas déjà              ║
 -- ╚═════════════════════════════════════════════════════════════════════════╝
--- `create or replace` : si tes versions actuelles marchent, elles sont
--- simplement réécrites à l'identique fonctionnellement.
+-- PostgreSQL refuse un `create or replace` qui changerait le nom d'un
+-- paramètre ou le type de retour. Si une version plus ancienne existe avec
+-- une signature différente, on la supprime d'abord — quelle que soit sa
+-- signature. Aucune donnée n'est concernée : ce ne sont que des fonctions.
+do $$
+declare f record;
+begin
+  for f in
+    select oid::regprocedure as sig
+      from pg_proc
+     where pronamespace = 'public'::regnamespace
+       and proname in ('increment_page_visit', 'increment_traffic_source')
+  loop
+    execute 'drop function if exists ' || f.sig || ' cascade';
+  end loop;
+end $$;
 
 create or replace function public.increment_page_visit()
 returns void
