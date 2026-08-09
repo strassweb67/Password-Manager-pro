@@ -98,82 +98,43 @@ create policy diag_leads_insert_auth
 -- Ces tables existent déjà et fonctionnent : on ne fait que garantir leur
 -- présence et les droits d'écriture publique. Aucune donnée n'est touchée.
 
+-- ⚠️ CES TABLES EXISTENT DÉJÀ ET FONCTIONNENT (40 visiteurs en base).
+-- Les définitions ci-dessous reprennent EXACTEMENT le schéma v3 d'origine.
+-- Elles ne servent que de filet pour une base vierge : sur ta base actuelle,
+-- `if not exists` les laisse totalement intactes.
+--
+-- Ne JAMAIS supposer une autre forme pour ces tables : traffic_stats agrège
+-- par (stat_date, source), pas par source seule. Une fonction qui l'ignore
+-- écrase les statistiques journalières.
+
 create table if not exists public.page_visits (
-  visit_date date primary key,
-  count      int not null default 0
+  id         uuid primary key default gen_random_uuid(),
+  visit_date date not null default current_date,
+  count      int  not null default 1,
+  unique (visit_date)
 );
 
 create table if not exists public.traffic_stats (
-  source     text primary key,
-  icon       text,
-  count      int not null default 0,
-  updated_at timestamptz not null default now()
+  id        uuid primary key default gen_random_uuid(),
+  stat_date date not null default current_date,
+  source    text not null,
+  icon      text,
+  count     int  not null default 1,
+  unique (stat_date, source)
 );
 
 create table if not exists public.visitor_events (
   id         uuid primary key default gen_random_uuid(),
-  created_at timestamptz not null default now(),
-  session_id text,
-  label      text,
+  visitor_id uuid references public.visitors(id) on delete cascade,
+  session_id text not null,
+  created_at timestamptz default now(),
+  label      text not null,
   event_time text
 );
-create index if not exists visitor_events_session_idx on public.visitor_events (session_id);
 
--- ── Réparation des tables déjà existantes ─────────────────────────────────
--- `create table if not exists` ne touche PAS une table qui existe déjà : si
--- elle a été créée autrefois sans certaines colonnes, elles manquent toujours.
--- On les ajoute donc explicitement, une par une, sans rien écraser.
-alter table public.page_visits    add column if not exists visit_date date;
-alter table public.page_visits    add column if not exists count      int not null default 0;
-
-alter table public.traffic_stats  add column if not exists source     text;
-alter table public.traffic_stats  add column if not exists icon       text;
-alter table public.traffic_stats  add column if not exists count      int not null default 0;
-alter table public.traffic_stats  add column if not exists updated_at timestamptz not null default now();
-
-alter table public.visitor_events add column if not exists created_at timestamptz not null default now();
-alter table public.visitor_events add column if not exists session_id text;
-alter table public.visitor_events add column if not exists label      text;
-alter table public.visitor_events add column if not exists event_time text;
-
--- Les compteurs s'incrémentent avec `on conflict` : cela exige une contrainte
--- d'unicité sur la colonne concernée. Si la table existante n'en a pas, les
--- index ci-dessous la fournissent (sans toucher à la clé primaire actuelle).
--- Si la table contient déjà des doublons, l'index ne peut pas être créé. On
--- ne fait alors PAS échouer tout le script : un avertissement suffit, le
--- reste (fiches, inscrits, paiements) doit passer dans tous les cas.
-do $$
-begin
-  begin
-    create unique index if not exists page_visits_date_uidx on public.page_visits (visit_date);
-  exception when others then
-    raise warning 'page_visits : index unique impossible (doublons sur visit_date ?) — %', sqlerrm;
-  end;
-  begin
-    create unique index if not exists traffic_stats_source_uidx on public.traffic_stats (source);
-  exception when others then
-    raise warning 'traffic_stats : index unique impossible (doublons sur source ?) — %', sqlerrm;
-  end;
-end $$;
-
--- ⚠️ CORRECTIF parcours visiteur : sbSaveEvent() écrit avec la clé anon.
--- Sans policy d'insertion, les étapes du parcours n'étaient jamais
--- enregistrées et la fiche visiteur restait vide dans l'admin.
-alter table public.visitor_events enable row level security;
-
-drop policy if exists visitor_events_insert_anon on public.visitor_events;
-create policy visitor_events_insert_anon
-  on public.visitor_events for insert to anon with check (true);
-
--- Les compteurs sont incrémentés par des fonctions (voir plus bas), pas en
--- écriture directe : RLS peut donc rester fermée en lecture publique.
-alter table public.page_visits   enable row level security;
-alter table public.traffic_stats enable row level security;
-
--- Le compteur de visites totales est affiché publiquement → lecture autorisée.
-drop policy if exists page_visits_select_anon on public.page_visits;
-create policy page_visits_select_anon
-  on public.page_visits for select to anon using (true);
+-- Les policies d'insertion publique existent déjà en v3 (« ve_insert »,
+-- « pv_read », « ts_read »). On n'y touche pas : les recréer sous un autre
+-- nom ne ferait qu'empiler des règles redondantes.
 
 
 -- ╔═════════════════════════════════════════════════════════════════════════╗
@@ -198,34 +159,37 @@ end $$;
 
 create or replace function public.increment_page_visit()
 returns void
-language sql
+language plpgsql
 security definer
 set search_path = public
 as $$
+begin
   insert into public.page_visits (visit_date, count)
   values (current_date, 1)
-  on conflict (visit_date) do update set count = public.page_visits.count + 1;
+  on conflict (visit_date)
+  do update set count = public.page_visits.count + 1;
+end;
 $$;
 
-revoke all on function public.increment_page_visit() from public;
 grant execute on function public.increment_page_visit() to anon, authenticated;
 
 
+-- ⚠️ Conflit sur (stat_date, source) : une ligne par jour ET par source.
+-- Agréger sur `source` seule écraserait l'historique journalier.
 create or replace function public.increment_traffic_source(p_source text, p_icon text default '🏠')
 returns void
-language sql
+language plpgsql
 security definer
 set search_path = public
 as $$
-  insert into public.traffic_stats (source, icon, count, updated_at)
-  values (coalesce(nullif(trim(p_source), ''), 'Direct'), p_icon, 1, now())
-  on conflict (source) do update
-    set count      = public.traffic_stats.count + 1,
-        icon       = coalesce(excluded.icon, public.traffic_stats.icon),
-        updated_at = now();
+begin
+  insert into public.traffic_stats (stat_date, source, icon, count)
+  values (current_date, p_source, p_icon, 1)
+  on conflict (stat_date, source)
+  do update set count = public.traffic_stats.count + 1;
+end;
 $$;
 
-revoke all on function public.increment_traffic_source(text, text) from public;
 grant execute on function public.increment_traffic_source(text, text) to anon, authenticated;
 
 
