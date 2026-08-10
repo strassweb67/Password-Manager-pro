@@ -583,34 +583,216 @@ create policy diag_leads_insert_auth on public.diag_leads for insert to authenti
 
 
 -- ╔═════════════════════════════════════════════════════════════════════════╗
--- ║  11. VÉRIFICATION FINALE                                               ║
+-- ║  11. HISTORIQUE — journal de tout ce qui se passe                      ║
+-- ╚═════════════════════════════════════════════════════════════════════════╝
+-- La table diag_leads garde l'ÉTAT ACTUEL d'une fiche : elle est mise à jour
+-- au fil du diagnostic, donc on perd la chronologie. Ce journal conserve
+-- chaque étape, horodatée et définitive. Rien n'y est jamais modifié.
+
+create table if not exists public.rn_history (
+  id        uuid primary key default gen_random_uuid(),
+  at        timestamptz not null default now(),
+  lead_id   uuid references public.diag_leads(id) on delete cascade,
+  source    text,          -- diag | zyra | bgh-party
+  email     text,
+  event     text not null, -- inscription | debut_diag | progression | diag_termine
+                           -- | paiement_lance | paye | debloque_manuel
+  detail    jsonb
+);
+
+create index if not exists rn_history_at_idx    on public.rn_history (at desc);
+create index if not exists rn_history_lead_idx  on public.rn_history (lead_id);
+create index if not exists rn_history_event_idx on public.rn_history (event);
+create index if not exists rn_history_email_idx on public.rn_history (email);
+
+alter table public.rn_history enable row level security;
+-- Aucune policy → inaccessible avec la clé anon. Lecture admin uniquement.
+
+-- Alimentation automatique : plus rien à faire côté site.
+create or replace function public.rn_log_lead()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  v_event  text;
+  v_detail jsonb := '{}'::jsonb;
+  v_n_new  int;
+  v_n_old  int;
+begin
+  -- La ligne de configuration du site n'est pas une fiche client.
+  if coalesce(new.source,'') = '__site_config' then return new; end if;
+
+  if tg_op = 'INSERT' then
+    v_event := case when new.source in ('zyra','bgh-party') then 'inscription'
+                    else 'debut_diag' end;
+
+  else
+    -- Paiement confirmé : le passage de false à true, jamais l'inverse.
+    if coalesce(new.paid,false) and not coalesce(old.paid,false) then
+      v_event  := case when coalesce(new.payment_ref,'') like 'manuel%'
+                       then 'debloque_manuel' else 'paye' end;
+      v_detail := jsonb_build_object('montant', new.amount,
+                                     'payeur',  new.payer_name,
+                                     'ref',     new.payment_ref);
+
+    elsif new.pay_started_at is not null
+      and old.pay_started_at is distinct from new.pay_started_at then
+      v_event := 'paiement_lance';
+
+    elsif new.potentiel is not null and old.potentiel is null then
+      v_event  := 'diag_termine';
+      v_detail := jsonb_build_object('profil',    new.profil,
+                                     'potentiel', new.potentiel,
+                                     'exploite',  new.exploite,
+                                     'axe',       new.axe_prioritaire,
+                                     'scores',    new.scores);
+
+    elsif old.email is distinct from new.email and new.email is not null then
+      v_event := 'email_saisi';
+
+    else
+      -- Simple progression dans le questionnaire : on ne journalise que si le
+      -- nombre de réponses a réellement changé, pour ne pas noyer le journal.
+      -- jsonb_array_length lève une erreur sur autre chose qu'un tableau —
+      -- et une erreur ici bloquerait l'enregistrement de la fiche elle-même.
+      v_n_new := case when jsonb_typeof(new.reponses) = 'array'
+                      then jsonb_array_length(new.reponses) else 0 end;
+      v_n_old := case when jsonb_typeof(old.reponses) = 'array'
+                      then jsonb_array_length(old.reponses) else 0 end;
+
+      if v_n_new = v_n_old then return new; end if;
+
+      v_event  := 'progression';
+      v_detail := jsonb_build_object('reponses', v_n_new);
+    end if;
+  end if;
+
+  insert into public.rn_history (lead_id, source, email, event, detail)
+  values (new.id, new.source, new.email, v_event, v_detail);
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_rn_log_lead on public.diag_leads;
+create trigger trg_rn_log_lead
+  after insert or update on public.diag_leads
+  for each row execute function public.rn_log_lead();
+
+
+-- ╔═════════════════════════════════════════════════════════════════════════╗
+-- ║  12. VUES ADMIN — tout est lisible d'un coup d'œil                     ║
+-- ╚═════════════════════════════════════════════════════════════════════════╝
+-- Réservées au service_role : elles contiennent des données personnelles.
+
+-- Inscrits liste d'attente Zyra
+create or replace view public.v_zyra as
+  select email, tel, coalesce(ts, created_at) as inscrit_le, id
+    from public.diag_leads
+   where source = 'zyra'
+   order by coalesce(ts, created_at) desc;
+
+-- Inscrits BGH Party
+create or replace view public.v_bgh as
+  select email, tel, coalesce(ts, created_at) as inscrit_le, id
+    from public.diag_leads
+   where source = 'bgh-party'
+   order by coalesce(ts, created_at) desc;
+
+-- Diagnostics : questionnaire + e-mail final + état du paiement
+create or replace view public.v_diagnostics as
+  select coalesce(ts, created_at)          as date,
+         email, tel, code_postal, age,
+         profil, potentiel, exploite, axe_prioritaire, scores,
+         -- Deux formats coexistent : ancien (tableau direct) et nouveau
+         -- ({qa:[…], meta:{…}}). On gère les deux sans jamais lever d'erreur.
+         case when jsonb_typeof(reponses_texte->'qa') = 'array'
+                   then jsonb_array_length(reponses_texte->'qa')
+              when jsonb_typeof(reponses_texte) = 'array'
+                   then jsonb_array_length(reponses_texte)
+              else 0 end                  as nb_reponses,
+         (potentiel is not null)           as termine,
+         paid                              as paye,
+         paid_at, amount, payer_name, needs_review,
+         case when jsonb_typeof(reponses_texte->'qa') = 'array' then reponses_texte->'qa'
+              when jsonb_typeof(reponses_texte) = 'array'       then reponses_texte
+              else '[]'::jsonb end         as reponses_lisibles,
+         id
+    from public.diag_leads
+   where coalesce(source,'diag') not in ('zyra','bgh-party','__site_config')
+   order by coalesce(ts, created_at) desc;
+
+-- Paiements encaissés
+create or replace view public.v_paiements as
+  select paid_at as paye_le, email, tel, amount as montant, payer_name as payeur,
+         payment_ref as reference, profil, id
+    from public.diag_leads
+   where paid
+   order by paid_at desc;
+
+-- Journal complet, toutes sources confondues
+create or replace view public.v_historique as
+  select h.at as quand, h.event as evenement, h.source, h.email, h.detail, h.lead_id
+    from public.rn_history h
+   order by h.at desc;
+
+-- Récapitulatif chiffré
+create or replace view public.v_resume as
+  select (select count(*) from public.diag_leads where source='zyra')                        as inscrits_zyra,
+         (select count(*) from public.diag_leads where source='bgh-party')                   as inscrits_bgh,
+         (select count(*) from public.diag_leads
+           where coalesce(source,'diag') not in ('zyra','bgh-party','__site_config'))        as diagnostics_total,
+         (select count(*) from public.diag_leads
+           where potentiel is not null)                                                      as diagnostics_termines,
+         (select count(*) from public.diag_leads where email is not null and email <> '')    as avec_email,
+         (select count(*) from public.diag_leads where paid)                                 as payes,
+         (select count(*) from public.diag_leads where needs_review)                         as a_arbitrer,
+         (select count(*) from public.visitors)                                              as visiteurs;
+
+revoke all on public.v_zyra, public.v_bgh, public.v_diagnostics,
+              public.v_paiements, public.v_historique, public.v_resume,
+              public.rn_arbitrage
+  from anon, authenticated;
+
+
+-- ╔═════════════════════════════════════════════════════════════════════════╗
+-- ║  13. VÉRIFICATION FINALE                                               ║
 -- ╚═════════════════════════════════════════════════════════════════════════╝
 
-select 'tables'            as controle,
+select 'tables' as controle,
        (select count(*)::text from pg_tables
          where schemaname='public'
-           and tablename in ('visitors','visit_sessions','visitor_events',
-                             'page_visits','traffic_stats','diag_leads','rn_payments'))
-       || ' / 7' as resultat
+           and tablename in ('visitors','visit_sessions','visitor_events','page_visits',
+                             'traffic_stats','diag_leads','rn_payments','rn_history'))
+       || ' / 8' as resultat
+union all
+select 'vues admin',
+       (select count(*)::text from pg_views
+         where schemaname='public'
+           and viewname in ('v_zyra','v_bgh','v_diagnostics','v_paiements',
+                            'v_historique','v_resume','rn_arbitrage')) || ' / 7'
 union all
 select 'fonctions',
        (select count(*)::text from pg_proc
          where pronamespace='public'::regnamespace
            and proname in ('upsert_visitor','increment_page_visit','increment_traffic_source',
                            'rn_start_payment','rn_check_paid','rn_confirm_payment',
-                           'rn_resolve_payment','rn_force_unlock')) || ' / 8'
+                           'rn_resolve_payment','rn_force_unlock','rn_log_lead')) || ' / 9'
 union all
-select 'visiteurs',    (select count(*)::text from public.visitors)
+select 'journal actif',
+       (select case when count(*) > 0 then '✅ oui' else '❌ non' end
+          from pg_trigger where tgname = 'trg_rn_log_lead')
 union all
-select 'diagnostics',  (select count(*)::text from public.diag_leads where source='diag')
+select 'visiteurs',       (select count(*)::text from public.visitors)
 union all
-select 'inscrits Zyra',(select count(*)::text from public.diag_leads where source='zyra')
+select 'inscrits Zyra',   (select count(*)::text from public.diag_leads where source='zyra')
 union all
-select 'inscrits BGH', (select count(*)::text from public.diag_leads where source='bgh-party')
+select 'inscrits BGH',    (select count(*)::text from public.diag_leads where source='bgh-party')
 union all
-select 'fiches payées',(select count(*)::text from public.diag_leads where paid)
+select 'diagnostics',     (select count(*)::text from public.diag_leads
+                            where coalesce(source,'diag') not in ('zyra','bgh-party','__site_config'))
 union all
-select 'paiements reçus',(select count(*)::text from public.rn_payments);
+select 'fiches payées',   (select count(*)::text from public.diag_leads where paid)
+union all
+select 'lignes journal',  (select count(*)::text from public.rn_history);
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -626,7 +808,10 @@ select 'paiements reçus',(select count(*)::text from public.rn_payments);
 --  Puis décommente les lignes ci-dessous, exécute, et relance ce fichier
 --  entier pour reconstruire une base vide et propre.
 --
---  drop view  if exists public.rn_arbitrage    cascade;
+--  drop view  if exists public.v_zyra, public.v_bgh, public.v_diagnostics,
+--                       public.v_paiements, public.v_historique, public.v_resume,
+--                       public.rn_arbitrage cascade;
+--  drop table if exists public.rn_history      cascade;
 --  drop table if exists public.rn_payments     cascade;
 --  drop table if exists public.diag_leads      cascade;
 --  drop table if exists public.visit_sessions  cascade;
