@@ -5844,7 +5844,22 @@ function init(){
         // Pas d'intro sur cette page (ou déjà passée) : ouverture normale.
         [250,900,1800].forEach(function(ms){ setTimeout(_ouvreDiag, ms); });
       } else {
-        // On attend que le visiteur ait traversé l'intro de lui-même.
+        /* Deux déclencheurs indépendants, car un seul s'est révélé fragile :
+
+           1. le clic sur le bouton d'entrée — signal le plus fiable, on sait
+              que l'intro se referme 1,9 s plus tard ;
+           2. une surveillance de l'écran d'intro — filet si le visiteur sort
+              de l'intro autrement (retour arrière, lien interne, etc.).
+
+           dgOpen() ignore les appels quand l'overlay est déjà ouvert : les
+           déclencheurs peuvent donc se chevaucher sans effet de bord. */
+        var _cta=document.getElementById("gi-cta");
+        if(_cta){
+          _cta.addEventListener("click", function(){
+            [2600, 3600].forEach(function(ms){ setTimeout(_ouvreDiag, ms); });
+          });
+        }
+
         var _guet=setInterval(function(){
           if(_introFinie()){
             clearInterval(_guet);
