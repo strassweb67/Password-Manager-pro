@@ -5156,8 +5156,8 @@ function dgAttemptClose(){
 function setProgress(){
   var pct=0, txt="", back=false;
   if(S.view==="intro"){ pct=2; txt="Ton profil"; }
-  else if(S.view==="q"){ pct=Math.round(((S.qi)/14)*100)+4; txt="Question "+(S.qi+1)+" / 13"; back=true; }
-  else if(S.view==="contact"){ pct=93; txt="Dernière étape"; back=true; }
+  else if(S.view==="contact"){ pct=6; txt="Tes coordonnées"; back=true; }
+  else if(S.view==="q"){ pct=Math.round(((S.qi)/14)*100)+8; txt="Question "+(S.qi+1)+" / 13"; back=true; }
   else if(S.view==="anz"){ pct=97; txt="Analyse en cours"; }
   else if(S.view==="res"){ pct=100; txt="Résultats"; }
   barFill.style.width=pct+"%";
@@ -5190,15 +5190,15 @@ function rQ(){
 }
 function rContact(){
   return '<div class="dg-screen">'
-    +'<div class="dg-kick">Analyse prête</div>'
-    +'<h2 class="dg-q">Ton analyse est prête.</h2>'
-    +'<p class="dg-qsub">Dernière étape : dis-nous où t’envoyer tes résultats et ta feuille de route personnalisée.</p>'
+    +'<div class="dg-kick">Avant de commencer</div>'
+    +'<h2 class="dg-q">Où t’envoyer ton analyse ?</h2>'
+    +'<p class="dg-qsub">13 questions juste après. Tes coordonnées nous permettent de te transmettre tes résultats et ta feuille de route personnalisée.</p>'
     +'<div class="dg-fields">'
     +'<div class="dg-field" id="dgF-email"><label for="dgEmail">Email</label><input id="dgEmail" type="email" inputmode="email" autocomplete="email" placeholder="ton@email.com" value="'+esc(S.email)+'"><div class="dg-errmsg">Entre un email valide.</div></div>'
     +'<div class="dg-field" id="dgF-tel"><label for="dgTel">Téléphone</label><input id="dgTel" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" value="'+esc(S.tel)+'"><div class="dg-errmsg">Entre un numéro valide (8 chiffres minimum).</div></div>'
     +'<div class="dg-field" id="dgF-cp"><label for="dgCp">Code postal</label><input id="dgCp" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="67000" value="'+esc(S.cp)+'"><div class="dg-errmsg">Code postal à 5 chiffres.</div></div>'
     +'</div>'
-    +'<div class="dg-cta-row"><button type="button" class="btn-fp primary" id="dgSeeRes">Voir mes résultats →</button>'
+    +'<div class="dg-cta-row"><button type="button" class="btn-fp primary" id="dgSeeRes">Commencer le diagnostic →</button>'
     +'<p class="dg-rgpd">🔒 Tes infos restent confidentielles — utilisées uniquement pour t’envoyer tes résultats et préparer ton appel de cadrage. Aucune revente, désinscription en un message.</p></div>'
     +'</div>';
 }
@@ -5380,24 +5380,26 @@ function pick(idx, btn){
   if(S.qi===6 && !S.half){ S.half=true; track("🎯 Diag → 50%"); }
   setTimeout(function(){
     S.lockPick=false;
-    // Plus de page « coordonnées » : après la dernière question, on va direct
-    // à l'analyse puis aux résultats (demande).
+    // L'e-mail a été recueilli AVANT les questions : après la dernière,
+    // on enchaîne directement sur l'analyse puis les résultats.
     if(S.qi<12){ S.qi++; } else { S.view="anz"; }
     render();
   }, 340);
 }
 function goBack(){
-  if(S.view==="q"){ if(S.qi>0){ S.qi--; } else { S.view="intro"; } }
-  else if(S.view==="contact"){ S.view="q"; S.qi=12; }
+  if(S.view==="q"){ if(S.qi>0){ S.qi--; } else { S.view="contact"; } }
+  else if(S.view==="contact"){ S.view="intro"; }
   else return;
   render();
 }
 function fieldErr(id, on){ var f=el(id); if(f) f.classList.toggle("err", !!on); }
 function submitIntro(){
-  // Nom/prénom retirés : on démarre directement le diagnostic.
-  S.view="q";
-  S.qi=(S.fromPreview && S.answers[0]!=null)?1:0;
-  S.fromPreview=false;
+  /* L'e-mail est demandé AVANT les questions. Auparavant l'écran de
+     coordonnées était sauté : aucune adresse n'était jamais collectée, et
+     l'admin recevait des fiches de réponses impossibles à rattacher à
+     quiconque. En le plaçant en tête, la fiche existe dès le départ et
+     chaque réponse vient s'y ajouter. */
+  S.view="contact";
   render();
 }
 function submitContact(){
@@ -5409,18 +5411,35 @@ function submitContact(){
   if(!okE||!okT||!okC) return;
   S.email=em; S.tel=tl; S.cp=cp;
   track("🎯 Diag → Contact validé");
-  // Enregistre la TENTATIVE (contact saisi) → visible dans l'admin même si le
-  // diagnostic n'est pas terminé. Une seule fois par session. Best-effort.
+
+  /* UNE FICHE PAR CLIENT.
+     La fiche est identifiée par un jeton gardé en localStorage. Si l'adresse
+     saisie diffère de la précédente, c'est quelqu'un d'autre : on repart sur
+     un jeton neuf, donc une nouvelle fiche. Sans ça, deux personnes qui
+     répondent depuis le même appareil (un téléphone qu'on se passe) se
+     retrouveraient sur la même ligne, la seconde écrasant la première. */
   try{
-    if(typeof sbFetch==="function" && !S.__attemptLogged){
-      S.__attemptLogged=true;
-      sbFetch("diag_leads",{ method:"POST", body:JSON.stringify({
-        email:em, tel:tl, code_postal:cp, source:"diag-start",
-        ts:new Date().toISOString(), paid:false
-      }) }).catch(function(){});
+    var dernier=localStorage.getItem('rn_last_email')||'';
+    if(dernier && dernier!==em.toLowerCase()){
+      localStorage.removeItem('rn_access_token');
+      window.__dgToken=null; window.__diagRowId=null;
+      try{ localStorage.removeItem('rn_last_lead_id'); }catch(e){}
     }
+    localStorage.setItem('rn_last_email', em.toLowerCase());
   }catch(e){}
-  S.view="anz";
+
+  /* UNE SEULE FICHE PAR CLIENT.
+     Avant, on insérait ici une ligne « diag-start » distincte contenant
+     uniquement l'e-mail : l'admin affichait donc deux entrées incomplètes
+     par personne — les réponses sans l'adresse d'un côté, l'adresse sans
+     les réponses de l'autre. On met simplement à jour la fiche de session
+     déjà créée pendant le questionnaire : Yanis voit une seule carte avec
+     les 13 réponses ET le moyen de recontacter. */
+  try{ dgSaveSession(); }catch(e){}
+
+  S.view="q";
+  S.qi=(S.fromPreview && S.answers[0]!=null)?1:0;
+  S.fromPreview=false;
   render();
 }
 
@@ -5528,12 +5547,21 @@ function dgSessionBody(){
        le renvoyait, une sauvegarde tardive écraserait un paiement validé. */
   };
   if(!window.__diagRowId || window.__diagRowId==='pending') body.ts = window.__dgStartedAt||new Date().toISOString();
+
+  /* Coordonnées enregistrées DÈS QU'ELLES SONT CONNUES, et plus seulement
+     quand le diagnostic va au bout. Avant, un client qui saisissait son
+     e-mail puis abandonnait avant l'écran de résultats n'était jamais
+     rattaché à ses réponses : Yanis avait les réponses d'un côté, l'adresse
+     de l'autre, sans moyen de les relier. */
+  if(S.email) body.email       = S.email;
+  if(S.tel)   body.tel         = S.tel;
+  if(S.cp)    body.code_postal = S.cp;
+  if(S.answers[0]!=null) body.age = (QS[0].o[S.answers[0]]||'');
+
   if(completed && S.res){
     body.potentiel=S.res.potentiel; body.exploite=S.res.exploite;
     body.axe_prioritaire=S.res.prio.label;
     body.scores={ physique:S.res.axes[0].score, revenus:S.res.axes[1].score, environnement:S.res.axes[2].score, discipline:S.res.axes[3].score };
-    body.age=(QS[0].o[S.answers[0]]||'');
-    body.email=S.email||''; body.tel=S.tel||''; body.code_postal=S.cp||'';
   }
   return body;
 }
@@ -6239,7 +6267,34 @@ function diagSessionCard(l){
     +(qaHtml?('<details style="margin-top:6px;"><summary style="cursor:pointer;font-size:11px;color:#38bdf8;font-weight:700;letter-spacing:1px;">VOIR LES RÉPONSES ('+qa.length+'/'+tot+')</summary><div style="margin-top:8px;">'+qaHtml+'</div></details>')
       :'<p style="font-size:11px;color:#475569;margin-top:6px;">Aucune réponse enregistrée.</p>')
     +unlockB
+    +'<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">'
+      +(l.email?'<button class="crm-copy1" data-m="'+esc(l.email)+'" style="flex:1;min-width:150px;padding:9px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.35);color:#34d399;border-radius:9px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;">📋 Copier l\'e-mail</button>':'')
+      +'<button class="crm-del" data-i="'+esc(l.id)+'" data-m="'+esc(l.email||'')+'" style="padding:9px 14px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:#f87171;border-radius:9px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;">🗑 Supprimer</button>'
+    +'</div>'
     +'</div>';
+}
+
+/* Copie une adresse dans le presse-papiers → collage direct dans Gmail. */
+function crmCopyMail(mail, btn){
+  var fini=function(ok){
+    if(!btn) return;
+    var av=btn.innerHTML;
+    btn.innerHTML = ok ? '✅ Copié' : '⚠️ Copie manuelle';
+    setTimeout(function(){ btn.innerHTML=av; }, 1500);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(mail).then(function(){ fini(true); },
+                                            function(){ prompt('Copie manuelle :', mail); fini(false); });
+  } else { prompt('Copie manuelle :', mail); fini(false); }
+}
+
+/* Supprime définitivement une fiche client (réponses comprises). */
+async function crmDeleteLead(id, mail){
+  if(!confirm('Supprimer définitivement la fiche de '+(mail||'ce client')+' ?\n\nSes réponses au diagnostic seront perdues. Cette action est irréversible.')) return;
+  try{
+    await sbFetch('diag_leads?id=eq.'+encodeURIComponent(id), {method:'DELETE'}, true);
+    _crmData=await loadLeads(); _crmHisto=await loadHistory(); renderCRM();
+  }catch(e){ alert('Suppression impossible : '+e.message); }
 }
 
 /* ── Répertoire de tous les e-mails collectés ──────────────────────────────
@@ -6408,6 +6463,12 @@ function renderCRM(){
   });
   Array.prototype.forEach.call(body.querySelectorAll('.crm-unlock'), function(b){
     b.onclick=function(){ crmForceUnlock(b.getAttribute('data-l')); };
+  });
+  Array.prototype.forEach.call(body.querySelectorAll('.crm-copy1'), function(b){
+    b.onclick=function(){ crmCopyMail(b.getAttribute('data-m'), b); };
+  });
+  Array.prototype.forEach.call(body.querySelectorAll('.crm-del'), function(b){
+    b.onclick=function(){ crmDeleteLead(b.getAttribute('data-i'), b.getAttribute('data-m')); };
   });
   var si=el('crm-search');
   if(si){ si.oninput=function(){ var pos=si.selectionStart; _crmSearch=si.value; renderCRM(); var ni=el('crm-search'); if(ni){ ni.focus(); try{ ni.setSelectionRange(pos,pos); }catch(e){} } }; }
