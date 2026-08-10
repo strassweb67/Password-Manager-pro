@@ -6242,6 +6242,49 @@ function diagSessionCard(l){
     +'</div>';
 }
 
+/* ── Répertoire de tous les e-mails collectés ──────────────────────────────
+   Regroupe diagnostics, inscrits Zyra et BGH Party. Une ligne par adresse :
+   une même personne inscrite deux fois n'apparaît qu'une fois, avec toutes
+   ses origines. C'est la liste dont Yanis se sert pour recontacter. */
+function crmAllMails(){
+  var par={};
+  (_crmData||[]).forEach(function(l){
+    var e=(l.email||'').trim().toLowerCase();
+    if(!e || (l.source||'')==='__site_config') return;
+    var d=l.ts||l.created_at||null;
+    if(!par[e]) par[e]={ email:e, tel:l.tel||'', sources:{}, paid:false, first:d, last:d, n:0 };
+    var o=par[e];
+    o.n++;
+    o.sources[(l.source||'diag')]=1;
+    if(l.paid) o.paid=true;
+    if(l.tel && !o.tel) o.tel=l.tel;
+    if(d){ if(!o.first || d<o.first) o.first=d; if(!o.last || d>o.last) o.last=d; }
+  });
+  return Object.keys(par).map(function(k){ return par[k]; })
+    .sort(function(a,b){ return String(b.last||'').localeCompare(String(a.last||'')); });
+}
+
+var _SRC_LBL = { diag:'🧪 Diagnostic', 'diag-start':'🧪 Diagnostic', zyra:'🚀 Zyra', 'bgh-party':'🎟️ BGH Party', bgh:'🎟️ BGH Party' };
+
+function mailCard(m){
+  var tags=Object.keys(m.sources).map(function(s){
+    return '<span style="background:rgba(148,163,184,.1);color:#94a3b8;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;">'+esc(_SRC_LBL[s]||s)+'</span>';
+  }).join(' ');
+  var etat = m.paid
+    ? '<span style="background:rgba(34,197,94,.14);color:#22c55e;border:1px solid rgba(34,197,94,.4);padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;">💰 PAYÉ</span>'
+    : '<span style="background:rgba(100,116,139,.1);color:#64748b;border:1px solid rgba(100,116,139,.3);padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;">À RECONTACTER</span>';
+  return '<div class="crm-card" style="background:#0c0d18;border:1px solid rgba(52,211,153,.16);border-radius:12px;padding:13px 16px;margin-bottom:9px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px;">'
+      +'<a href="mailto:'+esc(m.email)+'" style="color:#34d399;font-size:13px;font-weight:700;text-decoration:none;">✉ '+esc(m.email)+'</a>'
+      +etat+'</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;">'+tags
+        +(m.tel?'<a href="tel:'+esc(m.tel)+'" style="background:rgba(228,226,221,.1);color:#e8e6e1;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-decoration:none;">☎ '+esc(m.tel)+'</a>':'')
+      +'</div>'
+      +'<span style="font-size:10.5px;color:#475569;">'+fmtDate(m.last)+'</span></div>'
+    +'</div>';
+}
+
 /* ── Carte « ligne d'historique » ── */
 var _EVT = {
   inscription:     { i:'✍️', c:'#8ea6ff', t:'Inscription' },
@@ -6301,6 +6344,7 @@ var _CRM_VIEWS = {
   paid:     { icon:'✓',  title:'Paiements validés',   col:'#22c55e', key:'paid',     card:function(l){return leadCard(l);} },
   /* `src` : ces deux vues ne viennent pas de diag_leads mais de leurs
      propres tables (rn_history, rn_arbitrage), chargées séparément. */
+  mails:    { icon:'📧', title:'Tous les e-mails',      col:'#34d399', src:crmAllMails,                 card:mailCard },
   arb:      { icon:'⚖️', title:'Paiements à arbitrer', col:'#fbbf24', src:function(){return _crmArb;},   card:arbCard },
   histo:    { icon:'🕓', title:'Historique complet',   col:'#a78bfa', src:function(){return _crmHisto;}, card:historyCard }
 };
@@ -6315,7 +6359,7 @@ function renderCRM(){
       {v:'sessions',c:c.sessions.length},
       {v:'fiches',c:c.completed.length},{v:'attempts',c:c.attempts.length},
       {v:'zyra',c:c.zyra.length},{v:'bgh',c:c.bgh.length},{v:'paid',c:c.paid.length},
-      {v:'histo',c:_crmHisto.length}
+      {v:'mails',c:crmAllMails().length},{v:'histo',c:_crmHisto.length}
     ];
     // L'arbitrage ne concerne que la détection automatique des paiements
     // (script Gmail, optionnel). Masqué tant qu'aucun paiement n'est remonté.
@@ -6345,8 +6389,19 @@ function renderCRM(){
   var search='<input id="crm-search" type="text" placeholder="🔎 Rechercher (email, téléphone, profil, code postal…)" value="'+esc(_crmSearch)+'" style="width:100%;padding:12px 14px;margin-bottom:16px;background:rgba(255,255,255,.04);border:1px solid rgba(228, 226, 221,.25);border-radius:10px;color:#f1f5f9;font-size:13px;outline:none;box-sizing:border-box;">';
   var content=list.length ? list.map(d.card).join('')
     : '<p style="color:#475569;text-align:center;padding:50px 20px;font-size:13px;">'+(_crmSearch?'Aucun résultat pour « '+esc(_crmSearch)+' ».':'Aucune entrée pour le moment.')+'</p>';
-  body.innerHTML=head+search+content;
+  var extra='';
+  if(_crmView==='mails' && list.length){
+    extra='<button id="crm-copy" style="width:100%;padding:12px;margin-bottom:14px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.4);color:#34d399;border-radius:10px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;">📋 Copier les '+list.length+' adresses affichées</button>';
+  }
+  body.innerHTML=head+search+extra+content;
   el('crm-back').onclick=crmBack;
+  var cp=el('crm-copy');
+  if(cp) cp.onclick=function(){
+    var txt=list.map(function(m){return m.email;}).join(', ');
+    var ok=function(){ cp.textContent='✅ '+list.length+' adresses copiées'; setTimeout(function(){ renderCRM(); },1600); };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(ok,function(){ prompt('Copie manuelle :', txt); }); }
+    else { prompt('Copie manuelle :', txt); }
+  };
   // Boutons d'arbitrage (présents uniquement dans la vue « à arbitrer »)
   Array.prototype.forEach.call(body.querySelectorAll('.arb-ok'), function(b){
     b.onclick=function(){ crmResolve(b.getAttribute('data-p'), b.getAttribute('data-l')); };
