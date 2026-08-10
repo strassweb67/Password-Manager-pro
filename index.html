@@ -5156,7 +5156,7 @@ function dgAttemptClose(){
 function setProgress(){
   var pct=0, txt="", back=false;
   if(S.view==="intro"){ pct=2; txt="Ton profil"; }
-  else if(S.view==="contact"){ pct=6; txt="Tes coordonnées"; back=true; }
+  else if(S.view==="contact"){ pct=6; txt="Ton e-mail"; back=true; }
   else if(S.view==="q"){ pct=Math.round(((S.qi)/14)*100)+8; txt="Question "+(S.qi+1)+" / 13"; back=true; }
   else if(S.view==="anz"){ pct=97; txt="Analyse en cours"; }
   else if(S.view==="res"){ pct=100; txt="Résultats"; }
@@ -5192,14 +5192,12 @@ function rContact(){
   return '<div class="dg-screen">'
     +'<div class="dg-kick">Avant de commencer</div>'
     +'<h2 class="dg-q">Où t’envoyer ton analyse ?</h2>'
-    +'<p class="dg-qsub">13 questions juste après. Tes coordonnées nous permettent de te transmettre tes résultats et ta feuille de route personnalisée.</p>'
+    +'<p class="dg-qsub">13 questions juste après. Ton e-mail nous permet de te transmettre tes résultats et ta feuille de route personnalisée.</p>'
     +'<div class="dg-fields">'
     +'<div class="dg-field" id="dgF-email"><label for="dgEmail">Email</label><input id="dgEmail" type="email" inputmode="email" autocomplete="email" placeholder="ton@email.com" value="'+esc(S.email)+'"><div class="dg-errmsg">Entre un email valide.</div></div>'
-    +'<div class="dg-field" id="dgF-tel"><label for="dgTel">Téléphone</label><input id="dgTel" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" value="'+esc(S.tel)+'"><div class="dg-errmsg">Entre un numéro valide (8 chiffres minimum).</div></div>'
-    +'<div class="dg-field" id="dgF-cp"><label for="dgCp">Code postal</label><input id="dgCp" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="67000" value="'+esc(S.cp)+'"><div class="dg-errmsg">Code postal à 5 chiffres.</div></div>'
     +'</div>'
     +'<div class="dg-cta-row"><button type="button" class="btn-fp primary" id="dgSeeRes">Commencer le diagnostic →</button>'
-    +'<p class="dg-rgpd">🔒 Tes infos restent confidentielles — utilisées uniquement pour t’envoyer tes résultats et préparer ton appel de cadrage. Aucune revente, désinscription en un message.</p></div>'
+    +'<p class="dg-rgpd">🔒 Ton e-mail reste confidentiel — utilisées uniquement pour t’envoyer tes résultats et préparer ton appel de cadrage. Aucune revente, désinscription en un message.</p></div>'
     +'</div>';
 }
 function rAnz(){
@@ -5403,13 +5401,13 @@ function submitIntro(){
   render();
 }
 function submitContact(){
-  var em=el("dgEmail").value.trim(), tl=el("dgTel").value.trim(), cp=el("dgCp").value.trim();
+  // L'e-mail est la seule coordonnée demandée : c'est par là que le client
+  // sera recontacté. Téléphone et code postal ont été retirés du formulaire.
+  var em=el("dgEmail").value.trim();
   var okE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em);
-  var okT=(tl.replace(/[^\d]/g,"").length>=8);
-  var okC=/^\d{5}$/.test(cp);
-  fieldErr("dgF-email",!okE); fieldErr("dgF-tel",!okT); fieldErr("dgF-cp",!okC);
-  if(!okE||!okT||!okC) return;
-  S.email=em; S.tel=tl; S.cp=cp;
+  fieldErr("dgF-email",!okE);
+  if(!okE) return;
+  S.email=em;
   track("🎯 Diag → Contact validé");
 
   /* UNE FICHE PAR CLIENT.
