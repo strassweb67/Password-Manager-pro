@@ -5820,58 +5820,13 @@ function init(){
     t.addEventListener("click", function(e){ e.preventDefault(); dgOpen(); });
   });
 
-  /* Arrivée depuis une autre page avec ?diag=1 (bouton « Faire le diagnostic
-     gratuit » de renaissance.html).
-
-     L'intro d'ouverture n'est PLUS supprimée. Auparavant ce bloc retirait
-     `gi-open` et posait `gi-gone` : l'animation WebGL d'accueil était sautée
-     et le visiteur atterrissait sèchement sur le questionnaire, sans jamais
-     voir le site. On laisse désormais l'intro se dérouler normalement, et on
-     n'ouvre le diagnostic qu'une fois la page d'accueil affichée. */
-  try{
-    var _dgParams=new URLSearchParams(window.location.search);
-    if(_dgParams.get("diag")==="1"){
-      var _gi=document.getElementById("galaxy-intro");
-      var _ouvreDiag=function(){
-        try{ if(ov && !ov.classList.contains("open")) dgOpen(); }catch(e){}
-      };
-      var _introFinie=function(){
-        return !_gi || _gi.classList.contains("gi-gone")
-               || !document.documentElement.classList.contains("gi-open");
-      };
-
-      if(_introFinie()){
-        // Pas d'intro sur cette page (ou déjà passée) : ouverture normale.
-        [250,900,1800].forEach(function(ms){ setTimeout(_ouvreDiag, ms); });
-      } else {
-        /* Deux déclencheurs indépendants, car un seul s'est révélé fragile :
-
-           1. le clic sur le bouton d'entrée — signal le plus fiable, on sait
-              que l'intro se referme 1,9 s plus tard ;
-           2. une surveillance de l'écran d'intro — filet si le visiteur sort
-              de l'intro autrement (retour arrière, lien interne, etc.).
-
-           dgOpen() ignore les appels quand l'overlay est déjà ouvert : les
-           déclencheurs peuvent donc se chevaucher sans effet de bord. */
-        var _cta=document.getElementById("gi-cta");
-        if(_cta){
-          _cta.addEventListener("click", function(){
-            [2600, 3600].forEach(function(ms){ setTimeout(_ouvreDiag, ms); });
-          });
-        }
-
-        var _guet=setInterval(function(){
-          if(_introFinie()){
-            clearInterval(_guet);
-            setTimeout(_ouvreDiag, 600);   // laisse la page d'accueil se peindre
-            setTimeout(_ouvreDiag, 1800);  // relance si le rendu a tardé
-          }
-        }, 200);
-        // Garde-fou : on n'attend pas indéfiniment si l'intro ne se ferme jamais.
-        setTimeout(function(){ clearInterval(_guet); }, 120000);
-      }
-    }
-  }catch(e){}
+  /* AUCUNE OUVERTURE AUTOMATIQUE DU DIAGNOSTIC.
+     Le paramètre ?diag=1 ouvrait autrefois le questionnaire dès l'arrivée sur
+     le site, par-dessus la page d'accueil — le visiteur tombait sur les
+     questions sans avoir rien vu ni rien demandé. Le diagnostic ne s'ouvre
+     désormais QUE sur clic d'un bouton [data-diag], à commencer par
+     « Faire le diagnostic gratuit » sous la photo. Un ?diag=1 résiduel dans
+     une URL ou un favori est simplement ignoré. */
 
   el("dgClose").addEventListener("click", dgAttemptClose);
   backBtn.addEventListener("click", goBack);
