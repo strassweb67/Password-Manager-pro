@@ -6110,6 +6110,45 @@ function leadCard(l){
 }
 
 var _crmData=null, _crmView='hub', _crmSearch='', _crmEmbedded=false;
+var _crmHisto=[], _crmArb=[];
+
+/* ── Journal des événements (table rn_history, alimentée par trigger) ──
+   Garde la chronologie que diag_leads perd : une fiche y est écrasée à
+   chaque réponse, ici chaque étape reste horodatée définitivement. */
+async function loadHistory(){
+  if(typeof sbFetch!=='function') return [];
+  try{
+    var rows=await sbFetch('rn_history?order=at.desc&limit=500', {prefer:'return=representation'}, true);
+    return Array.isArray(rows) ? rows : [];
+  }catch(e){ console.warn('[CRM] historique KO', e.message); return []; }
+}
+
+/* ── Paiements reçus qu'on n'a pas pu attribuer automatiquement ── */
+async function loadArbitrage(){
+  if(typeof sbFetch!=='function') return [];
+  try{
+    var rows=await sbFetch('rn_arbitrage?limit=200', {prefer:'return=representation'}, true);
+    return Array.isArray(rows) ? rows : [];
+  }catch(e){ console.warn('[CRM] arbitrage KO', e.message); return []; }
+}
+
+/* Rattache un paiement reçu à la fiche choisie → le client est débloqué. */
+async function crmResolve(paymentId, leadId){
+  if(!confirm('Attribuer ce paiement à ce client ?\n\nSa page se débloquera dans les secondes qui suivent.')) return;
+  try{
+    await sbRpc('rn_resolve_payment', { p_payment_id: paymentId, p_lead_id: leadId }, true);
+    _crmArb=await loadArbitrage(); _crmData=await loadLeads(); renderCRM();
+  }catch(e){ alert('Échec : '+e.message); }
+}
+
+/* Débloque une fiche sans paiement rattaché (mail jamais arrivé). */
+async function crmForceUnlock(leadId){
+  if(!confirm('Débloquer ce client SANS paiement rattaché ?\n\nÀ n\'utiliser que si tu as vérifié toi-même son paiement sur Revolut.')) return;
+  try{
+    await sbRpc('rn_force_unlock', { p_lead_id: leadId, p_note: 'validé depuis l\'admin' }, true);
+    _crmArb=await loadArbitrage(); _crmData=await loadLeads(); renderCRM();
+  }catch(e){ alert('Échec : '+e.message); }
+}
 function el(id){ return document.getElementById(id); }
 
 /* ── Classe chaque fiche par origine (source) — SANS modifier le SQL ──
@@ -6166,7 +6205,9 @@ function catRows(rows){
 }
 function matchQ(l,q){
   if(!q) return true; q=q.toLowerCase();
-  return [l.email,l.tel,l.profil,l.code_postal,l.axe_prioritaire].some(function(v){
+  // Champs des fiches, mais aussi ceux de l'historique et de l'arbitrage
+  return [l.email,l.tel,l.profil,l.code_postal,l.axe_prioritaire,
+          l.lead_email,l.lead_tel,l.payer_name,l.event].some(function(v){
     return v && String(v).toLowerCase().indexOf(q)>=0; });
 }
 
@@ -6209,6 +6250,11 @@ function diagSessionCard(l){
              : (pay.clicked ? b('rgba(245,158,11,.12)','rgba(245,158,11,.4)','#f59e0b','💳 A cliqué payer')
              : b('rgba(100,116,139,.10)','rgba(100,116,139,.3)','#64748b','Pas de paiement'))));
   var devB = b('rgba(148,163,184,.08)','rgba(148,163,184,.25)','#94a3b8','📱 '+esc(dev.os||'?')+' · '+esc(dev.browser||'?'));
+  // Secours : le client a payé mais le mail Revolut n'est jamais arrivé.
+  // Proposé uniquement s'il a réellement lancé un paiement resté sans suite.
+  var unlockB = (!l.paid && (pay.clicked || l.pay_started_at))
+    ? '<button class="crm-unlock" data-l="'+esc(l.id)+'" style="margin-top:10px;width:100%;padding:10px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.45);color:#f59e0b;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;">🔓 Débloquer manuellement (paiement vérifié sur Revolut)</button>'
+    : '';
   var contact = (l.email||l.tel||l.code_postal) ?
       '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;">'
       +(l.email?'<a href="mailto:'+esc(l.email)+'" style="background:rgba(228,226,221,.1);color:#e8e6e1;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;">✉ '+esc(l.email)+'</a>':'')
@@ -6231,7 +6277,58 @@ function diagSessionCard(l){
     +profilLine+contact
     +(qaHtml?('<details style="margin-top:6px;"><summary style="cursor:pointer;font-size:11px;color:#38bdf8;font-weight:700;letter-spacing:1px;">VOIR LES RÉPONSES ('+qa.length+'/'+tot+')</summary><div style="margin-top:8px;">'+qaHtml+'</div></details>')
       :'<p style="font-size:11px;color:#475569;margin-top:6px;">Aucune réponse enregistrée.</p>')
+    +unlockB
     +'</div>';
+}
+
+/* ── Carte « ligne d'historique » ── */
+var _EVT = {
+  inscription:     { i:'✍️', c:'#8ea6ff', t:'Inscription' },
+  debut_diag:      { i:'▶️', c:'#38bdf8', t:'Diagnostic commencé' },
+  email_saisi:     { i:'✉️', c:'#38bdf8', t:'E-mail saisi' },
+  progression:     { i:'⋯',  c:'#475569', t:'Réponse enregistrée' },
+  diag_termine:    { i:'🎯', c:'#b9975b', t:'Diagnostic terminé' },
+  paiement_lance:  { i:'💳', c:'#fbbf24', t:'Paiement lancé' },
+  paye:            { i:'✅', c:'#22c55e', t:'Paiement reçu' },
+  debloque_manuel: { i:'🔓', c:'#f59e0b', t:'Débloqué manuellement' }
+};
+function historyCard(h){
+  var e=_EVT[h.event]||{ i:'•', c:'#94a3b8', t:h.event };
+  var d=h.detail||{}, extra=[];
+  if(d.profil)    extra.push('Profil : '+esc(d.profil));
+  if(d.potentiel!=null) extra.push('Potentiel '+esc(d.potentiel)+'%');
+  if(d.montant)   extra.push(esc(d.montant)+' €');
+  if(d.payeur)    extra.push('Payeur : '+esc(d.payeur));
+  if(d.reponses!=null) extra.push(esc(d.reponses)+' réponse(s)');
+  return '<div class="crm-card" style="background:#0c0d18;border:1px solid rgba(228,226,221,.14);border-left:3px solid '+e.c+';border-radius:12px;padding:12px 16px;margin-bottom:9px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">'
+      +'<span style="font-size:12.5px;font-weight:700;color:'+e.c+';">'+e.i+' '+esc(e.t)+'</span>'
+      +'<span style="font-size:11px;color:#475569;">'+fmtDate(h.at)+'</span></div>'
+    +(h.email?'<div style="font-size:12px;color:#cbd6ee;margin-top:6px;">✉ '+esc(h.email)+'</div>':'')
+    +(extra.length?'<div style="font-size:11.5px;color:#94a3b8;margin-top:4px;">'+extra.join(' · ')+'</div>':'')
+    +'</div>';
+}
+
+/* ── Carte « paiement à arbitrer » ──
+   Le mail Revolut donne le montant et le nom du payeur, jamais l'e-mail.
+   Quand le rapprochement automatique est ambigu, c'est ici qu'on tranche. */
+function arbCard(a){
+  var cand = a.lead_id
+    ? '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(228,226,221,.14);border-radius:10px;padding:11px 13px;margin-top:10px;">'
+        +'<div style="font-size:11px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Commande en attente à cette heure-là</div>'
+        +'<div style="font-size:12.5px;color:#e8e6e1;">✉ '+esc(a.lead_email||'—')+(a.lead_tel?' · ☎ '+esc(a.lead_tel):'')+'</div>'
+        +'<div style="font-size:11px;color:#475569;margin-top:3px;">Paiement lancé à '+fmtDate(a.pay_started_at)+'</div>'
+        +'<button class="arb-ok" data-p="'+esc(a.payment_id)+'" data-l="'+esc(a.lead_id)+'" '
+          +'style="margin-top:10px;width:100%;padding:11px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;">✓ C\'est ce client — débloquer</button>'
+      +'</div>'
+    : '<p style="font-size:12px;color:#f87171;margin-top:10px;">Aucune commande en attente à cette heure-là. Vérifie dans « Tous les diagnostics » qui a payé, puis débloque-le depuis sa fiche.</p>';
+  return '<div class="crm-card" style="background:#0c0d18;border:1px solid rgba(251,191,36,.35);border-radius:14px;padding:16px 18px;margin-bottom:12px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">'
+      +'<span style="background:rgba(251,191,36,.14);color:#fbbf24;border:1px solid rgba(251,191,36,.4);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:1px;">⚖️ '+esc((a.status||'').toUpperCase())+'</span>'
+      +'<span style="font-size:11px;color:#475569;">'+fmtDate(a.received_at)+'</span></div>'
+    +'<div style="font-size:15px;font-weight:800;color:#f1f5f9;">'+esc(a.amount||'?')+' € reçus</div>'
+    +'<div style="font-size:12.5px;color:#94a3b8;margin-top:2px;">de <b style="color:#cbd6ee;">'+esc(a.payer_name||'inconnu')+'</b></div>'
+    +cand+'</div>';
 }
 
 var _CRM_VIEWS = {
@@ -6240,7 +6337,11 @@ var _CRM_VIEWS = {
   attempts: { icon:'⏳', title:'Diagnostics tentés',  col:'#38bdf8', key:'attempts', card:attemptCard },
   zyra:     { icon:'🚀', title:'Inscrits Zyra',       col:'#8ea6ff', key:'zyra',     card:function(l){return signupCard(l,'zyra');} },
   bgh:      { icon:'🎟️', title:'Inscrits BGH Party',  col:'#c9a86a', key:'bgh',      card:function(l){return signupCard(l,'bgh');} },
-  paid:     { icon:'✓',  title:'Paiements validés',   col:'#22c55e', key:'paid',     card:function(l){return leadCard(l);} }
+  paid:     { icon:'✓',  title:'Paiements validés',   col:'#22c55e', key:'paid',     card:function(l){return leadCard(l);} },
+  /* `src` : ces deux vues ne viennent pas de diag_leads mais de leurs
+     propres tables (rn_history, rn_arbitrage), chargées séparément. */
+  arb:      { icon:'⚖️', title:'Paiements à arbitrer', col:'#fbbf24', src:function(){return _crmArb;},   card:arbCard },
+  histo:    { icon:'🕓', title:'Historique complet',   col:'#a78bfa', src:function(){return _crmHisto;}, card:historyCard }
 };
 
 function renderCRM(){
@@ -6252,7 +6353,8 @@ function renderCRM(){
     var items=[
       {v:'sessions',c:c.sessions.length},
       {v:'fiches',c:c.completed.length},{v:'attempts',c:c.attempts.length},
-      {v:'zyra',c:c.zyra.length},{v:'bgh',c:c.bgh.length},{v:'paid',c:c.paid.length}
+      {v:'zyra',c:c.zyra.length},{v:'bgh',c:c.bgh.length},{v:'paid',c:c.paid.length},
+      {v:'arb',c:_crmArb.length},{v:'histo',c:_crmHisto.length}
     ];
     body.innerHTML='<p style="font-size:11px;letter-spacing:2px;color:#475569;text-transform:uppercase;margin-bottom:16px;">Choisis une catégorie</p>'
       +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;">'
@@ -6271,7 +6373,7 @@ function renderCRM(){
   }
 
   var d=_CRM_VIEWS[_crmView]||_CRM_VIEWS.fiches;
-  var full=c[d.key]||[];
+  var full=d.src ? (d.src()||[]) : (c[d.key]||[]);
   var list=full.filter(function(l){ return matchQ(l,_crmSearch); });
   var head='<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">'
     +'<button id="crm-back" style="background:#0c0d18;border:1px solid rgba(228, 226, 221,.3);color:#e8e6e1;padding:9px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">← Retour</button>'
@@ -6281,6 +6383,13 @@ function renderCRM(){
     : '<p style="color:#475569;text-align:center;padding:50px 20px;font-size:13px;">'+(_crmSearch?'Aucun résultat pour « '+esc(_crmSearch)+' ».':'Aucune entrée pour le moment.')+'</p>';
   body.innerHTML=head+search+content;
   el('crm-back').onclick=crmBack;
+  // Boutons d'arbitrage (présents uniquement dans la vue « à arbitrer »)
+  Array.prototype.forEach.call(body.querySelectorAll('.arb-ok'), function(b){
+    b.onclick=function(){ crmResolve(b.getAttribute('data-p'), b.getAttribute('data-l')); };
+  });
+  Array.prototype.forEach.call(body.querySelectorAll('.crm-unlock'), function(b){
+    b.onclick=function(){ crmForceUnlock(b.getAttribute('data-l')); };
+  });
   var si=el('crm-search');
   if(si){ si.oninput=function(){ var pos=si.selectionStart; _crmSearch=si.value; renderCRM(); var ni=el('crm-search'); if(ni){ ni.focus(); try{ ni.setSelectionRange(pos,pos); }catch(e){} } }; }
 }
@@ -6305,12 +6414,14 @@ async function showCRM(startView){
       +'</div><div id="crm-body"><p style="color:#94a3b8;text-align:center;padding:50px;font-size:13px;">Chargement…</p></div></div>';
     document.body.appendChild(ov);
     el('crm-close').onclick=function(){ crmClose(); };
-    el('crm-refresh').onclick=async function(){ _crmData=await loadLeads(); renderCRM(); };
+    el('crm-refresh').onclick=async function(){ _crmData=await loadLeads(); _crmHisto=await loadHistory(); _crmArb=await loadArbitrage(); renderCRM(); };
   }
   _crmView=startView||'hub'; _crmSearch='';
   try{ history.pushState({crm:1,view:_crmView},''); }catch(e){}
   renderCRM();                       // affiche la vue demandée tout de suite
   _crmData=await loadLeads();
+  _crmHisto=await loadHistory();
+  _crmArb=await loadArbitrage();
   renderCRM();                       // recharge avec les données
 }
 window.showCRM=showCRM;
@@ -6338,10 +6449,12 @@ window.__embedCRM=async function(mount){
     +'</div>'
     +'<div id="crm-body"><p style="color:#94a3b8;text-align:center;padding:34px;font-size:13px;">Chargement…</p></div>';
   var rb=mount.querySelector('#crm-embed-refresh');
-  if(rb) rb.onclick=async function(){ rb.textContent='…'; _crmData=await loadLeads(); renderCRM(); rb.textContent='↻ Actualiser'; };
+  if(rb) rb.onclick=async function(){ rb.textContent='…'; _crmData=await loadLeads(); _crmHisto=await loadHistory(); _crmArb=await loadArbitrage(); renderCRM(); rb.textContent='↻ Actualiser'; };
   _crmView='hub'; _crmSearch='';
   renderCRM();                       // hub tout de suite
   _crmData=await loadLeads();
+  _crmHisto=await loadHistory();
+  _crmArb=await loadArbitrage();
   renderCRM();                       // recharge avec les données
 };
 
