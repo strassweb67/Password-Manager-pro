@@ -160,7 +160,12 @@ html[data-theme="nuit"] .tabs button.on{background:var(--blue);border-color:var(
 .row__h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px;}
 .row__m{font-size:13.5px;font-weight:700;word-break:break-all;display:flex;align-items:center;gap:7px;}
 .row__m svg{width:14px;height:14px;color:var(--blue);flex-shrink:0;}
-.row__d{font-size:11px;color:var(--ink3);}
+.row__d{font-size:11px;color:var(--ink3);display:flex;align-items:center;gap:8px;}
+.row__go{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;
+  color:var(--blue);opacity:0;transform:translateX(-4px);transition:opacity .25s,transform .25s;white-space:nowrap;}
+.row:hover .row__go{opacity:1;transform:none;}
+.row__go svg{width:12px;height:12px;}
+@media(hover:none){.row__go{opacity:.75;transform:none;}}
 .chips{display:flex;gap:6px;flex-wrap:wrap;}
 .chip{font-size:10px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--surface2);
   border:1px solid var(--line);color:var(--ink2);white-space:nowrap;display:inline-block;}
@@ -433,14 +438,14 @@ function ligne(l,o){
 
   return '<div class="row '+cls+' anim js-open" data-id="'+esc(l.id)+'" data-kind="lead">'
     +'<div class="row__h"><span class="row__m">'+ic('mail')+esc(l.email||'(sans e-mail)')+'</span>'
-    +'<span class="row__d">'+dt(l.ts||l.created_at)+'</span></div>'
+    +'<span class="row__d"><span class="row__go">'+ic('eye')+' Ouvrir</span>'+dt(l.ts||l.created_at)+'</span></div>'
     +'<div class="chips">'+puces(l)+'</div>'+act+'</div>';
 }
 
 function ligneVisiteur(v){
   return '<div class="row anim js-open" data-id="'+esc(v.id)+'" data-kind="visiteur">'
     +'<div class="row__h"><span class="row__m">'+ic('pin2')+esc(v.ip_city||v.ip_country||'Origine inconnue')+'</span>'
-    +'<span class="row__d">'+dt(v.created_at)+'</span></div>'
+    +'<span class="row__d"><span class="row__go">'+ic('eye')+' Ouvrir</span>'+dt(v.created_at)+'</span></div>'
     +'<div class="chips">'
     +'<span class="chip">'+esc(v.traffic_source||'Direct')+'</span>'
     +'<span class="chip">'+esc(v.os_type||'?')+' · '+esc(v.browser||'?')+'</span>'
