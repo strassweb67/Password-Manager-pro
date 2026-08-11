@@ -539,7 +539,9 @@ $('#q').oninput=e=>{ recherche=e.target.value; rendre(); };
 function entrer(){
   if($('#gate-pwd').value.trim()!==CODE){
     $('#gate-err').textContent='Code incorrect.';
-    setTimeout(()=>$('#gate-err').textContent='',1800); return;
+    // La porte peut avoir été retirée entre-temps (saisie correcte juste après) :
+    // sans ce garde-fou, le minuteur lèverait une erreur sur un élément absent.
+    setTimeout(()=>{ const e=$('#gate-err'); if(e) e.textContent=''; },1800); return;
   }
   $('#gate').remove();
   document.body.classList.add('sb-open');
