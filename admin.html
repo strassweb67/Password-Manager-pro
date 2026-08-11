@@ -146,9 +146,22 @@ body.is-open .l-main{left:var(--open);}
    écran étroit la rangée défile latéralement au lieu de se replier, ce qui
    garde la même lecture d'un téléphone à un écran d'ordinateur. */
 .rings{display:flex;flex-wrap:nowrap;gap:12px;overflow-x:auto;overscroll-behavior-x:contain;
-  padding:2px 2px 12px;margin-bottom:18px;scroll-snap-type:x proximity;
+  padding:2px 2px 12px;scroll-snap-type:x proximity;scroll-behavior:smooth;
   -webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .rings::-webkit-scrollbar{height:0;width:0;}
+
+/* Rien n'indiquait que la rangée défilait : les flèches le disent. Elles
+   n'apparaissent que si la rangée dépasse réellement de l'écran, et
+   s'éteignent une fois arrivé au bout. */
+.ringsbar{display:flex;align-items:flex-start;gap:6px;margin-bottom:18px;}
+.ringnav{flex:0 0 auto;margin-top:18px;width:28px;height:28px;border-radius:50%;
+  border:1px solid var(--line);background:var(--surface);color:var(--site);
+  display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;
+  box-shadow:var(--shadow);transition:opacity .2s ease,border-color .2s ease,transform .2s ease;}
+.ringnav.on{display:flex;}
+.ringnav svg{width:15px;height:15px;}
+.ringnav:hover:not(:disabled){border-color:var(--site);transform:scale(1.08);}
+.ringnav:disabled{opacity:.28;cursor:default;}
 /* Colonne explicite : sans elle, un bouton centre son contenu verticalement
    et le cercle d'« À recontacter », dont l'intitulé tient sur deux lignes,
    remontait au-dessus des autres. */
@@ -368,6 +381,8 @@ const P={
   lune:'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z',
   pin2:'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
   x:'M18 6L6 18M6 6l12 12',
+  chevG:'M15 18l-6-6 6-6',
+  chevD:'M9 18l6-6-6-6',
   tel:'M12 18h.01M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z',
   globe:'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z'
 };
@@ -688,8 +703,10 @@ function pDash(L){
     +'<span class="ring__l">'+l+'</span></button>';
   let k=0;
   return '<div class="hello anim"><b>Bienvenue Yanis</b>'
-    +'<span>Voici tes stats aujourd\'hui :</span></div>'
-    +'<div class="rings">'
+    +'<span>Voici tes stats :</span></div>'
+    +'<div class="ringsbar">'
+    +'<button type="button" class="ringnav" id="ringG" aria-label="Compteurs précédents">'+ic('chevG')+'</button>'
+    +'<div class="rings" id="rings">'
     +o(tot,'Visites totales','visites',k+=0)
     +o(pj(j(0)),"Aujourd'hui",'visites',k+=35)
     +o(pj(j(1)),'Hier','visites',k+=35)
@@ -701,6 +718,8 @@ function pDash(L){
     +o(payes,'Payés','diag',k+=35)
     +o(L.zyra.length,'Inscrits Zyra','zyra',k+=35)
     +o(L.bgh.length,'BGH Party','bgh',k+=35)
+    +'</div>'
+    +'<button type="button" class="ringnav" id="ringD" aria-label="Compteurs suivants">'+ic('chevD')+'</button>'
     +'</div>'
     +'<div class="box box--sm anim" style="animation-delay:200ms"><div class="box__t">'+ic('line')+' Courbe des visites <small>7 derniers jours</small></div>'+courbe(7)+'</div>'
     +'<div class="box box--sm anim" style="animation-delay:260ms"><div class="box__t">'+ic('pin')+' File de travail <small>'+aF+' à faire · '+eC+' en cours</small></div>'
@@ -898,6 +917,27 @@ function lier(){
       peindre();
     };
   }
+  /* Flèches de la rangée de compteurs. Elles ne se montrent que si la rangée
+     dépasse vraiment — sur un écran large où les onze anneaux tiennent, elles
+     n'auraient rien à faire. Un défilement d'environ trois anneaux par appui. */
+  const rail=v.querySelector('#rings'), fG=v.querySelector('#ringG'), fD=v.querySelector('#ringD');
+  if(rail&&fG&&fD){
+    const peindre=()=>{
+      const trop=rail.scrollWidth - rail.clientWidth;
+      fG.classList.toggle('on', trop>4); fD.classList.toggle('on', trop>4);
+      fG.disabled = rail.scrollLeft <= 2;
+      fD.disabled = rail.scrollLeft >= trop - 2;
+    };
+    const pas=()=>Math.max(rail.clientWidth*0.8, 180);
+    fG.onclick=()=>{ rail.scrollLeft -= pas(); };
+    fD.onclick=()=>{ rail.scrollLeft += pas(); };
+    rail.addEventListener('scroll', peindre, {passive:true});
+    addEventListener('resize', peindre);
+    peindre();
+    // Les polices peuvent finir de charger après coup et changer les largeurs.
+    setTimeout(peindre, 300);
+  }
+
   const cs=v.querySelector('#cfg-s');
   if(cs) cs.onclick=async function(){
     const r=v.querySelector('#cfg-r'), a=cs.innerHTML;
