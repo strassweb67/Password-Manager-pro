@@ -3952,7 +3952,10 @@ function renderVisitorCard(v, container){
 (function(){
   var b=document.getElementById('brice-admin');
   if(!b) return;
-  var openAdmin=function(){ var t=document.getElementById('sig-admin-trigger'); if(t) t.click(); };
+  /* Un seul espace d'administration : le crédit renvoie désormais vers
+     admin.html, qui regroupe tout ce que l'ancien tableau de bord affichait.
+     L'ancienne fenêtre reste dans la page mais n'est plus le point d'entrée. */
+  var openAdmin=function(){ window.location.href='admin.html'; };
   b.addEventListener('click',openAdmin);
   b.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openAdmin(); } });
 })();
