@@ -5421,13 +5421,42 @@ function submitIntro(){
   S.view="contact";
   render();
 }
-function submitContact(){
+var dgEnVerif=false;
+async function submitContact(){
   // L'e-mail est la seule coordonnée demandée : c'est par là que le client
   // sera recontacté. Téléphone et code postal ont été retirés du formulaire.
+  if(dgEnVerif) return;                       // double appui pendant la vérification
   var em=el("dgEmail").value.trim();
-  var okE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em);
-  fieldErr("dgF-email",!okE);
-  if(!okE) return;
+
+  /* La forme d'abord, l'existence ensuite. « azer@azer.fr » est bien formé
+     mais son domaine ne reçoit rien : c'est ce contrôle-là qui manquait, et
+     c'est de là que venaient les fausses adresses dans les fiches. Le message
+     réutilise la ligne d'erreur déjà présente sous le champ — rien de neuf à
+     l'écran, seulement un texte plus précis. */
+  var ligne=document.querySelector('#dgF-email .dg-errmsg');
+  var dire=function(t){ if(ligne) ligne.textContent=t; };
+
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){
+    dire("Entre un email valide."); fieldErr("dgF-email",true); return;
+  }
+
+  var bouton=el("dgSeeRes"), libelle=bouton?bouton.innerHTML:'';
+  dgEnVerif=true;
+  if(bouton){ bouton.disabled=true; bouton.innerHTML='Vérification…'; }
+  var verdict={ok:true,msg:''};
+  try{
+    if(window.rnVerifEmail) verdict=await window.rnVerifEmail(em);
+  }catch(e){}                                  // en cas de pépin, on laisse passer
+  dgEnVerif=false;
+  if(bouton){ bouton.disabled=false; bouton.innerHTML=libelle; }
+
+  if(!verdict.ok){
+    dire(verdict.msg); fieldErr("dgF-email",true);
+    try{ el("dgEmail").focus(); }catch(e){}
+    track("✋ Diag → Adresse refusée");
+    return;
+  }
+  fieldErr("dgF-email",false);
   S.email=em;
   track("🎯 Diag → Contact validé");
 
@@ -6552,6 +6581,7 @@ else handleReturn();
 })();
 </script>
 
+<script src="assets/verif-email.js?v=1" defer></script>
 <script src="assets/vendor/gsap.min.js" defer></script>
 <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="assets/vendor/lenis.min.js" defer></script>

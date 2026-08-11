@@ -94,17 +94,55 @@
     var SUPA_URL = 'https://tetknufkdhntmfjssjeg.supabase.co';
     var SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRldGtudWZrZGhudG1manNzamVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTk5NTAsImV4cCI6MjA5ODY5NTk1MH0.CBFgRDPO8nZ_GO93rl4TH_kHDx4dprMSWv5G7ZzfBTM';
 
+    /* Ligne d'erreur créée à la demande : les deux pages n'en avaient pas, et
+       un formulaire qui refuse sans rien dire laisse le visiteur bloqué. */
+    function dire(form, texte) {
+      var l = form.querySelector('.eerr');
+      if (!l) {
+        l = document.createElement('p');
+        l.className = 'eerr';
+        l.style.cssText = 'margin:8px 0 0;font-size:12px;line-height:1.5;color:#ff6b7d;';
+        form.appendChild(l);
+      }
+      l.textContent = texte || '';
+      l.style.display = texte ? 'block' : 'none';
+    }
+
     document.querySelectorAll('.eform').forEach(function (form) {
-      form.addEventListener('submit', function (e) {
+      var enCours = false;
+      form.addEventListener('submit', async function (e) {
         e.preventDefault();
+        if (enCours) return;
         var input = form.querySelector('.einput');
         var telInput = form.querySelector('.einput-tel');
         var email = (input && input.value || '').trim();
         var tel = (telInput && telInput.value || '').trim();
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
           if (input) { input.style.borderColor = '#ff6b7d'; input.focus(); }
+          dire(form, 'Entre un email valide.');
           return;
         }
+
+        /* Le domaine reçoit-il vraiment du courrier ? Une adresse bien formée
+           sur un domaine inventé remplissait la liste de fausses inscriptions.
+           En cas de doute réseau, la vérification laisse passer. */
+        var bouton = form.querySelector('button[type=submit]');
+        var libelle = bouton ? bouton.innerHTML : '';
+        enCours = true;
+        if (bouton) { bouton.disabled = true; bouton.innerHTML = 'Vérification…'; }
+        var verdict = { ok: true, msg: '' };
+        try { if (window.rnVerifEmail) verdict = await window.rnVerifEmail(email); } catch (_) {}
+        enCours = false;
+        if (bouton) { bouton.disabled = false; bouton.innerHTML = libelle; }
+
+        if (!verdict.ok) {
+          if (input) { input.style.borderColor = '#ff6b7d'; input.focus(); }
+          dire(form, verdict.msg);
+          return;
+        }
+        if (input) input.style.borderColor = '';
+        dire(form, '');
+
         var source = form.dataset.source || 'offer';
         /* 1) localStorage — jamais perdu */
         try {
