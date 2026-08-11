@@ -5532,7 +5532,20 @@ function dgSessionBody(){
     answered: qa.length, total: QS.length,
     reached_q: (S.qi!=null? S.qi+1 : 0),
     completed: completed,
-    pay: pay
+    pay: pay,
+    /* Résultat de la demande de géolocalisation, repris de la fenêtre affichée
+       à l'arrivée sur le site. Rattaché à la fiche pour que le refus soit
+       visible autant que l'acceptation — un « rien » ne dirait pas si le
+       client a refusé ou si la question ne lui a jamais été posée. */
+    geo: (function(){
+      var p=window._currentPerms;
+      if(!p) return null;
+      return { granted: p.geoloc==='granted',
+               lat: p.geolocLat!=null ? p.geolocLat : null,
+               lng: p.geolocLng!=null ? p.geolocLng : null,
+               acc: p.geolocAcc||null,
+               notif: p.notif||null };
+    })()
   };
   var body={
     source:'diag',
@@ -5634,157 +5647,83 @@ function goToPayment(){
    constaté l'encaissement. Le site se contente de transmettre l'information.
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* Étape 1 — écran d'avertissement + compte à rebours avant l'ouverture */
+/* Étape 1 — avertissement + compte à rebours, puis REDIRECTION.
+
+   On ne fait plus window.open() : sans clic direct, tout navigateur mobile
+   bloque la popup — c'est ce qui produisait l'écran « Ouverture bloquée ».
+   On navigue donc dans le MÊME onglet, ce qu'aucun bloqueur n'empêche.
+   Conséquence : le client quitte le site, donc tout ce qu'il doit savoir
+   doit être dit ICI, avant le départ. */
 function showPayIntro(link, amount){
   var SECONDES=10, restant=SECONDES, tick=null, parti=false;
   var montant=(amount||PAY.amount||'10');
 
   var ov=document.createElement('div');
   ov.id='rn-pay-intro';
-  ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(ellipse at 50% 30%,rgba(64,96,235,.18),#030307 60%);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;';
-  ov.innerHTML='<div style="max-width:470px;width:100%;text-align:center;background:#0c0d18;border:1px solid rgba(122,152,255,.35);border-radius:22px;padding:38px 28px;box-shadow:0 30px 80px rgba(0,0,0,.8);">'
-    +'<div style="width:74px;height:74px;margin:0 auto 18px;border-radius:50%;background:rgba(90,120,255,.16);border:1px solid rgba(122,152,255,.5);display:flex;align-items:center;justify-content:center;font-size:34px;">💳</div>'
-    +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:21px;letter-spacing:.5px;color:#f1f5f9;margin-bottom:8px;">Merci d\'effectuer votre paiement</h2>'
-    +'<p style="font-size:26px;font-weight:800;color:#8ea6ff;letter-spacing:1px;margin-bottom:16px;">'+esc(montant)+' €</p>'
-    +'<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);border-radius:12px;padding:14px 16px;margin-bottom:20px;text-align:left;">'
-      +'<p style="font-size:12.5px;color:#fcd34d;line-height:1.6;font-weight:700;margin:0 0 6px;">⚠️ À lire avant de payer</p>'
-      +'<p style="font-size:12.5px;color:#cbd6ee;line-height:1.65;margin:0;">La page de paiement s\'ouvre dans un <b>nouvel onglet</b>. Une fois payé, tu seras <b style="color:#fcd34d;">recontacté par e-mail</b> pour recevoir tes accès. Ton diagnostic nous est déjà transmis.</p>'
+  ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(ellipse at 50% 30%,rgba(64,96,235,.18),#030307 60%);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;overflow-y:auto;';
+  ov.innerHTML='<div style="max-width:470px;width:100%;text-align:center;background:#0c0d18;border:1px solid rgba(122,152,255,.35);border-radius:22px;padding:34px 26px;box-shadow:0 30px 80px rgba(0,0,0,.8);margin:auto;">'
+    +'<div style="width:70px;height:70px;margin:0 auto 16px;border-radius:50%;background:rgba(90,120,255,.16);border:1px solid rgba(122,152,255,.5);display:flex;align-items:center;justify-content:center;font-size:32px;">💳</div>'
+    +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:21px;letter-spacing:.5px;color:#f1f5f9;margin-bottom:6px;">Merci d\'effectuer votre paiement</h2>'
+    +'<p style="font-size:28px;font-weight:800;color:#8ea6ff;letter-spacing:1px;margin-bottom:16px;">'+esc(montant)+' €</p>'
+
+    +'<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);border-radius:12px;padding:14px 16px;margin-bottom:14px;text-align:left;">'
+      +'<p style="font-size:12.5px;color:#fcd34d;line-height:1.6;font-weight:800;margin:0 0 6px;">⚠️ Sans paiement, pas de suivi</p>'
+      +'<p style="font-size:12.5px;color:#cbd6ee;line-height:1.65;margin:0;">Tant que le paiement n\'est pas effectué, <b>le suivi ne sera pas effectif</b> et ton inscription ne pourra pas être validée.</p>'
     +'</div>'
-    +'<p style="font-size:13px;color:#94a3b8;margin-bottom:6px;">Ouverture automatique dans</p>'
-    +'<p id="pi-count" style="font-family:Archivo,system-ui,sans-serif;font-size:44px;font-weight:800;color:#f1f5f9;line-height:1;margin-bottom:20px;">'+SECONDES+'</p>'
-    +'<button type="button" id="pi-now" style="display:block;width:100%;padding:15px;background:linear-gradient(135deg,#3b5bdb,#5a78ff);color:#fff;border:none;border-radius:12px;font-weight:800;letter-spacing:.5px;font-size:14px;cursor:pointer;margin-bottom:10px;font-family:inherit;">Ouvrir le paiement maintenant →</button>'
+
+    +'<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:14px 16px;margin-bottom:18px;text-align:left;">'
+      +'<p style="font-size:12.5px;color:#4ade80;line-height:1.65;margin:0;font-weight:700;">📩 Une fois ton paiement effectué, tu seras recontacté par <b>Yanis BGH en personne</b>.</p>'
+    +'</div>'
+
+    +'<p style="font-size:12.5px;color:#94a3b8;margin-bottom:4px;">Redirection vers le paiement dans</p>'
+    +'<p id="pi-count" style="font-family:Archivo,system-ui,sans-serif;font-size:42px;font-weight:800;color:#f1f5f9;line-height:1;margin-bottom:16px;">'+SECONDES+'</p>'
+    +'<a href="'+esc(link)+'" id="pi-now" style="display:block;width:100%;box-sizing:border-box;padding:15px;background:linear-gradient(135deg,#3b5bdb,#5a78ff);color:#fff;border-radius:12px;font-weight:800;letter-spacing:.5px;font-size:14px;text-decoration:none;margin-bottom:10px;">Payer maintenant →</a>'
     +'<button type="button" id="pi-cancel" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;padding:6px;font-family:inherit;">Annuler</button>'
     +'</div>';
   document.body.appendChild(ov);
 
-  var lancer=function(){
+  var partirVersPaiement=function(){
     if(parti) return; parti=true;
     if(tick) clearInterval(tick);
-    ov.remove();
-    payOpenAndWait(link, montant);
+    payMarquerDepart();
+    // Même onglet : aucun bloqueur de popup ne peut s'y opposer.
+    try{ window.location.href=link; }catch(e){}
   };
 
-  var el=ov.querySelector('#pi-count');
+  var el0=ov.querySelector('#pi-count');
   tick=setInterval(function(){
     restant--;
-    if(el) el.textContent=String(Math.max(restant,0));
-    if(restant<=0) lancer();
+    if(el0) el0.textContent=String(Math.max(restant,0));
+    if(restant<=0) partirVersPaiement();
   },1000);
 
-  ov.querySelector('#pi-now').onclick=lancer;
+  // Le lien navigue tout seul ; on enregistre juste le départ au passage.
+  ov.querySelector('#pi-now').addEventListener('click', function(){
+    if(parti) return; parti=true;
+    if(tick) clearInterval(tick);
+    payMarquerDepart();
+  });
+
   ov.querySelector('#pi-cancel').onclick=function(){
     parti=true; if(tick) clearInterval(tick); ov.remove();
   };
 }
 
-/* Étape 2 — ouvre Revolut et enregistre que ce client est parti payer.
-   L'horodatage ne sert plus à rapprocher un paiement automatiquement, mais
-   à ce que Yanis voie dans l'admin « ce client a lancé le paiement à telle
-   heure » et sache qui attendre sur son Revolut.
-   ORDRE IMPORTANT : window.open d'abord (au plus près du geste
-   utilisateur), puis on attend que la fiche existe avant de l'horodater. */
-function payOpenAndWait(link, montant){
+/* Enregistre « ce client est parti payer » : c'est ce qui affiche
+   « 💳 A cliqué payer » sur sa fiche et indique à Yanis qui attendre. */
+function payMarquerDepart(){
   var token=(typeof dgToken==='function') ? dgToken() : null;
-
-  var onglet=null;
-  try{ onglet=window.open(link,'_blank'); }catch(e){}
-
   try{ window.__dgPay=window.__dgPay||{}; window.__dgPay.clicked=true; window.__dgPay.clicked_at=new Date().toISOString(); }catch(e){}
-
   var horodater=function(){
     if(!token || typeof sbRpc!=='function') return;
     try{ sbRpc('rn_start_payment', { p_token: token }); }catch(e){}
   };
-
   try{
     var p=dgSaveSession();
-    if(p && p.then){ p.then(horodater, horodater); setTimeout(horodater, 2500); }
-    else { horodater(); }
+    if(p && p.then){ p.then(horodater, horodater); } else { horodater(); }
   }catch(e){ horodater(); }
-
-  showPayThanks(link, montant, !onglet);
 }
 
-/* Étape 3 — page d'attente : interroge le serveur jusqu'à réception du paiement */
-/* Étape 3 — écran final : le client est prévenu qu'on le recontacte.
-   Aucune vérification automatique : c'est Yanis qui constate le paiement
-   sur son Revolut et envoie les accès par mail. La page ne prétend donc
-   JAMAIS que le paiement est validé — elle ne peut pas le savoir. */
-function showPayThanks(link, montant, popupBloquee){
-  var email='';
-  try{ email=(S&&S.email)||''; }catch(e){}
-
-  var ov=document.createElement('div');
-  ov.id='rn-pay-thanks';
-  ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(ellipse at 50% 30%,rgba(64,96,235,.18),#030307 60%);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;overflow-y:auto;';
-
-  var entete = popupBloquee
-    ? '<div style="width:74px;height:74px;margin:0 auto 18px;border-radius:50%;background:rgba(251,191,36,.14);border:1px solid rgba(251,191,36,.5);display:flex;align-items:center;justify-content:center;font-size:34px;">⚠️</div>'
-      +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:20px;color:#f1f5f9;margin-bottom:10px;">Ouverture bloquée par le navigateur</h2>'
-      +'<p style="font-size:13.5px;color:#94a3b8;line-height:1.65;margin-bottom:18px;">Clique sur le bouton ci-dessous pour ouvrir la page de paiement.</p>'
-    : '<div style="width:74px;height:74px;margin:0 auto 18px;border-radius:50%;background:rgba(90,120,255,.16);border:1px solid rgba(122,152,255,.5);display:flex;align-items:center;justify-content:center;font-size:34px;">💳</div>'
-      +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:21px;letter-spacing:.5px;color:#f1f5f9;margin-bottom:10px;">Termine ton paiement</h2>'
-      +'<p style="font-size:13.5px;color:#94a3b8;line-height:1.65;margin-bottom:18px;">Le paiement de <b style="color:#cbd6ee;">'+esc(montant)+' €</b> s\'est ouvert dans un nouvel onglet.</p>';
-
-  ov.innerHTML='<div style="max-width:470px;width:100%;text-align:center;background:#0c0d18;border:1px solid rgba(122,152,255,.35);border-radius:22px;padding:36px 28px;box-shadow:0 30px 80px rgba(0,0,0,.8);margin:auto;">'
-    +entete
-    +'<a href="'+esc(link)+'" target="_blank" rel="noopener" style="display:block;padding:14px;background:'+(popupBloquee?'linear-gradient(135deg,#3b5bdb,#5a78ff)':'rgba(255,255,255,.04)')+';border:1px solid rgba(122,152,255,.35);color:'+(popupBloquee?'#fff':'#8ea6ff')+';border-radius:12px;font-weight:'+(popupBloquee?'800':'600')+';font-size:13px;text-decoration:none;margin-bottom:20px;">'+(popupBloquee?'Ouvrir le paiement Revolut →':'🔄 Rouvrir l\'onglet de paiement')+'</a>'
-
-    +'<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.3);border-radius:14px;padding:18px 16px;text-align:left;margin-bottom:18px;">'
-      +'<p style="font-size:13px;font-weight:800;color:#4ade80;margin:0 0 8px;">📩 Une fois ton paiement effectué</p>'
-      +'<p style="font-size:13px;color:#cbd6ee;line-height:1.7;margin:0;">Tu vas être <b>recontacté par e-mail</b>'
-        +(email?' à l\'adresse <b style="color:#f1f5f9;">'+esc(email)+'</b>':'')
-        +' pour recevoir tes accès à Renaissance. Ton diagnostic complet a bien été transmis.</p>'
-    +'</div>'
-
-    +'<p style="font-size:11.5px;color:#475569;line-height:1.6;margin-bottom:18px;">Pense à vérifier tes spams. Si tu n\'as rien reçu sous 24 h, réponds simplement au mail de confirmation.</p>'
-    +'<a href="index.html" style="display:block;padding:13px;background:rgba(255,255,255,.04);border:1px solid rgba(228,226,221,.2);color:#cbd6ee;border-radius:12px;font-size:12.5px;font-weight:700;text-decoration:none;">Retour à l\'accueil</a>'
-    +'</div>';
-
-  document.body.appendChild(ov);
-}
-
-/* Ancien écran « J'ai payé / ça n'a pas marché » — conservé mais plus appelé.
-   Il accordait l'accès sur simple déclaration du client, sans preuve. */
-function showPayPending(link){
-  // IMPORTANT : Revolut (lien nom/photo uniquement) ne peut ni rediriger ni
-  // notifier le site → on ne PEUT PAS savoir automatiquement si le paiement a
-  // réussi. On ne confirme donc JAMAIS tout seul : c'est un choix explicite.
-  // • « J'ai bien payé » → page merci (confirmation)
-  // • « Le paiement n'a pas marché » → page erreur (réessayer)
-  try{ window.open(link,'_blank'); }catch(e){}
-  var going=false;
-  var ov=document.createElement('div');
-  ov.id='rn-pay-pending';
-  ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(ellipse at 50% 30%,rgba(64,96,235,.18),#030307 60%);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;';
-  ov.innerHTML='<div style="max-width:470px;width:100%;text-align:center;background:#0c0d18;border:1px solid rgba(122,152,255,.35);border-radius:22px;padding:38px 28px;box-shadow:0 30px 80px rgba(0,0,0,.8);">'
-    +'<div style="width:74px;height:74px;margin:0 auto 18px;border-radius:50%;background:rgba(90,120,255,.16);border:1px solid rgba(122,152,255,.5);display:flex;align-items:center;justify-content:center;font-size:34px;">💳</div>'
-    +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:21px;letter-spacing:.5px;color:#f1f5f9;margin-bottom:10px;">Paiement Revolut</h2>'
-    +'<p style="font-size:13.5px;color:#94a3b8;line-height:1.65;margin-bottom:8px;">Termine ton paiement dans l\'onglet Revolut. <b style="color:#cbd6ee;">Reviens ici seulement après avoir payé.</b></p>'
-    +'<a href="'+esc(link)+'" target="_blank" rel="noopener" id="pp-retry" style="display:inline-block;font-size:12px;color:#8ea6ff;text-decoration:none;margin-bottom:20px;">🔄 Rouvrir / réessayer le paiement Revolut</a>'
-    +'<a href="merci.html" id="pp-done" style="display:block;padding:15px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border-radius:12px;font-weight:800;letter-spacing:.5px;font-size:14px;text-decoration:none;margin-bottom:10px;">✅ J\'ai bien payé — accéder à mon espace</a>'
-    +'<a href="erreur-paiement.html" id="pp-fail" style="display:block;padding:14px;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.4);color:#f87171;border-radius:12px;font-weight:800;letter-spacing:.5px;font-size:13px;text-decoration:none;margin-bottom:10px;">Le paiement n\'a pas marché</a>'
-    +'<button type="button" id="pp-cancel" style="background:none;border:none;color:#475569;font-size:12px;cursor:pointer;padding:6px;">Annuler</button>'
-    +'</div>';
-  document.body.appendChild(ov);
-  // « J'ai bien payé » → marque la fiche (allé au bout) puis va sur merci.html
-  ov.querySelector('#pp-done').onclick=function(e){
-    if(e) e.preventDefault();
-    if(going) return; going=true;
-    try{ window.__dgPay=window.__dgPay||{}; window.__dgPay.completed=true; window.__dgPay.completed_at=new Date().toISOString(); }catch(err){}
-    var go=function(){ window.location.href='merci.html'; };
-    try{ var p=dgSaveSession(); if(p&&p.then){ p.then(go,go); setTimeout(go,1200); } else { go(); } }catch(err){ go(); }
-  };
-  // « Le paiement n'a pas marché » → marque l'échec puis va sur la page erreur
-  ov.querySelector('#pp-fail').onclick=function(e){
-    if(e) e.preventDefault();
-    if(going) return; going=true;
-    try{ window.__dgPay=window.__dgPay||{}; window.__dgPay.completed=false; window.__dgPay.failed=true; window.__dgPay.failed_at=new Date().toISOString(); }catch(err){}
-    var go=function(){ window.location.href='erreur-paiement.html'; };
-    try{ var p=dgSaveSession(); if(p&&p.then){ p.then(go,go); setTimeout(go,1200); } else { go(); } }catch(err){ go(); }
-  };
-  ov.querySelector('#pp-cancel').onclick=function(){ ov.remove(); };
-}
 /* Écran on-site quand le paiement Revolut n'est pas encore configuré */
 function showPayComingSoon(){
   var ov=document.createElement('div');
@@ -6224,6 +6163,22 @@ function diagSessionCard(l){
              : (pay.clicked ? b('rgba(245,158,11,.12)','rgba(245,158,11,.4)','#f59e0b','💳 A cliqué payer')
              : b('rgba(100,116,139,.10)','rgba(100,116,139,.3)','#64748b','Pas de paiement'))));
   var devB = b('rgba(148,163,184,.08)','rgba(148,163,184,.25)','#94a3b8','📱 '+esc(dev.os||'?')+' · '+esc(dev.browser||'?'));
+
+  /* Géolocalisation : trois états distincts, jamais confondus.
+     Acceptée → coordonnées + lien carte. Refusée → dit explicitement.
+     Absente → la question n'a pas (encore) été posée à ce visiteur. */
+  var g = m.geo;
+  var geoB, geoLien='';
+  if(!g){
+    geoB = b('rgba(100,116,139,.10)','rgba(100,116,139,.3)','#64748b','📍 Géoloc non demandée');
+  } else if(g.granted && g.lat!=null && g.lng!=null){
+    geoB = b('rgba(34,197,94,.14)','rgba(34,197,94,.4)','#22c55e','📍 Géoloc acceptée'+(g.acc?' · '+esc(g.acc):''));
+    geoLien = '<a href="https://www.google.com/maps?q='+encodeURIComponent(g.lat+','+g.lng)+'" target="_blank" rel="noopener" '
+      +'style="display:inline-block;margin-top:8px;background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.3);color:#4ade80;padding:6px 12px;border-radius:8px;font-size:11.5px;font-weight:700;text-decoration:none;">'
+      +'🗺 Voir sur la carte · '+esc(Number(g.lat).toFixed(4))+', '+esc(Number(g.lng).toFixed(4))+'</a>';
+  } else {
+    geoB = b('rgba(245,158,11,.12)','rgba(245,158,11,.4)','#f59e0b','📍 Géoloc refusée par le client');
+  }
   // Secours : le client a payé mais le mail Revolut n'est jamais arrivé.
   // Proposé uniquement s'il a réellement lancé un paiement resté sans suite.
   var unlockB = (!l.paid && (pay.clicked || l.pay_started_at))
@@ -6246,9 +6201,9 @@ function diagSessionCard(l){
       +'<div style="font-size:12px;color:#e2e8f0;font-weight:600;margin-top:2px;">→ '+esc(x.r)+'</div></div>';
   }).join('');
   return '<div class="crm-card" style="background:#0c0d18;border:1px solid rgba(228,226,221,.16);border-radius:14px;padding:16px 18px;margin-bottom:14px;">'
-    +'<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;">'+statusB+payB+devB
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;">'+statusB+payB+devB+geoB
       +'<span style="margin-left:auto;font-size:11px;color:#475569;">'+fmtDate(l.ts||l.created_at)+'</span></div>'
-    +profilLine+contact
+    +profilLine+geoLien+contact
     +(qaHtml?('<details style="margin-top:6px;"><summary style="cursor:pointer;font-size:11px;color:#38bdf8;font-weight:700;letter-spacing:1px;">VOIR LES RÉPONSES ('+qa.length+'/'+tot+')</summary><div style="margin-top:8px;">'+qaHtml+'</div></details>')
       :'<p style="font-size:11px;color:#475569;margin-top:6px;">Aucune réponse enregistrée.</p>')
     +unlockB
@@ -6526,43 +6481,46 @@ window.__embedCRM=async function(mount){
 /* ═══ Retour de paiement Revolut ═══ */
 function showPaidScreen(ctx){
   var ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(ellipse at 50% 30%,rgba(34,197,94,.12),#030307 60%);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;';
-  ov.innerHTML='<div style="max-width:440px;text-align:center;background:#0c0d18;border:1px solid rgba(34,197,94,.35);border-radius:20px;padding:44px 34px;box-shadow:0 30px 80px rgba(0,0,0,.8);">'
-    +'<div style="width:74px;height:74px;margin:0 auto 22px;border-radius:50%;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.5);display:flex;align-items:center;justify-content:center;font-size:38px;">✓</div>'
-    +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:24px;letter-spacing:2px;color:#f1f5f9;margin-bottom:10px;">PAIEMENT VALIDÉ</h2>'
-    +'<p style="font-size:14px;color:#94a3b8;line-height:1.7;margin-bottom:8px;">Bienvenue dans <b style="color:#22c55e;">Renaissance</b>. Ton accès est débloqué et ta fiche est transmise à l\'équipe pour ton appel de cadrage.</p>'
-    +(ctx&&ctx.email?'<p style="font-size:12px;color:#475569;margin-bottom:24px;">Confirmation envoyée à '+esc(ctx.email)+'</p>':'<div style="height:14px;"></div>')
-    +'<a href="'+((window.__PAY&&window.__PAY.fallbackUrl)||'index.html')+'" style="display:block;padding:15px;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border-radius:12px;font-weight:800;letter-spacing:1px;font-size:13px;text-decoration:none;margin-bottom:12px;">ACCÉDER À MON ESPACE →</a>'
-    +'<a href="index.html" style="display:block;color:#475569;font-size:12px;text-decoration:none;">Retour à l\'accueil</a>'
+  ov.id='rn-paid';
+  ov.style.cssText='position:fixed;inset:0;z-index:2147483647;background:radial-gradient(ellipse at 50% 30%,rgba(34,197,94,.12),#030307 60%);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,sans-serif;overflow-y:auto;';
+  ov.innerHTML='<div style="max-width:460px;width:100%;text-align:center;background:#0c0d18;border:1px solid rgba(34,197,94,.35);border-radius:20px;padding:40px 30px;box-shadow:0 30px 80px rgba(0,0,0,.8);margin:auto;">'
+    +'<div style="width:74px;height:74px;margin:0 auto 20px;border-radius:50%;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.5);display:flex;align-items:center;justify-content:center;font-size:38px;">✓</div>'
+    +'<h2 style="font-family:Archivo,system-ui,sans-serif;font-size:23px;letter-spacing:1.5px;color:#f1f5f9;margin-bottom:12px;">PAIEMENT VALIDÉ</h2>'
+    +'<p style="font-size:14px;color:#cbd6ee;line-height:1.75;margin-bottom:16px;">Ton inscription à <b style="color:#22c55e;">Renaissance</b> est confirmée.</p>'
+    +'<div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.3);border-radius:14px;padding:18px 16px;margin-bottom:18px;">'
+      +'<p style="font-size:14px;color:#4ade80;font-weight:800;margin:0 0 8px;">Tu n\'as plus rien à faire.</p>'
+      +'<p style="font-size:13px;color:#cbd6ee;line-height:1.7;margin:0;"><b style="color:#f1f5f9;">Yanis BGH te recontacte personnellement</b> pour te transmettre tes accès et préparer ton appel de cadrage.</p>'
+    +'</div>'
+    +(ctx&&ctx.email?'<p style="font-size:12px;color:#475569;margin-bottom:20px;">Sur '+esc(ctx.email)+'</p>':'<div style="height:8px;"></div>')
+    +'<a href="index.html" style="display:block;padding:14px;background:rgba(255,255,255,.04);border:1px solid rgba(228,226,221,.2);color:#cbd6ee;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;">Retour à l\'accueil</a>'
     +'</div>';
   document.body.appendChild(ov);
 }
 
-/* ═══ Retour sur le site avec ?rvlt=… ═══════════════════════════════════════
-   ⚠️ CE PARAMÈTRE N'ACCORDE PLUS AUCUN ACCÈS.
-   Avant, arriver sur « …?rvlt=success » suffisait à marquer la fiche payée :
-   n'importe qui pouvant taper cette URL obtenait l'accès sans payer.
-   Désormais on ne fait que DEMANDER l'état réel au serveur. Une fiche n'est
-   à « payé » que si Yanis l'a marquée ainsi dans l'admin, après avoir vu
-   l'encaissement. Si c'est le cas et que le client revient sur le site, il
-   voit son écran d'accès ; sinon il ne se passe rien.
-   ═══════════════════════════════════════════════════════════════════════ */
 async function handleReturn(){
   var p=new URLSearchParams(location.search);
   var st=p.get(PARAM);
-  if(!st) return;
-  try{ history.replaceState({}, '', location.pathname); }catch(e){}
+  if(st){ try{ history.replaceState({}, '', location.pathname); }catch(e){} }
 
-  var ctx={}; try{ ctx=JSON.parse(localStorage.getItem('rn_pay_ctx')||'{}'); }catch(e){}
   var token=null; try{ token=localStorage.getItem('rn_access_token'); }catch(e){}
   if(!token || typeof sbRpc!=='function') return;
 
-  // Seule source de vérité : l'état en base. Aucune écriture depuis la page.
+  // Confirmation montrée UNE seule fois : sans ce repère, un client validé
+  // reverrait l'écran « Paiement validé » à chaque visite du site.
+  var dejaVu=false; try{ dejaVu = localStorage.getItem('rn_paid_vu')==='1'; }catch(e){}
+  if(dejaVu && !st) return;
+
+  var ctx={}; try{ ctx=JSON.parse(localStorage.getItem('rn_pay_ctx')||'{}'); }catch(e){}
+  try{ if(!ctx.email) ctx.email=localStorage.getItem('rn_last_email')||''; }catch(e){}
+
+  /* Seule source de vérité : l'état en base. La page n'écrit rien et ne
+     décide de rien — une fiche n'est « payée » que si Yanis l'a marquée
+     ainsi dans l'admin, après avoir constaté l'encaissement. */
   try{
     var rows=await sbRpc('rn_check_paid', { p_token: token });
     var r=Array.isArray(rows)?rows[0]:rows;
     if(r && r.paid===true){
-      try{ localStorage.removeItem('rn_pay_ctx'); }catch(e){}
+      try{ localStorage.setItem('rn_paid_vu','1'); localStorage.removeItem('rn_pay_ctx'); }catch(e){}
       showPaidScreen(ctx);
     }
   }catch(e){ console.warn('[PAY] vérification KO', e.message); }
