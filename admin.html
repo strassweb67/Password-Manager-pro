@@ -334,7 +334,14 @@ html[data-theme="nuit"] .btn--primary{background:var(--blue);border-color:var(--
 <header class="l-header">
   <div class="h-btn" id="burger" title="Ouvrir / fermer le menu"></div>
   <div class="h-title" id="titre">Tableau de bord</div>
-  <div class="h-search"><input id="q" type="text" placeholder="Rechercher un e-mail, une note…"></div>
+  <!-- Le mot « e-mail » a été retiré de l'invite : Chrome classe un champ
+       d'après son intitulé, y voyait un champ d'adresse et y déposait celle
+       de Yanis à l'ouverture — la liste s'affichait donc filtrée sur une
+       recherche qu'il n'avait pas faite. type=search, nom neutre et
+       autocomplete=off complètent la parade. -->
+  <div class="h-search"><input id="q" type="search" name="rn-filtre" autocomplete="off"
+    autocorrect="off" autocapitalize="off" spellcheck="false"
+    placeholder="Rechercher une fiche, une note…"></div>
   <div class="h-right">
     <div class="h-btn" id="theme" title="Mode jour / nuit"></div>
     <div class="h-btn" id="refresh" title="Actualiser"></div>
@@ -976,6 +983,19 @@ $('#refresh').onclick=charger;
 $('#theme').onclick=bascThème;
 $('#site').onclick=()=>location.href='index.html';
 $('#q').oninput=e=>{ recherche=e.target.value; rendre(); };
+
+/* Ceinture et bretelles : un navigateur peut encore remplir le champ après
+   le chargement, ou le restaurer en revenant par le bouton Retour. Tant que
+   Yanis n'a rien tapé lui-même, la recherche repart vide. */
+(function(){
+  var q=$('#q');
+  var vider=function(){
+    if(q.value && !recherche){ q.value=''; }
+  };
+  vider();
+  setTimeout(vider,120); setTimeout(vider,600);
+  addEventListener('pageshow',vider);
+})();
 
 $('#gripIco').innerHTML=ic('menu');
 $('#burger').innerHTML=ic('menu');
