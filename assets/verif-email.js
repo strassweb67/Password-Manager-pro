@@ -25,13 +25,12 @@
 
   var FORME = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-  /* Fournisseurs connus : inutile d'interroger le DNS, on sait qu'ils
-     reçoivent. Réponse immédiate, et un souci réseau ne peut pas les gêner. */
-  var SURS = ('gmail.com googlemail.com outlook.com outlook.fr hotmail.com hotmail.fr '
-    + 'live.com live.fr msn.com yahoo.com yahoo.fr ymail.com icloud.com me.com mac.com '
-    + 'orange.fr wanadoo.fr free.fr sfr.fr neuf.fr laposte.net bbox.fr numericable.fr '
-    + 'protonmail.com proton.me pm.me gmx.fr gmx.com aol.com yandex.com zoho.com '
-    + 'hotmail.be outlook.be skynet.be telenet.be bluewin.ch').split(' ');
+  /* Il n'y a volontairement aucune liste de fournisseurs de confiance.
+     Une première version évitait la requête DNS pour gmail.com, orange.fr et
+     consorts — c'était plus rapide, mais ça créait deux chemins de code et
+     rendait les essais impossibles à interpréter : une adresse Gmail n'était
+     pas vérifiée comme les autres. Toute adresse suit désormais le même
+     contrôle, sans exception. */
 
   /* Adresses jetables : le domaine reçoit vraiment, le MX ne les écarte donc
      pas — mais la boîte s'autodétruit et le client est injoignable. */
@@ -100,8 +99,6 @@
 
     if (JETABLES.indexOf(dom) >= 0)
       return Promise.resolve({ ok: false, msg: 'Les adresses jetables ne sont pas acceptées — mets ton adresse habituelle.' });
-
-    if (SURS.indexOf(dom) >= 0) return Promise.resolve({ ok: true, msg: '' });
 
     if (memoire[dom]) return Promise.resolve(memoire[dom]);
 

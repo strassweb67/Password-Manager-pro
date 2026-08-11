@@ -40,6 +40,8 @@
   --green:#1f9d55;
   --gold:#a07f43;
   --red:#e0402f;
+  --site:#3a52d6;              /* le bleu du site public, à l'identique */
+  --site-2:#5a78ff;
 }
 /* ── Thème jour ─────────────────────────────────────────────────────────── */
 html[data-theme="jour"]{
@@ -134,6 +136,43 @@ body.is-open .l-main{left:var(--open);}
 .anim{animation:monte .42s cubic-bezier(.16,1,.3,1) both;}
 #vue.swap{animation:fondu .3s ease both;}
 @media (prefers-reduced-motion:reduce){.anim,#vue.swap{animation:none;}}
+
+/* ── Accueil du tableau de bord ─────────────────────────────────────────── */
+.hello{margin:0 0 16px;}
+.hello b{display:block;font-size:calc(var(--u)*1.1875);font-weight:800;letter-spacing:-.4px;}
+.hello span{display:block;margin-top:3px;font-size:calc(var(--u)*0.8125);color:var(--ink2);}
+
+/* Les compteurs tiennent sur UNE seule ligne à toutes les résolutions : sur
+   écran étroit la rangée défile latéralement au lieu de se replier, ce qui
+   garde la même lecture d'un téléphone à un écran d'ordinateur. */
+.rings{display:flex;flex-wrap:nowrap;gap:12px;overflow-x:auto;overscroll-behavior-x:contain;
+  padding:2px 2px 12px;margin-bottom:18px;scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.rings::-webkit-scrollbar{height:0;width:0;}
+/* Colonne explicite : sans elle, un bouton centre son contenu verticalement
+   et le cercle d'« À recontacter », dont l'intitulé tient sur deux lignes,
+   remontait au-dessus des autres. */
+.ring{flex:0 0 auto;width:74px;background:none;border:0;padding:0;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  text-align:center;scroll-snap-align:start;font:inherit;color:inherit;}
+.ring__o{width:62px;height:62px;margin:0 auto 7px;border-radius:50%;
+  border:1mm solid var(--site);background:var(--surface);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s cubic-bezier(.16,1,.3,1),box-shadow .2s ease,border-color .2s ease;}
+.ring__n{font-weight:800;line-height:1;letter-spacing:-.5px;font-size:calc(var(--u)*0.9375);}
+.ring__n.lg{font-size:calc(var(--u)*0.7500);}    /* 4 chiffres et plus */
+.ring__l{font-size:calc(var(--u)*0.5000);letter-spacing:.5px;text-transform:uppercase;
+  font-weight:700;color:var(--ink3);line-height:1.3;min-height:2.6em;}
+.ring:hover .ring__o{transform:translateY(-2px);border-color:var(--site-2);
+  box-shadow:0 0 0 4px rgba(58,82,214,.16);}
+.ring:focus-visible .ring__o{outline:2px solid var(--site-2);outline-offset:3px;}
+/* Les blocs d'information du tableau de bord, resserrés. */
+.box--sm{padding:15px 16px;margin-bottom:14px;}
+.box--sm .box__t{font-size:calc(var(--u)*0.7500);margin-bottom:12px;padding-bottom:9px;}
+.box--sm .box__t svg{width:13px;height:13px;}
+.box--sm .box__t small{font-size:calc(var(--u)*0.6250);}
+.box--sm .qa__r{font-size:calc(var(--u)*0.7188);}
+.box--sm .qa__q{font-size:calc(var(--u)*0.6250);}
 
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:14px;margin-bottom:22px;}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
@@ -641,29 +680,35 @@ function pDash(L){
   const j=n=>{const x=new Date();x.setDate(x.getDate()-n);return x.toISOString().slice(0,10);};
   const pj=o=>{const r=V.find(x=>x.visit_date===o);return r?(r.count||0):0;};
   const fiches=(D.leads||[]).filter(l=>(l.source||'')!=='__site_config').length;
-  const c=(mod,i,n,l,go,d)=>'<div class="card '+mod+' anim" style="animation-delay:'+d+'ms" data-go="'+(go||'')+'">'
-    +'<div class="card__ico">'+ic(i)+'</div><div class="card__n">'+n+'</div><div class="card__l">'+l+'</div></div>';
+  /* Un compteur = un anneau. Le chiffre rétrécit au-delà de trois chiffres
+     pour rester dans le cercle plutôt que d'en déborder. */
+  const o=(n,l,go,d)=>'<button type="button" class="ring anim" style="animation-delay:'+d+'ms" '
+    +'data-go="'+(go||'')+'" title="'+esc(l)+'">'
+    +'<span class="ring__o"><span class="ring__n'+(String(n).length>3?' lg':'')+'">'+n+'</span></span>'
+    +'<span class="ring__l">'+l+'</span></button>';
   let k=0;
-  return '<div class="cards">'
-    +c('card--blue','line',tot,'Visites totales','visites',k+=0)
-    +c('','cal',pj(j(0)),"Aujourd'hui",'visites',k+=40)
-    +c('','cal',pj(j(1)),'Hier','visites',k+=40)
-    +c('card--gold','clip',fiches,'Fiches','diag',k+=40)
-    +c('card--blue','flask',L.diag.length,'Diagnostics','diag',k+=40)
-    +c('card--green','check',term,'Terminés','diag',k+=40)
-    +c('card--orange','pin',aF+eC,'À recontacter','diag',k+=40)
-    +c('card--green','euro',payes,'Payés','diag',k+=40)
-    +c('card--blue','rocket',L.zyra.length,'Inscrits Zyra','zyra',k+=40)
-    +c('card--gold','ticket',L.bgh.length,'BGH Party','bgh',k+=40)
-    +c('','eye',D.visiteurs.length,'Visiteurs','visites',k+=40)
+  return '<div class="hello anim"><b>Bienvenue Yanis</b>'
+    +'<span>Voici tes stats aujourd\'hui :</span></div>'
+    +'<div class="rings">'
+    +o(tot,'Visites totales','visites',k+=0)
+    +o(pj(j(0)),"Aujourd'hui",'visites',k+=35)
+    +o(pj(j(1)),'Hier','visites',k+=35)
+    +o(D.visiteurs.length,'Visiteurs','visites',k+=35)
+    +o(fiches,'Fiches','diag',k+=35)
+    +o(L.diag.length,'Diagnostics','diag',k+=35)
+    +o(term,'Terminés','diag',k+=35)
+    +o(aF+eC,'À recontacter','diag',k+=35)
+    +o(payes,'Payés','diag',k+=35)
+    +o(L.zyra.length,'Inscrits Zyra','zyra',k+=35)
+    +o(L.bgh.length,'BGH Party','bgh',k+=35)
     +'</div>'
-    +'<div class="box anim" style="animation-delay:200ms"><div class="box__t">'+ic('line')+' Courbe des visites <small>7 derniers jours</small></div>'+courbe(7)+'</div>'
-    +'<div class="box anim" style="animation-delay:260ms"><div class="box__t">'+ic('pin')+' File de travail <small>'+aF+' à faire · '+eC+' en cours</small></div>'
+    +'<div class="box box--sm anim" style="animation-delay:200ms"><div class="box__t">'+ic('line')+' Courbe des visites <small>7 derniers jours</small></div>'+courbe(7)+'</div>'
+    +'<div class="box box--sm anim" style="animation-delay:260ms"><div class="box__t">'+ic('pin')+' File de travail <small>'+aF+' à faire · '+eC+' en cours</small></div>'
     +((aF+eC)===0?'<div class="vide">Rien à recontacter. Tout est à jour.</div>'
       :L.diag.filter(l=>(l.suivi_statut||'a_faire')!=='fait').slice(0,3).map(l=>ligne(l)).join('')
        +'<div style="text-align:center;margin-top:12px;"><button class="btn btn--primary" data-go="diag">Voir tous les diagnostics</button></div>')
     +'</div>'
-    +'<div class="box anim" style="animation-delay:320ms"><div class="box__t">'+ic('clock')+' Dernière activité</div>'
+    +'<div class="box box--sm anim" style="animation-delay:320ms"><div class="box__t">'+ic('clock')+' Dernière activité</div>'
     +((D.histo||[]).slice(0,10).map(h=>'<div class="qa"><div class="qa__r">'+esc(EVT[h.event]||h.event)
       +(h.email?' · '+esc(h.email):'')+'</div><div class="qa__q">'+dt(h.at)+'</div></div>').join('')
       ||'<div class="vide">Le journal se remplira au fil des visites.</div>')+'</div>';
