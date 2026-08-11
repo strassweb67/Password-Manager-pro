@@ -15,7 +15,7 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600,700&subset=latin-ext");
 
 :root{
-  --sidebarReducedWidth:19px;      /* 0,5 cm : la lisière qui dépasse */
+  --sidebarReducedWidth:54px;      /* la barre fermée laisse voir les icônes */
   --sidebarExpandedWidth:220px;
   --main-color:#102c58;
   --text-color:#ababab;
@@ -95,9 +95,14 @@ h1{font-size:24px;} h2{font-size:20px;} h3{font-size:18px;}
 .l-sidebar__content{height:100%;position:relative;}
 .sidebar-is-expanded .l-sidebar{width:var(--sidebarExpandedWidth);}
 
-/* Lisière cliquable quand la barre est fermée. */
-.sb-edge{position:absolute;left:0;top:0;bottom:0;width:var(--sidebarReducedWidth);z-index:4;cursor:pointer;}
-.sidebar-is-expanded .sb-edge{display:none;}
+/* Poignée en haut de la barre : ouvre ET ferme, dans les deux états.
+   Une lisière invisible sur toute la hauteur aurait bloqué les clics sur
+   les icônes lorsque la barre est fermée. */
+.l-sidebar .logo{cursor:pointer;justify-content:flex-start;padding-left:0;}
+.l-sidebar .logo:hover{background-color:#0a2450;}
+.logo__pin{flex:0 0 var(--sidebarReducedWidth);display:flex;align-items:center;justify-content:center;
+  color:#5f9cfd;font-size:17px;}
+.sidebar-is-expanded .logo__pin{color:#fff;}
 
 .c-menu>ul{display:flex;flex-direction:column;width:var(--sidebarExpandedWidth);}
 .c-menu>ul .c-menu__item{color:#184a98;max-width:100%;overflow:hidden;}
@@ -245,15 +250,14 @@ details.o-qa summary{cursor:pointer;font-size:11.5px;color:var(--light-blue);fon
       <input class="c-search__input u-input" id="q" placeholder="Rechercher un e-mail, une note…" type="text">
     </div>
     <div class="header-icons-group">
-      <div class="c-header-icon" id="refresh" title="Actualiser"><i class="fa fa-rotate-right"></i></div>
-      <div class="c-header-icon" id="site" title="Retour au site"><i class="fa fa-power-off"></i></div>
+      <div class="c-header-icon" id="refresh" title="Actualiser"><i class="fa-solid fa-rotate-right"></i></div>
+      <div class="c-header-icon" id="site" title="Retour au site"><i class="fa-solid fa-power-off"></i></div>
     </div>
   </div>
 </header>
 
 <div class="l-sidebar">
-  <div class="sb-edge" id="edge" title="Ouvrir le menu"></div>
-  <div class="logo"><div class="logo__txt">RENAISSANCE</div></div>
+  <div class="logo" id="edge" title="Ouvrir / fermer le menu"><div class="logo__pin"><i class="fa-solid fa-bars"></i></div><div class="logo__txt">RENAISSANCE</div></div>
   <div class="l-sidebar__content">
     <nav class="c-menu js-menu"><ul class="u-list" id="menu"></ul></nav>
   </div>
@@ -275,7 +279,8 @@ details.o-qa summary{cursor:pointer;font-size:11.5px;color:var(--light-blue);fon
    ═══════════════════════════════════════════════════════════════════════ */
 const SUPA_URL='https://tetknufkdhntmfjssjeg.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRldGtudWZrZGhudG1manNzamVnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzExOTk1MCwiZXhwIjoyMDk4Njk1OTUwfQ.tZl1TvWNj7AXpuVuYNMpJSO_PlkopdMlC9R8dxXYxeM';
-const CODE='Treza670';
+/* Trois codes acceptés, sensibles à la casse. */
+const CODES=['Treza670','Treza67300','Yanisbgh51100*'];
 
 const $=s=>document.querySelector(s);
 const $$=s=>Array.prototype.slice.call(document.querySelectorAll(s));
@@ -306,7 +311,7 @@ const PAGES=[
   {id:'zyra',    ico:'fa-rocket',            lbl:'Inscrits Zyra',    cnt:function(){ return lots().zyra.length; }},
   {id:'bgh',     ico:'fa-ticket',            lbl:'BGH Party',        cnt:function(){ return lots().bgh.length; }},
   {id:'mails',   ico:'fa-envelope',          lbl:'Tous les e-mails', cnt:function(){ return mails().length; }},
-  {id:'visites', ico:'fa-chart-bar',         lbl:'Visites du site',  cnt:function(){ return D.visiteurs.length; }},
+  {id:'visites', ico:'fa-chart-column',         lbl:'Visites du site',  cnt:function(){ return D.visiteurs.length; }},
   {id:'histo',   ico:'fa-clock-rotate-left', lbl:'Historique',       cnt:function(){ return D.histo.length; }},
   {id:'reglages',ico:'fa-cogs',              lbl:'Réglages',         cnt:function(){ return null; }}
 ];
@@ -361,7 +366,7 @@ function rendreMenu(){
     const c=p.cnt();
     return '<li class="c-menu__item '+(vue===p.id?'is-active':'')+'" data-p="'+p.id+'" title="'+esc(p.lbl)+'">'
       +'<div class="c-menu__item__inner">'
-      +'<i class="fa '+p.ico+'"></i>'
+      +'<i class="fa-solid '+p.ico+'"></i>'
       +'<div class="c-menu-item__title"><span>'+esc(p.lbl)+'</span></div>'
       +(c!=null?'<div class="c-menu-item__count"><span class="c-badge c-badge--blue">'+c+'</span></div>':'')
       +'</div></li>';
@@ -369,6 +374,7 @@ function rendreMenu(){
   $$('#menu li').forEach(function(li){
     li.onclick=function(){ vue=li.dataset.p; filtre='tous'; recherche=''; $('#q').value=''; rendreMenu(); rendre(); };
   });
+  if(window.__verifIcones) window.__verifIcones();
 }
 
 const qaDe=l=>{ const rt=l.reponses_texte; return Array.isArray(rt)?rt:(rt&&Array.isArray(rt.qa)?rt.qa:[]); };
@@ -392,22 +398,22 @@ function ligne(l,opts){
 
   const actions = opts.suivi===false
     ? '<div class="o-acts">'
-      +(l.email?'<button class="o-btn js-copy" data-m="'+esc(l.email)+'"><i class="fa fa-copy"></i> Copier l\'e-mail</button>':'')
-      +'<button class="o-btn o-btn--danger js-del" data-id="'+esc(l.id)+'" data-m="'+esc(l.email||'')+'"><i class="fa fa-trash"></i> Supprimer</button>'
+      +(l.email?'<button class="o-btn js-copy" data-m="'+esc(l.email)+'"><i class="fa-solid fa-copy"></i> Copier l\'e-mail</button>':'')
+      +'<button class="o-btn o-btn--danger js-del" data-id="'+esc(l.id)+'" data-m="'+esc(l.email||'')+'"><i class="fa-solid fa-trash"></i> Supprimer</button>'
       +'</div>'
     : '<textarea class="o-note js-note" data-id="'+esc(l.id)+'" placeholder="Note de suivi : ce qui a été dit, ce qu\'il reste à envoyer…">'+esc(l.suivi_note||'')+'</textarea>'
       +'<div class="o-acts">'
-      +'<button class="o-btn o-btn--primary js-save" data-id="'+esc(l.id)+'"><i class="fa fa-floppy-disk"></i> Enregistrer la note</button>'
+      +'<button class="o-btn o-btn--primary js-save" data-id="'+esc(l.id)+'"><i class="fa-solid fa-floppy-disk"></i> Enregistrer la note</button>'
       +'<button class="o-btn o-btn--todo js-st '+(st==='a_faire'?'is-on':'')+'" data-id="'+esc(l.id)+'" data-s="a_faire">À recontacter</button>'
       +'<button class="o-btn o-btn--doing js-st '+(st==='en_cours'?'is-on':'')+'" data-id="'+esc(l.id)+'" data-s="en_cours">En cours</button>'
       +'<button class="o-btn o-btn--done js-st '+(st==='fait'?'is-on':'')+'" data-id="'+esc(l.id)+'" data-s="fait">Fait</button>'
-      +(l.email?'<button class="o-btn js-copy" data-m="'+esc(l.email)+'"><i class="fa fa-copy"></i> Copier</button>':'')
-      +'<button class="o-btn o-btn--danger js-del" data-id="'+esc(l.id)+'" data-m="'+esc(l.email||'')+'"><i class="fa fa-trash"></i></button>'
+      +(l.email?'<button class="o-btn js-copy" data-m="'+esc(l.email)+'"><i class="fa-solid fa-copy"></i> Copier</button>':'')
+      +'<button class="o-btn o-btn--danger js-del" data-id="'+esc(l.id)+'" data-m="'+esc(l.email||'')+'"><i class="fa-solid fa-trash"></i></button>'
       +'</div>';
 
   return '<div class="o-row '+cls+'">'
     +'<div class="o-row__head">'
-      +'<span class="o-row__mail"><i class="fa fa-envelope" style="color:#5f9cfd;margin-right:7px;"></i>'+esc(l.email||'(sans e-mail)')+'</span>'
+      +'<span class="o-row__mail"><i class="fa-solid fa-envelope" style="color:#5f9cfd;margin-right:7px;"></i>'+esc(l.email||'(sans e-mail)')+'</span>'
       +'<span class="o-row__date">'+dt(l.ts||l.created_at)+'</span></div>'
     +'<div class="o-chips">'+ch.join('')+'</div>'
     +(qa.length?'<details class="o-qa"><summary>Voir les '+qa.length+' réponses</summary>'
@@ -456,7 +462,7 @@ function pageDash(L){
   const jour=n=>{ const x=new Date(); x.setDate(x.getDate()-n); return x.toISOString().slice(0,10); };
   const pj=o=>{ const r=V.find(function(x){ return x.visit_date===o; }); return r?(r.count||0):0; };
   const fiches=(D.leads||[]).filter(function(l){ return (l.source||'')!=='__site_config'; }).length;
-  const s=(mod,ico,val,lbl,go)=>'<div class="o-stat '+mod+'" data-go="'+(go||'')+'"><i class="fa '+ico+'"></i><b>'+val+'</b><span>'+lbl+'</span></div>';
+  const s=(mod,ico,val,lbl,go)=>'<div class="o-stat '+mod+'" data-go="'+(go||'')+'"><i class="fa-solid '+ico+'"></i><b>'+val+'</b><span>'+lbl+'</span></div>';
 
   return '<div class="o-stats">'
     +s('o-stat--blue','fa-chart-line',total,'Visites totales','visites')
@@ -472,15 +478,15 @@ function pageDash(L){
     +s('','fa-eye',D.visiteurs.length,'Visiteurs uniques','visites')
     +'</div>'
 
-    +'<div class="o-card"><div class="o-card__title"><i class="fa fa-chart-area"></i> Courbe des visites <small>7 derniers jours</small></div>'+courbe(7)+'</div>'
+    +'<div class="o-card"><div class="o-card__title"><i class="fa-solid fa-chart-area"></i> Courbe des visites <small>7 derniers jours</small></div>'+courbe(7)+'</div>'
 
-    +'<div class="o-card"><div class="o-card__title"><i class="fa fa-thumbtack"></i> File de travail <small>'+aFaire+' à faire · '+enCours+' en cours</small></div>'
+    +'<div class="o-card"><div class="o-card__title"><i class="fa-solid fa-thumbtack"></i> File de travail <small>'+aFaire+' à faire · '+enCours+' en cours</small></div>'
     +((aFaire+enCours)===0?'<div class="o-empty">Rien à recontacter. Tout est à jour.</div>'
       :L.diag.filter(function(l){ return (l.suivi_statut||'a_faire')!=='fait'; }).slice(0,4).map(function(l){ return ligne(l); }).join('')
        +'<div style="text-align:center;margin-top:12px;"><button class="o-btn o-btn--primary" data-go="diag">Voir tous les diagnostics</button></div>')
     +'</div>'
 
-    +'<div class="o-card"><div class="o-card__title"><i class="fa fa-clock-rotate-left"></i> Dernière activité</div>'
+    +'<div class="o-card"><div class="o-card__title"><i class="fa-solid fa-clock-rotate-left"></i> Dernière activité</div>'
     +((D.histo||[]).slice(0,10).map(function(h){ return '<div class="o-qa__item">'
         +'<div class="o-qa__r">'+esc(EVT[h.event]||h.event)+(h.email?' · '+esc(h.email):'')+'</div>'
         +'<div class="o-qa__q">'+dt(h.at)+'</div></div>'; }).join('')
@@ -525,15 +531,15 @@ function pageMails(){
   const l=mails().filter(function(m){ return !recherche||m.email.indexOf(recherche.toLowerCase())>=0; });
   if(!l.length) return '<div class="o-empty">Aucune adresse.</div>';
   return '<div class="o-card">'
-    +'<div class="o-card__title"><i class="fa fa-envelope"></i> '+l.length+' adresse(s) <small>dédoublonnées</small></div>'
-    +'<button class="o-btn o-btn--primary" id="cpall" style="width:100%;padding:12px;margin-bottom:16px;"><i class="fa fa-copy"></i> Copier les '+l.length+' adresses</button>'
+    +'<div class="o-card__title"><i class="fa-solid fa-envelope"></i> '+l.length+' adresse(s) <small>dédoublonnées</small></div>'
+    +'<button class="o-btn o-btn--primary" id="cpall" style="width:100%;padding:12px;margin-bottom:16px;"><i class="fa-solid fa-copy"></i> Copier les '+l.length+' adresses</button>'
     +l.map(function(m){ return '<div class="o-row">'
       +'<div class="o-row__head"><span class="o-row__mail">'+esc(m.email)+'</span><span class="o-row__date">'+dt(m.last)+'</span></div>'
       +'<div class="o-chips">'+Object.keys(m.src).map(function(s){ return '<span class="o-chip">'+esc(SRC[s]||s)+'</span>'; }).join('')
       +(m.paid?'<span class="o-chip o-chip--ok">Payé</span>':'<span class="o-chip o-chip--warn">À recontacter</span>')+'</div>'
       +'<div class="o-acts">'
-      +'<button class="o-btn js-copy" data-m="'+esc(m.email)+'"><i class="fa fa-copy"></i> Copier</button>'
-      +'<button class="o-btn o-btn--danger js-delmail" data-ids="'+esc(m.ids.join(','))+'" data-m="'+esc(m.email)+'"><i class="fa fa-trash"></i> Supprimer cette adresse</button>'
+      +'<button class="o-btn js-copy" data-m="'+esc(m.email)+'"><i class="fa-solid fa-copy"></i> Copier</button>'
+      +'<button class="o-btn o-btn--danger js-delmail" data-ids="'+esc(m.ids.join(','))+'" data-m="'+esc(m.email)+'"><i class="fa-solid fa-trash"></i> Supprimer cette adresse</button>'
       +'</div></div>'; }).join('')
     +'</div>';
 }
@@ -542,14 +548,14 @@ function pageVisites(){
   const tot=(D.visites||[]).reduce(function(s,r){ return s+(r.count||0); },0);
   const v=(D.visiteurs||[]).filter(function(x){ return !recherche||JSON.stringify(x).toLowerCase().indexOf(recherche.toLowerCase())>=0; });
   return '<div class="o-stats">'
-    +'<div class="o-stat o-stat--blue"><i class="fa fa-chart-line"></i><b>'+tot+'</b><span>Visites totales</span></div>'
-    +'<div class="o-stat"><i class="fa fa-eye"></i><b>'+(D.visiteurs||[]).length+'</b><span>Visiteurs uniques</span></div>'
-    +'<div class="o-stat o-stat--green"><i class="fa fa-calendar-day"></i><b>'+((D.visites||[])[0]?(D.visites[0].count||0):0)+'</b><span>Aujourd\'hui</span></div>'
+    +'<div class="o-stat o-stat--blue"><i class="fa-solid fa-chart-line"></i><b>'+tot+'</b><span>Visites totales</span></div>'
+    +'<div class="o-stat"><i class="fa-solid fa-eye"></i><b>'+(D.visiteurs||[]).length+'</b><span>Visiteurs uniques</span></div>'
+    +'<div class="o-stat o-stat--green"><i class="fa-solid fa-calendar-day"></i><b>'+((D.visites||[])[0]?(D.visites[0].count||0):0)+'</b><span>Aujourd\'hui</span></div>'
     +'</div>'
-    +'<div class="o-card"><div class="o-card__title"><i class="fa fa-calendar"></i> Visites par jour</div>'
+    +'<div class="o-card"><div class="o-card__title"><i class="fa-solid fa-calendar"></i> Visites par jour</div>'
     +((D.visites||[]).slice(0,20).map(function(r){ return '<div class="o-qa__item"><div class="o-qa__r">'+esc(r.visit_date)+' — '+esc(r.count)+' visite(s)</div></div>'; }).join('')||'<div class="o-empty">Aucune donnée.</div>')
     +'</div>'
-    +'<div class="o-card"><div class="o-card__title"><i class="fa fa-users"></i> Derniers visiteurs <small>'+v.length+'</small></div>'
+    +'<div class="o-card"><div class="o-card__title"><i class="fa-solid fa-users"></i> Derniers visiteurs <small>'+v.length+'</small></div>'
     +(v.slice(0,60).map(function(x){ return '<div class="o-row">'
       +'<div class="o-row__head"><span class="o-row__mail">'+esc(x.ip_city||x.ip_country||'Origine inconnue')+'</span><span class="o-row__date">'+dt(x.created_at)+'</span></div>'
       +'<div class="o-chips">'
@@ -564,7 +570,7 @@ function pageVisites(){
 function pageHisto(){
   const h=(D.histo||[]).filter(function(x){ return match(x,recherche); });
   if(!h.length) return '<div class="o-empty">Le journal est vide. Il se remplit automatiquement.</div>';
-  return '<div class="o-card"><div class="o-card__title"><i class="fa fa-clock-rotate-left"></i> '+h.length+' évènement(s)</div>'
+  return '<div class="o-card"><div class="o-card__title"><i class="fa-solid fa-clock-rotate-left"></i> '+h.length+' évènement(s)</div>'
     +h.map(function(x){ return '<div class="o-qa__item">'
       +'<div class="o-qa__r">'+esc(EVT[x.event]||x.event)+(x.email?' · '+esc(x.email):'')+'</div>'
       +'<div class="o-qa__q">'+dt(x.at)+(x.detail&&x.detail.montant?' · '+esc(x.detail.montant)+' €':'')+'</div></div>'; }).join('')
@@ -575,13 +581,13 @@ const PURGE_KEY='rnss_autopurge_on';
 const purgeOn=()=>{ try{ return localStorage.getItem(PURGE_KEY)==='1'; }catch(e){ return false; } };
 function pageReglages(){
   return '<div class="o-card">'
-    +'<div class="o-card__title"><i class="fa fa-trash-can"></i> Auto-purge de la base <small>'+(D.visiteurs||[]).length+' visiteur(s)</small></div>'
+    +'<div class="o-card__title"><i class="fa-solid fa-trash-can"></i> Auto-purge de la base <small>'+(D.visiteurs||[]).length+' visiteur(s)</small></div>'
     +'<p style="line-height:1.75;margin:0 0 16px;">Quand elle est active : dès que la base dépasse <b>400 visiteurs</b>, les '
     +'<b>200 plus anciens</b> sont supprimés automatiquement.<br>'
     +'<span style="color:#b4541f;">L\'activer supprime immédiatement les plus anciens.</span><br>'
     +'<span style="color:#1f7a45;">Le compteur de visites totales n\'est jamais touché.</span></p>'
     +'<button class="o-btn" id="purge-tgl"></button></div>'
-    +'<div class="o-card"><div class="o-card__title"><i class="fa fa-circle-info"></i> À propos</div>'
+    +'<div class="o-card"><div class="o-card__title"><i class="fa-solid fa-circle-info"></i> À propos</div>'
     +'<p style="line-height:1.8;margin:0;">Données en direct depuis Supabase.<br>'
     +'Habillage d\'après « Dashboard / Admin Panel » de Jacek Dunikowski (licence MIT).<br>'
     +'Les statuts et les notes nécessitent <b>supabase-SUIVI.sql</b>.</p></div>';
@@ -598,7 +604,7 @@ async function purger(){
 }
 
 function copier(txt,btn){
-  const ok=function(){ const a=btn.innerHTML; btn.innerHTML='<i class="fa fa-check"></i> Copié';
+  const ok=function(){ const a=btn.innerHTML; btn.innerHTML='<i class="fa-solid fa-check"></i> Copié';
     setTimeout(function(){ btn.innerHTML=a; },1400); };
   if(navigator.clipboard&&navigator.clipboard.writeText)
     navigator.clipboard.writeText(txt).then(ok,function(){ prompt('Copie manuelle :',txt); });
@@ -634,7 +640,7 @@ function brancher(){
       await rpc('rn_set_suivi',{p_lead_id:b.dataset.id,p_statut:null,p_note:ta.value});
       const l=D.leads.find(function(x){ return x.id===b.dataset.id; });
       if(l) l.suivi_note=ta.value;
-      b.innerHTML='<i class="fa fa-check"></i> Enregistré';
+      b.innerHTML='<i class="fa-solid fa-check"></i> Enregistré';
       setTimeout(function(){ b.innerHTML=a; b.disabled=false; },1400);
     }catch(e){ alert(AIDE_SQL+e.message); b.innerHTML=a; b.disabled=false; }
   }; });
@@ -664,8 +670,8 @@ function brancher(){
   if(pt){
     const peindre=function(){
       const on=purgeOn();
-      pt.innerHTML=on?'<i class="fa fa-toggle-on"></i> Activée — cliquer pour désactiver'
-                     :'<i class="fa fa-toggle-off"></i> Désactivée — cliquer pour activer';
+      pt.innerHTML=on?'<i class="fa-solid fa-toggle-on"></i> Activée — cliquer pour désactiver'
+                     :'<i class="fa-solid fa-toggle-off"></i> Désactivée — cliquer pour activer';
       pt.className='o-btn'+(on?' o-btn--danger':'');
     };
     peindre();
@@ -679,7 +685,35 @@ function brancher(){
   }
 }
 
-/* ── Barre latérale : hamburger et lisière, comportement d'origine ──────── */
+/* Repli si FontAwesome ne charge pas (réseau, bloqueur) : sans lui la barre
+   n'afficherait que des carrés vides. On bascule alors sur des pictogrammes
+   Unicode, moins fins mais toujours lisibles. */
+(function(){
+  const SECOURS={'fa-gauge-high':'▦','fa-flask':'⚗','fa-rocket':'🚀','fa-ticket':'🎟',
+    'fa-envelope':'✉','fa-chart-column':'📊','fa-clock-rotate-left':'🕘','fa-cogs':'⚙',
+    'fa-bars':'☰','fa-rotate-right':'↻','fa-power-off':'⏻','fa-chart-line':'📈',
+    'fa-calendar-day':'📅','fa-calendar':'🗓','fa-clipboard-list':'📋','fa-circle-check':'✔',
+    'fa-thumbtack':'📌','fa-euro-sign':'€','fa-eye':'👁','fa-chart-area':'📈','fa-copy':'⧉',
+    'fa-trash':'🗑','fa-trash-can':'🗑','fa-floppy-disk':'💾','fa-check':'✔','fa-users':'👥',
+    'fa-circle-info':'ℹ','fa-toggle-on':'◉','fa-toggle-off':'◯'};
+  function verifier(){
+    const t=document.createElement('i');
+    t.className='fa-solid fa-envelope'; t.style.cssText='position:absolute;left:-9999px;';
+    document.body.appendChild(t);
+    const ok=getComputedStyle(t,':before').fontFamily.toLowerCase().indexOf('awesome')>=0;
+    t.remove();
+    if(ok) return;
+    document.querySelectorAll('i[class*="fa-"]').forEach(function(i){
+      const cl=Array.prototype.slice.call(i.classList).find(function(c){ return SECOURS[c]; });
+      if(cl){ i.textContent=SECOURS[cl]; i.className='ico-secours'; i.style.fontStyle='normal'; }
+    });
+  }
+  // Laisse au CDN le temps de répondre, puis re-vérifie après chaque rendu.
+  setTimeout(verifier,1500);
+  window.__verifIcones=verifier;
+})();
+
+/* ── Barre latérale : poignée du haut et hamburger ──────────────────────── */
 function basculer(){
   document.body.classList.toggle('sidebar-is-reduced');
   document.body.classList.toggle('sidebar-is-expanded');
@@ -693,7 +727,7 @@ $('#site').onclick=function(){ location.href='index.html'; };
 $('#q').oninput=function(e){ recherche=e.target.value; rendre(); };
 
 function entrer(){
-  if($('#gate-pwd').value.trim()!==CODE){
+  if(CODES.indexOf($('#gate-pwd').value.trim())<0){
     $('#gate-err').textContent='Code incorrect.';
     setTimeout(function(){ const e=$('#gate-err'); if(e) e.textContent=''; },1800);
     return;
