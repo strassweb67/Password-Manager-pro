@@ -5,6 +5,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { glSupported } from './gl-probe.js';
 
 (function(){
   const host = document.getElementById('heroGL');
@@ -22,11 +23,12 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
   function markLite(){ try{ localStorage.setItem('rn_gl_lite','1'); }catch(e){} }
   var LITE = IN_APP || LOWMEM || WEAKBROWSER || glLite();
   var LOW = IN_APP || MOBILE;
-  // Chaînes WebGL FORCÉES sur TOUS les navigateurs (demande). Seules les WebViews
-  // in-app gardent un fond simple (WebGL trop instable en webview → pas de gel du
-  // tunnel social). Si la création du contexte échoue, le try/catch plus bas
-  // (catch → return) laisse simplement le fond dégradé, sans casser la page.
-  if (IN_APP) return;
+  // Chaînes WebGL sur TOUS les navigateurs, WebViews Instagram et TikTok
+  // comprises : elles en sont capables, et les écarter sur leur nom laissait un
+  // simple dégradé au visiteur venu des réseaux. On interroge le navigateur au
+  // lieu de le deviner ; en in-app le rendu tourne en réglages allégés (LITE,
+  // ci-dessus). Contexte refusé ou perdu → le fond dégradé reprend seul.
+  if (!glSupported()) return;
   // Résolution interne abaissée sur mobile / appareils faibles (invisible,
   // soulage le GPU — cohérent avec l'intro).
   var DPR_CAP = LITE ? 1.0 : (LOWMEM ? 1.1 : (MOBILE ? 1.3 : 2));

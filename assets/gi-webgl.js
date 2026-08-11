@@ -7,6 +7,7 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+import { glSupported } from './gl-probe.js';
 
 const canvas  = document.getElementById('gi-gl');
 const overlay = document.getElementById('galaxy-intro');
@@ -41,12 +42,13 @@ if (canvas && overlay) {
   var LOW = IN_APP || MOBILE;
   var SPH = LOW ? 24 : 32, TUB_T = LOW ? 280 : 320, TUB_R = LOW ? 20 : 24, NPART = LITE ? 500 : (LOW ? 1700 : 2600);
 
-  // R 3D WebGL FORCÉ sur TOUS les navigateurs (Chrome, Firefox, Safari, Yandex,
-  // Edge, Samsung…) — demande explicite. Seules les WebViews in-app (Instagram/
-  // TikTok/Snapchat), au WebGL vraiment instable, gardent le R statique pour ne
-  // pas geler le tunnel social. Si un navigateur ne sait pas créer le contexte,
-  // le try/catch ci-dessous bascule automatiquement sur le R statique.
-  var NO_INTRO_GL = IN_APP;
+  // R 3D WebGL sur TOUS les navigateurs, y compris les WebViews d'Instagram et
+  // de TikTok : elles rendent le WebGL depuis des années, et les écarter sur
+  // leur seul nom privait de toute la 3D la moitié du trafic, qui arrive
+  // justement par les réseaux. On interroge le navigateur au lieu de le
+  // deviner — et le disjoncteur `rn_gl_lite` reste seul juge en cas de
+  // plantage réel. Un contexte refusé bascule sur le R statique, comme avant.
+  var NO_INTRO_GL = !glSupported();
 
   if (!NO_INTRO_GL) {
     try { renderer = new THREE.WebGLRenderer({ canvas, antialias:!LOW, alpha:true, powerPreference:'default', failIfMajorPerformanceCaveat:false }); }
