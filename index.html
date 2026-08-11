@@ -30,6 +30,36 @@ try{ console.log('%cRENAISSANCE — build '+window.__BUILD,'background:#0c1024;c
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
 <meta name="copyright" content="© Renaissance — Yanis BGH. Code signé @brice. Reproduction interdite.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>
+/* ── Échelle d'affichage identique sur tous les téléphones ────────────────
+   Les tailles du site sont écrites en pixels fixes (383 déclarations). Sur un
+   écran plus étroit que celui qui a servi à régler la maquette, un texte de
+   12 px occupe proportionnellement plus de place : tout paraît zoomé, les
+   titres débordent, les lignes se serrent.
+   On fige donc la largeur de mise en page sur cette référence et on laisse le
+   navigateur ramener l'ensemble à la taille de l'écran. Le rendu devient
+   proportionnellement identique partout, du 320 px au 430 px.
+   Inline et synchrone à dessein : après le premier calcul de mise en page,
+   changer le viewport provoquerait un saut visible.
+   Paysage, tablettes et ordinateurs gardent width=device-width. ───────── */
+(function(){
+  var REF = 412;                       // largeur de référence de la maquette
+  var m = document.querySelector('meta[name="viewport"]');
+  if (!m) return;
+  var natif = m.getAttribute('content');
+  function pose(){
+    var court = Math.min(screen.width || 0, screen.height || 0);
+    var portrait = innerHeight >= innerWidth;
+    var v = (court > 0 && court < 500 && portrait)
+          ? 'width=' + REF + ', viewport-fit=cover'
+          : natif;
+    if (m.getAttribute('content') !== v) m.setAttribute('content', v);
+  }
+  pose();
+  addEventListener('orientationchange', function(){ setTimeout(pose, 120); });
+  addEventListener('resize', pose);
+})();
+</script>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="format-detection" content="telephone=no">
 <meta name="mobile-web-app-capable" content="yes">
