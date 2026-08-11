@@ -339,6 +339,37 @@ async function api(path,opt){
 const rpc=(fn,p)=>api('rpc/'+fn,{method:'POST',body:JSON.stringify(p)});
 
 let D={leads:[],histo:[],visiteurs:[],visites:[]};
+let CFG={price:null,link:''};
+
+/* La configuration du site vit dans une ligne à part de la table des fiches :
+   `potentiel` porte le prix, `axe_prioritaire` le lien de paiement. C'est
+   elle que la page publique lit pour afficher le montant et rediriger. */
+async function lireConfig(){
+  try{
+    const r=await api('diag_leads?source=eq.__site_config&select=potentiel,axe_prioritaire&order=ts.desc&limit=1');
+    if(Array.isArray(r)&&r.length){
+      if(r[0].potentiel!=null) CFG.price=parseInt(r[0].potentiel,10);
+      if(r[0].axe_prioritaire) CFG.link=String(r[0].axe_prioritaire);
+    }
+  }catch(e){ console.warn('[config]',e.message); }
+  return CFG;
+}
+async function ecrireConfig(prix,lien){
+  const v=parseInt(prix,10);
+  if(!(v>0)) throw new Error('Le prix doit être un nombre supérieur à zéro.');
+  const body={potentiel:v};
+  if(lien&&String(lien).trim()) body.axe_prioritaire=String(lien).trim();
+  const ex=await api('diag_leads?source=eq.__site_config&select=id&limit=1');
+  if(Array.isArray(ex)&&ex.length){
+    await api('diag_leads?source=eq.__site_config',{method:'PATCH',body:JSON.stringify(body)});
+  } else {
+    body.source='__site_config'; body.profil='__price'; body.email=''; body.tel='';
+    body.code_postal=''; body.paid=false; body.exploite=0; body.scores={};
+    body.ts=new Date().toISOString();
+    await api('diag_leads',{method:'POST',body:JSON.stringify(body)});
+  }
+  CFG.price=v; if(body.axe_prioritaire) CFG.link=body.axe_prioritaire;
+}
 let vue='dash', filtre='tous', recherche='';
 
 const PAGES=[
@@ -386,6 +417,7 @@ async function charger(){
   try{ D.histo=await api('rn_history?order=at.desc&limit=400')||[]; }catch(e){ D.histo=[]; }
   try{ D.visiteurs=await api('visitors?order=created_at.desc&limit=400')||[]; }catch(e){ D.visiteurs=[]; }
   try{ D.visites=await api('page_visits?order=visit_date.desc&limit=60')||[]; }catch(e){ D.visites=[]; }
+  await lireConfig();
   menu(); rendre();
 }
 
@@ -692,7 +724,22 @@ function pHisto(){
 const PURGE='rnss_autopurge_on';
 const purgeOn=()=>{ try{ return localStorage.getItem(PURGE)==='1'; }catch(e){ return false; } };
 function pReglages(){
-  return '<div class="box anim"><div class="box__t">'+ic('trash')+' Auto-purge de la base <small>'+(D.visiteurs||[]).length+' visiteur(s)</small></div>'
+  return '<div class="box anim"><div class="box__t">'+ic('euro')+' Paiement <small>ce que voit le client</small></div>'
+    +'<p style="line-height:1.75;margin:0 0 16px;color:var(--ink2);">Le montant et le lien ci-dessous pilotent '
+    +'<b>tout le site</b> : le prix affiché sur la page publique, celui de l\'écran de fin de diagnostic, '
+    +'et la page vers laquelle le client est redirigé pour payer.<br>'
+    +'<span style="color:var(--orange);">Le montant doit correspondre exactement à celui du lien de paiement</span>, '
+    +'sinon le client voit un prix et en paie un autre.</p>'
+    +'<label style="display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;">Prix en euros</label>'
+    +'<input id="cfg-p" type="number" min="1" step="1" value="'+(CFG.price!=null?CFG.price:'')+'" '
+    +'style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font-size:15px;font-weight:700;outline:0;margin-bottom:16px;">'
+    +'<label style="display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;">Lien de paiement</label>'
+    +'<input id="cfg-l" type="url" placeholder="https://…" value="'+esc(CFG.link||'')+'" '
+    +'style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font-size:12.5px;outline:0;margin-bottom:14px;">'
+    +'<div class="acts"><button class="btn btn--primary" id="cfg-s">'+ic('save')+' Enregistrer</button>'
+    +(CFG.link?'<a class="btn" href="'+esc(CFG.link)+'" target="_blank" rel="noopener">'+ic('eye')+' Tester le lien</a>':'')
+    +'</div><p id="cfg-r" style="margin:12px 0 0;font-size:12px;"></p></div>'
+    +'<div class="box anim" style="animation-delay:60ms"><div class="box__t">'+ic('trash')+' Auto-purge de la base <small>'+(D.visiteurs||[]).length+' visiteur(s)</small></div>'
     +'<p style="line-height:1.75;margin:0 0 16px;color:var(--ink2);">Quand elle est active : dès que la base dépasse <b>400 visiteurs</b>, '
     +'les <b>200 plus anciens</b> sont supprimés automatiquement.<br>'
     +'<span style="color:var(--orange);">L\'activer supprime immédiatement les plus anciens.</span><br>'
@@ -791,6 +838,22 @@ function lier(){
       peindre();
     };
   }
+  const cs=v.querySelector('#cfg-s');
+  if(cs) cs.onclick=async function(){
+    const r=v.querySelector('#cfg-r'), a=cs.innerHTML;
+    cs.innerHTML='…'; cs.disabled=true; r.textContent='';
+    try{
+      await ecrireConfig(v.querySelector('#cfg-p').value, v.querySelector('#cfg-l').value);
+      r.style.color='var(--green)';
+      r.textContent='Enregistré. Le site affiche et facture désormais '+CFG.price+' € — rechargez la page publique pour le constater.';
+      cs.innerHTML=ic('check')+' Enregistré';
+      setTimeout(function(){ cs.innerHTML=a; cs.disabled=false; },1600);
+    }catch(e){
+      r.style.color='var(--red)'; r.textContent='Échec : '+e.message;
+      cs.innerHTML=a; cs.disabled=false;
+    }
+  };
+
   const tb=v.querySelector('#thb');
   if(tb){ tb.innerHTML=(theme()==='nuit'?ic('soleil')+' Passer en mode jour':ic('lune')+' Passer en mode nuit');
     tb.onclick=()=>{ bascThème(); rendre(); }; }
