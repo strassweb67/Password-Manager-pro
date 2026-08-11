@@ -3,54 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>
-/* ── Échelle d'affichage identique sur tous les téléphones ────────────────
-   Les tailles du site sont écrites en pixels fixes (383 déclarations de
-   font-size, 20 seulement en clamp). Sur un écran plus étroit que celui qui a
-   servi à régler la maquette, un texte de 12 px occupe proportionnellement
-   plus de place : tout paraît zoomé et les titres débordent.
-   On fige donc la largeur de mise en page sur la référence, et on donne
-   explicitement l'échelle à appliquer. Cet « initial-scale » n'est pas
-   décoratif : les WebView d'Instagram et de TikTok adoptent volontiers la
-   largeur demandée mais ne se remettent pas d'elles-mêmes à l'échelle, et la
-   page se retrouve tronquée à droite.
-   Inline et synchrone à dessein : modifié après le premier calcul de mise en
-   page, le viewport provoquerait un saut visible.
-   Paysage, tablettes et ordinateurs gardent leur réglage d'origine. ────── */
-(function(){
-  var REF = 412;                       // largeur de référence de la maquette
-  var m = document.querySelector('meta[name="viewport"]');
-  if (!m) return;
-  var natif = m.getAttribute('content');
-  // Largeur réelle de l'appareil, relevée AVANT toute modification : après
-  // coup, innerWidth vaut REF et ne dit plus rien de l'écran.
-  var court = Math.min(screen.width || 0, screen.height || 0);
-  var DEP = (innerHeight >= innerWidth && innerWidth > 0) ? innerWidth : court;
-
-  function pose(){
-    var applicable = DEP > 0 && DEP < 500 && innerHeight >= innerWidth;
-    var v = applicable
-          ? 'width=' + REF + ', initial-scale=' + (DEP / REF).toFixed(4) + ', viewport-fit=cover'
-          : natif;
-    if (m.getAttribute('content') !== v) m.setAttribute('content', v);
-    return applicable;
-  }
-  if (!pose()) return;
-  addEventListener('orientationchange', function(){ setTimeout(pose, 120); });
-
-  // Filet de sécurité : si la zone réellement visible reste plus étroite que la
-  // mise en page, c'est que le navigateur a ignoré l'échelle et découpe la
-  // page. On rend la main au réglage d'origine — moins régulier, jamais coupé.
-  addEventListener('load', function(){
-    setTimeout(function(){
-      var vv = window.visualViewport;
-      if (!vv) return;
-      var large = document.documentElement.clientWidth;
-      if (large > 0 && vv.width < large * 0.97) m.setAttribute('content', natif);
-    }, 500);
-  });
-})();
-</script>
+<style>
+/* ── Échelle de texte : même rendu sur tous les téléphones ───────────────
+   Les tailles du site étaient écrites en pixels fixes. Sur un écran plus
+   étroit que celui qui a servi à régler la maquette (412 px), un texte de
+   12 px occupe proportionnellement plus de place : tout paraît zoomé et les
+   titres débordent.
+   --u est l'unité de base : elle vaut 16 px à partir de 412 px de large, et
+   rétrécit proportionnellement en dessous. Chaque taille du site s'exprime
+   en multiple de --u, donc tout suit la même règle.
+   Plafonnée à 16 px : au-delà de la référence — grands téléphones, tablettes,
+   ordinateurs — le rendu reste exactement celui d'avant.
+   Du CSS seul, aucune manipulation du viewport : les navigateurs intégrés
+   d'Instagram et de TikTok appliquent ceci comme les autres. ─────────── */
+:root{ --u: clamp(12px, 3.8835vw, 16px); }
+</style>
 <title>Renaissance — Intro (A · WebGL)</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -65,14 +32,14 @@
     gap:22px;padding:0 24px 12vh;pointer-events:none;text-align:center;}
   .brand{font-weight:800;letter-spacing:.42em;text-indent:.42em;font-size:clamp(20px,5.5vw,34px);
     background:linear-gradient(90deg,#fff,var(--cyan),#fff);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;}
-  .sub{font-size:12px;letter-spacing:.34em;color:#8a94c4;text-transform:uppercase;opacity:0;margin-top:-12px;}
+  .sub{font-size:calc(var(--u)*0.750000);letter-spacing:.34em;color:#8a94c4;text-transform:uppercase;opacity:0;margin-top:-12px;}
   .cta{pointer-events:auto;margin-top:6px;padding:16px 34px;border:none;border-radius:40px;cursor:pointer;
-    font-size:15px;font-weight:700;color:#03040c;background:linear-gradient(135deg,var(--cyan),var(--blue));
+    font-size:calc(var(--u)*0.937500);font-weight:700;color:#03040c;background:linear-gradient(135deg,var(--cyan),var(--blue));
     box-shadow:0 0 0 1px rgba(255,255,255,.2),0 14px 40px rgba(61,107,255,.55);opacity:0;transition:transform .25s,box-shadow .3s;}
   .cta:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(255,255,255,.3),0 18px 54px rgba(87,224,255,.7);}
   .warp{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0;
     background:radial-gradient(circle at 50% 46%,#fff 0%,var(--cyan) 12%,var(--blue) 34%,#03040c 72%);}
-  .hint{position:fixed;bottom:16px;left:0;right:0;text-align:center;z-index:3;font-size:11px;letter-spacing:2px;color:#4a5384;}
+  .hint{position:fixed;bottom:16px;left:0;right:0;text-align:center;z-index:3;font-size:calc(var(--u)*0.687500);letter-spacing:2px;color:#4a5384;}
   /* Fallback si WebGL indisponible */
   #fallback{position:fixed;inset:0;z-index:1;display:none;align-items:center;justify-content:center;
     background:radial-gradient(ellipse at 50% 40%,#0b1030,#03040c 70%);}

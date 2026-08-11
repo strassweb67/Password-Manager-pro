@@ -8,54 +8,21 @@
 <meta http-equiv="Expires" content="0">
 <meta name="author" content="@brice — Renaissance / Yanis BGH">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>
-/* ── Échelle d'affichage identique sur tous les téléphones ────────────────
-   Les tailles du site sont écrites en pixels fixes (383 déclarations de
-   font-size, 20 seulement en clamp). Sur un écran plus étroit que celui qui a
-   servi à régler la maquette, un texte de 12 px occupe proportionnellement
-   plus de place : tout paraît zoomé et les titres débordent.
-   On fige donc la largeur de mise en page sur la référence, et on donne
-   explicitement l'échelle à appliquer. Cet « initial-scale » n'est pas
-   décoratif : les WebView d'Instagram et de TikTok adoptent volontiers la
-   largeur demandée mais ne se remettent pas d'elles-mêmes à l'échelle, et la
-   page se retrouve tronquée à droite.
-   Inline et synchrone à dessein : modifié après le premier calcul de mise en
-   page, le viewport provoquerait un saut visible.
-   Paysage, tablettes et ordinateurs gardent leur réglage d'origine. ────── */
-(function(){
-  var REF = 412;                       // largeur de référence de la maquette
-  var m = document.querySelector('meta[name="viewport"]');
-  if (!m) return;
-  var natif = m.getAttribute('content');
-  // Largeur réelle de l'appareil, relevée AVANT toute modification : après
-  // coup, innerWidth vaut REF et ne dit plus rien de l'écran.
-  var court = Math.min(screen.width || 0, screen.height || 0);
-  var DEP = (innerHeight >= innerWidth && innerWidth > 0) ? innerWidth : court;
-
-  function pose(){
-    var applicable = DEP > 0 && DEP < 500 && innerHeight >= innerWidth;
-    var v = applicable
-          ? 'width=' + REF + ', initial-scale=' + (DEP / REF).toFixed(4) + ', viewport-fit=cover'
-          : natif;
-    if (m.getAttribute('content') !== v) m.setAttribute('content', v);
-    return applicable;
-  }
-  if (!pose()) return;
-  addEventListener('orientationchange', function(){ setTimeout(pose, 120); });
-
-  // Filet de sécurité : si la zone réellement visible reste plus étroite que la
-  // mise en page, c'est que le navigateur a ignoré l'échelle et découpe la
-  // page. On rend la main au réglage d'origine — moins régulier, jamais coupé.
-  addEventListener('load', function(){
-    setTimeout(function(){
-      var vv = window.visualViewport;
-      if (!vv) return;
-      var large = document.documentElement.clientWidth;
-      if (large > 0 && vv.width < large * 0.97) m.setAttribute('content', natif);
-    }, 500);
-  });
-})();
-</script>
+<style>
+/* ── Échelle de texte : même rendu sur tous les téléphones ───────────────
+   Les tailles du site étaient écrites en pixels fixes. Sur un écran plus
+   étroit que celui qui a servi à régler la maquette (412 px), un texte de
+   12 px occupe proportionnellement plus de place : tout paraît zoomé et les
+   titres débordent.
+   --u est l'unité de base : elle vaut 16 px à partir de 412 px de large, et
+   rétrécit proportionnellement en dessous. Chaque taille du site s'exprime
+   en multiple de --u, donc tout suit la même règle.
+   Plafonnée à 16 px : au-delà de la référence — grands téléphones, tablettes,
+   ordinateurs — le rendu reste exactement celui d'avant.
+   Du CSS seul, aucune manipulation du viewport : les navigateurs intégrés
+   d'Instagram et de TikTok appliquent ceci comme les autres. ─────────── */
+:root{ --u: clamp(12px, 3.8835vw, 16px); }
+</style>
 <meta name="theme-color" content="#03040c">
 <title>BGH Party — Le cercle privé</title>
 <meta name="description" content="Soirées privées, networking d'élite, lifestyle. Entrée sur invitation. Le prolongement réel de l'écosystème Renaissance — là où se croisent ceux qui avancent.">
