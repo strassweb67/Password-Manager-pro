@@ -6182,7 +6182,7 @@ function diagSessionCard(l){
   // Secours : le client a payé mais le mail Revolut n'est jamais arrivé.
   // Proposé uniquement s'il a réellement lancé un paiement resté sans suite.
   var unlockB = (!l.paid && (pay.clicked || l.pay_started_at))
-    ? '<button class="crm-unlock" data-l="'+esc(l.id)+'" style="margin-top:10px;width:100%;padding:10px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.45);color:#f59e0b;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;">✓ Marquer comme payé — accès envoyés</button>'
+    ? '<div style="margin-top:10px;width:100%;padding:10px;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);color:#f59e0b;border-radius:10px;font-size:12px;font-weight:800;text-align:center;">📌 Client à recontacter par Yanis BGH</div>'
     : '';
   var contact = (l.email||l.tel||l.code_postal) ?
       '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;">'
@@ -6429,7 +6429,8 @@ async function showCRM(startView){
         +'<div style="display:flex;align-items:center;gap:10px;">'
           +'<svg viewBox="0 0 100 100" fill="none" width="20" height="20"><path d="M16.5 90L16.5 10L58 10Q85 10 85 24Q85 35.5 58 35.5L38 35.5L63 81" stroke="#b9975b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
           +'<p style="font-family:Archivo,system-ui,sans-serif;font-size:15px;font-weight:700;letter-spacing:3px;color:#f1f5f9;">CRM · RENAISSANCE</p></div>'
-        +'<div><button id="crm-refresh" style="background:#0c0d18;border:1px solid rgba(228, 226, 221,.3);color:#e8e6e1;padding:9px 14px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;margin-right:8px;">↻ Actualiser</button>'
+        +'<div><a href="admin.html" style="display:inline-block;background:linear-gradient(135deg,#3b5bdb,#5f9cfd);border:none;color:#fff;padding:9px 14px;border-radius:9px;font-size:11px;font-weight:800;margin-right:8px;text-decoration:none;">▤ ESPACE DE TRAVAIL</a>'
+        +'<button id="crm-refresh" style="background:#0c0d18;border:1px solid rgba(228, 226, 221,.3);color:#e8e6e1;padding:9px 14px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;margin-right:8px;">↻ Actualiser</button>'
         +'<button id="crm-close" style="background:#0c0d18;border:1px solid rgba(239,68,68,.3);color:#ef4444;padding:9px 14px;border-radius:9px;font-size:14px;cursor:pointer;">✕</button></div>'
       +'</div><div id="crm-body"><p style="color:#94a3b8;text-align:center;padding:50px;font-size:13px;">Chargement…</p></div></div>';
     document.body.appendChild(ov);
