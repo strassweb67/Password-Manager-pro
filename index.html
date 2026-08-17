@@ -1537,6 +1537,17 @@ footer{background:rgba(0,0,0,.96);}
 .dg-price-note{font-size:calc(var(--u)*0.720000);color:var(--text-faint);margin-bottom:18px;}
 .dg-offer .btn-fp{width:100%;padding:1.05rem 1.5rem;font-size:calc(var(--u)*0.900000);}
 .dg-offer .fil{display:inline-block;margin-top:16px;}
+/* L'offre remonte en tête d'écran : elle a besoin d'air sous le nom du profil,
+   et l'analyse qui la suit ne doit pas lui coller. */
+.dg-offer{margin:6px 0 22px;}
+/* Rappel de fin, pour qui a lu toute l'analyse : le même bouton, sans
+   redérouler l'argumentaire déjà lu deux écrans plus haut. */
+.dg-recall{margin-top:24px;padding:20px 18px;text-align:center;
+  border:1px solid var(--border-h);border-radius:18px;
+  background:linear-gradient(180deg,rgba(228,226,221,.06),rgba(12,13,24,.85));}
+.dg-recall-t{font-size:calc(var(--u)*0.875000);color:var(--text-dim);margin-bottom:14px;line-height:1.5;}
+.dg-recall-t b{color:#fff;font-weight:700;}
+.dg-recall .btn-fp{width:100%;padding:1.05rem 1.5rem;font-size:calc(var(--u)*0.900000);}
 .dg-res-foot{margin-top:22px;text-align:center;}
 
 /* ── Divers ── */
@@ -5280,22 +5291,20 @@ function rRes(){
       +'<div class="dg-ax-bar"><div class="dg-ax-fill" data-w="'+a.score+'"></div></div>'
       +'<div class="dg-ax-txt">'+a.txt+'</div></div>';
   }).join("");
+  var carteP='<svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;vertical-align:-3px;margin-right:8px;"><path fill="currentColor" d="M4 4h6.5c3.9 0 6.5 2.2 6.5 5.7 0 3.6-2.7 5.8-6.8 5.8H8v4.5H4V4zm4 3v5.3h2.3c1.8 0 2.9-1 2.9-2.7C13.2 8 12.1 7 10.3 7H8z"/></svg>';
+
+  /* L'offre était placée tout en bas : il fallait traverser le radar, les six
+     axes et le verdict avant de voir le moindre bouton. Beaucoup n'y
+     arrivaient jamais. Elle remonte juste sous le profil — le nom du profil
+     reste au-dessus, c'est lui qui donne son sens à l'offre — et l'analyse
+     complète suit en dessous, avec un rappel du bouton à la fin pour ceux qui
+     lisent tout. */
   return '<div class="dg-screen">'
     +'<div class="dg-res-head">'
     +'<div class="dg-kick">Analyse terminée · Profil identifié</div>'
     +'<h2 class="dg-profile">Tu es <span class="y">'+r.profile.name+'</span></h2>'
     +'<p class="dg-tag">'+r.profile.tag+'</p>'
     +'</div>'
-    +'<div class="dg-scrollcue" id="dgScrollCue"><div class="dg-scrollcue-txt">Fais défiler pour voir toute ton analyse</div><div class="dg-scrollcue-arw" aria-hidden="true">↓</div></div>'
-    +'<div class="dg-gauges">'
-    +'<div class="dg-gauge hot"><div class="dg-gnum"><span class="dg-gn" data-t="'+r.potentiel+'">0</span>%</div><div class="dg-glab">Potentiel détecté</div></div>'
-    +'<div class="dg-gauge"><div class="dg-gnum"><span class="dg-gn" data-t="'+r.exploite+'">0</span>%</div><div class="dg-glab">Potentiel exploité</div></div>'
-    +'</div>'
-    +dgRadar(radar)
-    +DG_TG_BTN
-    +'<div class="dg-gap">Un écart de <b>'+(r.potentiel-r.exploite)+' points</b> sépare ce que tu pourrais être de ce que tu exploites aujourd’hui. Cet écart a un nom : <b>l’absence de système</b>. Et c’est précisément ce qui se corrige le plus vite.</div>'
-    +'<div class="dg-axes">'+axes+'</div>'
-    +'<div class="dg-verdict">'+r.verdict+'</div>'
     +'<div class="dg-offer">'
     +'<div class="dg-kick">Ta feuille de route t’attend</div>'
     +'<h3>Programme complet Renaissance</h3>'
@@ -5307,9 +5316,24 @@ function rRes(){
     +'</div>'
     +'<div class="dg-price-row"><span class="dg-price">'+priceStr+'</span></div>'
     +'<div class="dg-price-note">'+DG_OFFER.note+'</div>'
-    +'<a class="btn-fp primary dg-pay" id="dgBuy" href="#" role="button"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;vertical-align:-3px;margin-right:8px;"><path fill="currentColor" d="M4 4h6.5c3.9 0 6.5 2.2 6.5 5.7 0 3.6-2.7 5.8-6.8 5.8H8v4.5H4V4zm4 3v5.3h2.3c1.8 0 2.9-1 2.9-2.7C13.2 8 12.1 7 10.3 7H8z"/></svg>Souscrire — Payer '+priceStr+' avec Revolut →</a>'
+    +'<a class="btn-fp primary dg-pay js-buy" href="#" role="button">'+carteP+'Souscrire — Payer '+priceStr+' avec Revolut →</a>'
     +'<div class="dg-price-note" style="margin-top:8px;">🔒 Paiement sécurisé via Revolut · Sans engagement</div>'
     +'<button type="button" class="fil" id="dgSeeEco">Revoir l’écosystème d’abord</button>'
+    +'</div>'
+    +'<div class="dg-scrollcue" id="dgScrollCue"><div class="dg-scrollcue-txt">Fais défiler pour voir toute ton analyse</div><div class="dg-scrollcue-arw" aria-hidden="true">↓</div></div>'
+    +'<div class="dg-gauges">'
+    +'<div class="dg-gauge hot"><div class="dg-gnum"><span class="dg-gn" data-t="'+r.potentiel+'">0</span>%</div><div class="dg-glab">Potentiel détecté</div></div>'
+    +'<div class="dg-gauge"><div class="dg-gnum"><span class="dg-gn" data-t="'+r.exploite+'">0</span>%</div><div class="dg-glab">Potentiel exploité</div></div>'
+    +'</div>'
+    +dgRadar(radar)
+    +DG_TG_BTN
+    +'<div class="dg-gap">Un écart de <b>'+(r.potentiel-r.exploite)+' points</b> sépare ce que tu pourrais être de ce que tu exploites aujourd’hui. Cet écart a un nom : <b>l’absence de système</b>. Et c’est précisément ce qui se corrige le plus vite.</div>'
+    +'<div class="dg-axes">'+axes+'</div>'
+    +'<div class="dg-verdict">'+r.verdict+'</div>'
+    +'<div class="dg-recall">'
+    +'<div class="dg-recall-t">Ton chantier prioritaire : <b>'+r.prio.label+'</b></div>'
+    +'<a class="btn-fp primary dg-pay js-buy" href="#" role="button">'+carteP+'Souscrire — Payer '+priceStr+' avec Revolut →</a>'
+    +'<div class="dg-price-note" style="margin-top:8px;">🔒 Paiement sécurisé via Revolut · Sans engagement</div>'
     +'</div>'
     +DG_TG_BTN
     +'<div class="dg-res-foot dg-rgpd">Tes résultats sont enregistrés — ils serviront de base à ton appel de cadrage.</div>'
@@ -5359,10 +5383,14 @@ function bindScreen(){
       card.querySelectorAll(".dg-ax-fill").forEach(function(f){ f.style.width=f.getAttribute("data-w")+"%"; });
       card.querySelectorAll(".dg-gn,.dg-ax-n").forEach(function(n){ dgCount(n, parseInt(n.getAttribute("data-t"),10)); });
     }); });
-    el("dgBuy").addEventListener("click", function(ev){ ev.preventDefault();
-      window.__dgPay=window.__dgPay||{}; window.__dgPay.clicked=true; window.__dgPay.clicked_at=new Date().toISOString();
-      try{ dgSaveSession(); }catch(e){}       // « a cliqué sur payer »
-      track("💰 Diag → Paiement Revolut "+((window.__rnCfg&&window.__rnCfg.price)||DG_OFFER.price)); goToPayment(); });
+    /* Deux boutons mènent au paiement — celui du haut et le rappel de fin —
+       d'où une classe plutôt qu'un identifiant, qui doit rester unique. */
+    card.querySelectorAll(".js-buy").forEach(function(b){
+      b.addEventListener("click", function(ev){ ev.preventDefault();
+        window.__dgPay=window.__dgPay||{}; window.__dgPay.clicked=true; window.__dgPay.clicked_at=new Date().toISOString();
+        try{ dgSaveSession(); }catch(e){}       // « a cliqué sur payer »
+        track("💰 Diag → Paiement Revolut "+((window.__rnCfg&&window.__rnCfg.price)||DG_OFFER.price)); goToPayment(); });
+    });
     el("dgSeeEco").addEventListener("click", function(){
       dgAttemptClose();
       setTimeout(function(){
