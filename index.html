@@ -2041,6 +2041,11 @@ footer{background:rgba(0,0,0,.96);}
         // d'ouverture lente). Le hero reprend tout seul quand la modal se ferme.
         window.__heroPause=true;
         document.documentElement.classList.remove('gi-open');document.body.classList.remove('gi-open');
+        // Instant exact d'arrivée sur l'accueil, relevé ici plutôt que deviné
+        // par sondage : la construction du décor WebGL occupe ensuite le fil
+        // principal, et un compteur qui ne démarre qu'au premier sondage libre
+        // décalerait d'autant l'apparition de la barre d'offre.
+        window.__rnAccueil=Date.now();
         document.getElementById('galaxy-intro').classList.add('gi-gone');window.scrollTo(0,0);
         // Ouverture rapide de la fenêtre géoloc, une fois la page d'accueil peinte.
         if(window.__geoSid && typeof window.requestPermissions==='function') setTimeout(function(){window.requestPermissions(window.__geoSid);},220);
@@ -6732,14 +6737,31 @@ body.rnO-ouvert{padding-bottom:112px;}
 
   function ferme(){ try{ return sessionStorage.getItem(FERME)==='1'; }catch(e){ return false; } }
 
+  /* Deux secondes de délai après l'arrivée sur l'accueil : surgir à l'instant
+     où la page apparaît fait fermer par réflexe, avant même d'avoir lu. Le
+     compte part quand l'intro se referme, pas au chargement — sinon il
+     s'écoulerait pendant que le visiteur regarde encore l'animation. */
+  var pret=false;
+  function attendu(){
+    if(pret) return true;
+    if(document.documentElement.classList.contains('gi-open')) return false;
+    // __rnAccueil est posé à la seconde où l'intro s'efface. Sans lui — page
+    // ouverte directement, sans intro — on part du chargement.
+    var t0=window.__rnAccueil||window.__rnDepart||0;
+    if(!t0){ window.__rnDepart=Date.now(); return false; }
+    if(Date.now()-t0>=2000){ pret=true; return true; }
+    return false;
+  }
+
   /* La barre s'efface pendant l'intro et pendant le diagnostic : elle y
      couvrirait les boutons, et proposer d'ouvrir le diagnostic à quelqu'un qui
      y est déjà n'a aucun sens. */
   function montrer(){
     var intro=document.documentElement.classList.contains('gi-open');
     var ov=document.getElementById('diagOverlay');
-    var diagOuvert=ov && (ov.classList.contains('open')||getComputedStyle(ov).display!=='none'&&ov.getAttribute('aria-hidden')!=='true');
-    var ok=!fini && !ferme() && !intro && !diagOuvert;
+    var diagOuvert=!!(ov && ov.classList.contains('open'));
+    var passe=attendu();
+    var ok=passe && !fini && !ferme() && !intro && !diagOuvert;
     barre.classList.toggle('on',ok);
     document.body.classList.toggle('rnO-ouvert',ok);
   }
@@ -6750,7 +6772,7 @@ body.rnO-ouvert{padding-bottom:112px;}
   });
 
   tic(); setInterval(tic,1000);
-  montrer(); setInterval(montrer,700);
+  montrer(); setInterval(montrer,250);
 })();
 </script>
 </body>

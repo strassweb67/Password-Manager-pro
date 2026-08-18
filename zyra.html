@@ -35,7 +35,7 @@ body{background:radial-gradient(ellipse 90% 60% at 50% -12%,#1c1600 0%,#000 62%)
 .marq-i{color:#0a0900;text-shadow:none;} .marq-d{color:rgba(10,9,0,.5);}
 .nav .logo{color:#ffcc00;} .nav .soc a:hover{color:#ffd21e;}
 .pill{background:#ffcc00;color:#0a0900;border:1px solid rgba(255,235,150,.85);box-shadow:0 0 22px rgba(255,204,0,.7),0 0 46px rgba(255,180,0,.4);}
-h1.title{background:linear-gradient(105deg,#fff2b0 0%,#ffffff 42%,#ffffff 58%,#fff2b0 100%);text-shadow:0 0 26px rgba(255,204,0,.4);}
+h1.title{background-image:linear-gradient(105deg,#fff2b0 0%,#ffffff 42%,#ffffff 58%,#fff2b0 100%);text-shadow:0 0 26px rgba(255,204,0,.4);}
 .tagline b{color:#ffd21e;} .hero-sub strong{color:#ffe14d;}
 .price-tag{color:#ffd21e;text-shadow:0 0 22px rgba(255,204,0,.6);}
 .btn-primary{background:linear-gradient(135deg,#ffd21e,#ffcc00 60%,#ffe14d);color:#0a0900;
@@ -43,7 +43,13 @@ h1.title{background:linear-gradient(105deg,#fff2b0 0%,#ffffff 42%,#ffffff 58%,#f
 .btn-primary:hover{box-shadow:0 16px 46px rgba(255,214,30,.7),0 0 0 1.4px rgba(255,235,150,.8);}
 .kick{color:#ffd21e;} .sec-h .y{color:#ffd21e;}
 .value{border-color:var(--line-h);box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 50px rgba(255,204,0,.22);}
-.value-num{background:linear-gradient(105deg,#fff2b0,#fff 45%,#fff2b0);}
+.value-num{background-image:linear-gradient(105deg,#fff2b0,#fff 45%,#fff2b0);}
+/* Si le navigateur ne sait pas découper un fond sur du texte, le titre
+   resterait invisible : on lui rend une couleur pleine. */
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){
+  h1.title,.value-num{background-image:none;-webkit-text-fill-color:#ffd21e;color:#ffd21e;}
+}
+
 .guar span::before{background:linear-gradient(135deg,#ffe14d,#ffcc00);color:#0a0900;}
 .who-i .ck{background:linear-gradient(135deg,#ffe14d,#ffcc00);color:#0a0900;}
 .step-n{background:linear-gradient(135deg,#ffe14d,#ffcc00);color:#0a0900;box-shadow:0 0 16px rgba(255,204,0,.6);}
