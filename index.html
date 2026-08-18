@@ -43,7 +43,7 @@ try{ console.log('%cRENAISSANCE — build '+window.__BUILD,'background:#0c1024;c
    ordinateurs — le rendu reste exactement celui d'avant.
    Du CSS seul, aucune manipulation du viewport : les navigateurs intégrés
    d'Instagram et de TikTok appliquent ceci comme les autres. ─────────── */
-:root{ --u: clamp(12px, 4.0879vw, 16px); }
+:root{ --sai-b: env(safe-area-inset-bottom,0px); --u: clamp(12px, 4.0879vw, 16px); }
 </style>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="format-detection" content="telephone=no">
@@ -6594,5 +6594,164 @@ else handleReturn();
 <script type="module" src="assets/gi-webgl.js?v=26"></script>
 <script type="module" src="assets/hero-webgl.js?v=15"></script>
 <script type="module" src="assets/accent-webgl.js?v=13"></script>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     BARRE D'OFFRE — fixe en bas, refermable
+     Trois leviers, dans cet ordre de lecture : le temps qui court, la place
+     qui manque, le prix qui tombe. Puis une seule action possible.
+     Les valeurs se règlent en un endroit, RN_OFFRE ci-dessous.
+     ══════════════════════════════════════════════════════════════════════ -->
+<style>
+#rnOffre{
+  /* Carte flottante décollée des bords : posée par le haut quand la fenêtre
+     visible est connue, sinon calée en bas. Les deux ne sont jamais actifs
+     ensemble — sans quoi la barre s'étirerait entre les deux et son bouton se
+     retrouverait hors champ. */
+  position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));
+  border-radius:18px;z-index:99990;
+  transform:translateY(115%);transition:transform .55s cubic-bezier(.16,1,.3,1);
+  background:linear-gradient(180deg,rgba(10,12,26,.97),rgba(4,5,12,.99));
+  border:1px solid rgba(122,142,255,.34);
+  box-shadow:0 10px 40px rgba(0,0,0,.62),0 0 0 1px rgba(122,142,255,.1) inset;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  padding:16px 12px 12px;
+}
+#rnOffre.on{transform:translateY(0);}
+.rnO-wrap{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+.rnO-col{flex:1 1 auto;min-width:0;}
+.rnO-l1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;}
+.rnO-chrono{display:inline-flex;align-items:center;gap:5px;
+  background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.42);color:#ff9c9c;
+  padding:2px 8px;border-radius:999px;font-weight:800;letter-spacing:.4px;
+  font-size:calc(var(--u)*0.6250);white-space:nowrap;}
+.rnO-chrono b{color:#fff;font-variant-numeric:tabular-nums;}
+.rnO-places{font-size:calc(var(--u)*0.6250);color:#b3c0dc;font-weight:700;white-space:nowrap;}
+.rnO-places b{color:#fff;}
+.rnO-jauge{height:3px;border-radius:2px;background:rgba(148,163,184,.2);overflow:hidden;margin-bottom:6px;}
+.rnO-jauge i{display:block;height:100%;border-radius:2px;
+  background:linear-gradient(90deg,#ef4444,#f59e0b);transition:width .9s ease;}
+.rnO-prix{display:flex;align-items:baseline;gap:7px;}
+.rnO-old{font-size:calc(var(--u)*0.7500);color:#7d8aa8;text-decoration:line-through;}
+.rnO-new{font-family:var(--disp);font-size:calc(var(--u)*1.3750);line-height:1;color:#fff;}
+.rnO-eco{font-size:calc(var(--u)*0.5625);color:#4ade80;font-weight:800;letter-spacing:.4px;}
+.rnO-cta{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;
+  background:linear-gradient(135deg,#3a52d6,#5a78ff);color:#fff;text-decoration:none;
+  padding:12px 16px;border-radius:12px;font-weight:800;
+  font-size:calc(var(--u)*0.7500);white-space:nowrap;border:0;cursor:pointer;
+  box-shadow:0 6px 20px rgba(58,82,214,.45);
+  animation:rnOPulse 2.6s ease-in-out infinite;}
+.rnO-cta:active{transform:scale(.97);}
+@keyframes rnOPulse{0%,100%{box-shadow:0 6px 20px rgba(58,82,214,.45);}
+  50%{box-shadow:0 6px 26px rgba(90,120,255,.72);}}
+.rnO-x{position:absolute;top:6px;right:8px;width:26px;height:26px;border-radius:50%;
+  border:1px solid rgba(148,163,184,.28);background:rgba(255,255,255,.05);color:#b3c0dc;
+  font-size:calc(var(--u)*0.8125);line-height:1;cursor:pointer;padding:0;
+  display:flex;align-items:center;justify-content:center;}
+.rnO-x:hover{color:#fff;border-color:rgba(148,163,184,.6);}
+body.rnO-ouvert{padding-bottom:112px;}
+@media(max-width:430px){
+  .rnO-cta{padding:11px 13px;font-size:calc(var(--u)*0.6875);}
+  .rnO-new{font-size:calc(var(--u)*1.2500);}
+  body.rnO-ouvert{padding-bottom:120px;}
+}
+@media (prefers-reduced-motion:reduce){
+  #rnOffre{transition:none;} .rnO-cta{animation:none;}
+}
+</style>
+
+<div id="rnOffre" role="region" aria-label="Offre en cours">
+  <button type="button" class="rnO-x" id="rnOx" aria-label="Fermer">×</button>
+  <div class="rnO-wrap">
+    <div class="rnO-col">
+      <div class="rnO-l1">
+        <span class="rnO-chrono">🔥 Se termine dans <b id="rnOtime">--:--:--</b></span>
+        <span class="rnO-places">Plus que <b id="rnOdispo">8</b> places sur <span id="rnOtotal">20</span></span>
+      </div>
+      <div class="rnO-jauge"><i id="rnOjauge" style="width:0%"></i></div>
+      <div class="rnO-prix">
+        <span class="rnO-old" id="rnOold">4 982€</span>
+        <span class="rnO-new" id="rnOnew">29€</span>
+        <span class="rnO-eco" id="rnOeco"></span>
+      </div>
+    </div>
+    <a href="#" class="rnO-cta" data-diag data-log="Barre offre → Diagnostic">Faire le diagnostic →</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* Les seuls chiffres à changer. Ils décrivent une offre réelle : à Yanis de
+     les tenir à jour. Une rareté inventée qui ne bouge jamais finit par se
+     voir, et en Europe annoncer une durée limitée qui n'en est pas une est
+     une pratique commerciale trompeuse. */
+  var RN_OFFRE = { heures:3, places:20, restantes:8, prixBarre:4982 };
+  /* 4 982 € est la valeur que le site annonce déjà pour les six modules :
+     le prix barré doit être celui-là, pas un chiffre inventé pour la barre. */
+  var euros=function(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f')+'€'; };
+
+  var el=function(i){ return document.getElementById(i); };
+  var barre=el('rnOffre'); if(!barre) return;
+
+  /* L'échéance est fixée à la première visite et gardée : sans ça le compte à
+     rebours repartirait de trois heures à chaque rechargement, ce que le
+     visiteur repère en une seconde. */
+  var FIN='rn_offre_fin', FERME='rn_offre_ferme';
+  var fin;
+  try{ fin=parseInt(localStorage.getItem(FIN),10)||0; }catch(e){ fin=0; }
+  if(!fin || fin<Date.now()-86400000){
+    fin=Date.now()+RN_OFFRE.heures*3600000;
+    try{ localStorage.setItem(FIN,String(fin)); }catch(e){}
+  }
+
+  el('rnOdispo').textContent=RN_OFFRE.restantes;
+  el('rnOtotal').textContent=RN_OFFRE.places;
+  el('rnOold').textContent=euros(RN_OFFRE.prixBarre);
+  var prises=Math.max(0,RN_OFFRE.places-RN_OFFRE.restantes);
+  setTimeout(function(){ el('rnOjauge').style.width=Math.round(prises/RN_OFFRE.places*100)+'%'; },400);
+
+  /* Le prix affiché est celui que le site facture vraiment — il vient du
+     réglage de l'admin. Afficher autre chose ferait payer un montant que le
+     client n'a pas lu. */
+  function prix(){
+    var p=(window.__rnCfg && window.__rnCfg.price) || 29;
+    el('rnOnew').textContent=p+'€';
+    /* L'économie n'est annoncée que si elle vaut la peine d'être lue. */
+    var eco=RN_OFFRE.prixBarre-p;
+    el('rnOeco').textContent = eco>=5 ? '−'+euros(Math.round(eco)) : '';
+  }
+  prix(); setTimeout(prix,1500); setTimeout(prix,4000);
+
+  var fini=false;
+  function tic(){
+    var r=fin-Date.now();
+    if(r<=0){ fini=true; montrer(); return; }
+    var h=Math.floor(r/3600000), m=Math.floor(r%3600000/60000), s=Math.floor(r%60000/1000);
+    var d=function(n){ return n<10?'0'+n:''+n; };
+    el('rnOtime').textContent=d(h)+':'+d(m)+':'+d(s);
+  }
+
+  function ferme(){ try{ return sessionStorage.getItem(FERME)==='1'; }catch(e){ return false; } }
+
+  /* La barre s'efface pendant l'intro et pendant le diagnostic : elle y
+     couvrirait les boutons, et proposer d'ouvrir le diagnostic à quelqu'un qui
+     y est déjà n'a aucun sens. */
+  function montrer(){
+    var intro=document.documentElement.classList.contains('gi-open');
+    var ov=document.getElementById('diagOverlay');
+    var diagOuvert=ov && (ov.classList.contains('open')||getComputedStyle(ov).display!=='none'&&ov.getAttribute('aria-hidden')!=='true');
+    var ok=!fini && !ferme() && !intro && !diagOuvert;
+    barre.classList.toggle('on',ok);
+    document.body.classList.toggle('rnO-ouvert',ok);
+  }
+
+  el('rnOx').addEventListener('click',function(){
+    try{ sessionStorage.setItem(FERME,'1'); }catch(e){}
+    montrer();
+  });
+
+  tic(); setInterval(tic,1000);
+  montrer(); setInterval(montrer,700);
+})();
+</script>
 </body>
 </html>
