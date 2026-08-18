@@ -6726,10 +6726,24 @@ body.rnO-ouvert{padding-bottom:112px;}
   }
   prix(); setTimeout(prix,1500); setTimeout(prix,4000);
 
-  var fini=false;
+  /* Le compte à rebours terminé ne fait plus disparaître la barre : elle
+     restait muette pour tout visiteur revenu plus de trois heures après sa
+     première visite, et l'offre n'était donc plus proposée du tout. Le
+     chronomètre s'efface, le reste — places, prix, bouton — demeure. On ne
+     relance pas non plus une nouvelle fenêtre de trois heures à chaque
+     passage : ce serait annoncer une urgence qui n'en est pas une. */
+  var expire=false;
   function tic(){
     var r=fin-Date.now();
-    if(r<=0){ fini=true; montrer(); return; }
+    if(r<=0){
+      if(!expire){
+        expire=true;
+        var c=document.querySelector('.rnO-chrono');
+        if(c) c.style.display='none';
+        montrer();
+      }
+      return;
+    }
     var h=Math.floor(r/3600000), m=Math.floor(r%3600000/60000), s=Math.floor(r%60000/1000);
     var d=function(n){ return n<10?'0'+n:''+n; };
     el('rnOtime').textContent=d(h)+':'+d(m)+':'+d(s);
@@ -6761,7 +6775,7 @@ body.rnO-ouvert{padding-bottom:112px;}
     var ov=document.getElementById('diagOverlay');
     var diagOuvert=!!(ov && ov.classList.contains('open'));
     var passe=attendu();
-    var ok=passe && !fini && !ferme() && !intro && !diagOuvert;
+    var ok=passe && !ferme() && !intro && !diagOuvert;
     barre.classList.toggle('on',ok);
     document.body.classList.toggle('rnO-ouvert',ok);
   }
