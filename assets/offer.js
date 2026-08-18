@@ -109,35 +109,20 @@
     }
 
     document.querySelectorAll('.eform').forEach(function (form) {
-      var enCours = false;
-      form.addEventListener('submit', async function (e) {
+      form.addEventListener('submit', function (e) {
         e.preventDefault();
-        if (enCours) return;
         var input = form.querySelector('.einput');
         var telInput = form.querySelector('.einput-tel');
         var email = (input && input.value || '').trim();
         var tel = (telInput && telInput.value || '').trim();
+
+        /* Seule la forme est contrôlée. Une vérification du domaine par le DNS
+           a été essayée : elle écartait les domaines inventés, mais bloquait
+           aussi des adresses professionnelles valides. Toutes passent, le tri
+           se fait dans l'admin. */
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
           if (input) { input.style.borderColor = '#ff6b7d'; input.focus(); }
           dire(form, 'Entre un email valide.');
-          return;
-        }
-
-        /* Le domaine reçoit-il vraiment du courrier ? Une adresse bien formée
-           sur un domaine inventé remplissait la liste de fausses inscriptions.
-           En cas de doute réseau, la vérification laisse passer. */
-        var bouton = form.querySelector('button[type=submit]');
-        var libelle = bouton ? bouton.innerHTML : '';
-        enCours = true;
-        if (bouton) { bouton.disabled = true; bouton.innerHTML = 'Vérification…'; }
-        var verdict = { ok: true, msg: '' };
-        try { if (window.rnVerifEmail) verdict = await window.rnVerifEmail(email); } catch (_) {}
-        enCours = false;
-        if (bouton) { bouton.disabled = false; bouton.innerHTML = libelle; }
-
-        if (!verdict.ok) {
-          if (input) { input.style.borderColor = '#ff6b7d'; input.focus(); }
-          dire(form, verdict.msg);
           return;
         }
         if (input) input.style.borderColor = '';
